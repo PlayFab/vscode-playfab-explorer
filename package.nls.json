@@ -1,0 +1,7 @@
+{
+    "playfab-account.description": "A common PlayFab Sign-In extension for VS Code.",
+    "playfab-account.commands.playfab": "PlayFab Account",
+    "playfab-account.commands.login": "Sign In",
+    "playfab-account.commands.logout": "Sign Out",
+    "playfab-account.commands.createAccount": "Create an account"
+}

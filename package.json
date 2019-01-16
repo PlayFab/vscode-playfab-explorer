@@ -1,0 +1,63 @@
+{
+    "name": "playfab-account",
+    "displayName": "PlayFab Account",
+    "description": "%playfab-account.description%",
+    "license": "SEE LICENSE IN LICENSE.md",
+    "version": "0.0.1",
+    "publisher": "ms-playfab",
+    "icon": "resources/playfab.png",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/PlayFab/vscode-playfab-account"
+    },
+    "engines": {
+        "vscode": "^1.30.0"
+    },
+    "homepage": "https://github.com/Microsoft/vscode-playfab-account/blob/master/README.md",
+    "categories": [
+        "Other"
+    ],
+    "keywords": [
+        "PlayFab"
+    ],
+    "activationEvents": [
+        "onCommand:playfab-account.login",
+        "onCommand:playfab-account.logout",
+        "onCommand:playfab-account.createAccount"
+    ],
+    "main": "./out/extension",
+    "contributes": {
+        "commands": [
+            {
+                "command": "playfab-account.login",
+                "title": "%playfab-account.commands.login%",
+                "category": "%playfab-account.commands.playfab%"
+            },
+            {
+                "command": "playfab-account.logout",
+                "title": "%playfab-account.commands.logout%",
+                "category": "%playfab-account.commands.playfab%"
+            },
+            {
+                "command": "playfab-account.createAccount",
+                "title": "%playfab-account.commands.createAccount%",
+                "category": "%playfab-account.commands.playfab%"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "rimraf dist && webpack --mode production",
+        "webpack": "rimraf dist && webpack --mode development",
+        "webpack-dev": "rimraf dist && webpack --mode development --watch",
+        "compile": "tsc -p ./",
+        "which": "which tsc",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install"
+    },
+    "devDependencies": {
+        "@types/node": "^8.10.25",
+        "tslint": "^5.11.0",
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.26"
+    }
+}
