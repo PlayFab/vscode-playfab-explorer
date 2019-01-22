@@ -1,17 +1,37 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+//---------------------------------------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation. All rights reserved.
+//  Licensed under the MIT License. See License.md in the project root for license information.
+//---------------------------------------------------------------------------------------------
+
+import { commands, ExtensionContext, window, workspace } from 'vscode';
+import * as nls from 'vscode-nls';
+import { PlayFabLoginManager } from './playfab-account';
+import { PlayFabAccount } from './playfab-account.api';
+
+const localize = nls.loadMessageBundle();
+
+export class ExtensionInfo {
+    private static extensionName: string = "vscode-playfab-account";
+    private static extensionVersion: string = "0.0.1";
+
+    public static getExtensionInfo(): string { return ExtensionInfo.extensionName + '_' + ExtensionInfo.extensionVersion };
+    public static getExtensionName(): string { return ExtensionInfo.extensionName; }
+    public static getExtensionVersion(): string { return ExtensionInfo.extensionVersion; }
+}
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: ExtensionContext) {
+    const loginManager = new PlayFabLoginManager(context);
+
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
-    console.log('"vscode-playfab-account" is now active!');
+    console.log(`"${ExtensionInfo.getExtensionName()}" is now active!`);
 
-    context.subscriptions.push(vscode.commands.registerCommand('playfab-account.createAccount', () => createAccount()));
-    context.subscriptions.push(vscode.commands.registerCommand('playfab-account.login', () => login()));
-    context.subscriptions.push(vscode.commands.registerCommand('playfab-account.logout', () => logout()));
+    context.subscriptions.push(createStatusBarItem(context, loginManager.api));
+    context.subscriptions.push(commands.registerCommand('playfab-account.createAccount', async () => await createAccount(loginManager)));
+    context.subscriptions.push(commands.registerCommand('playfab-account.login', async () => await login(loginManager)));
+    context.subscriptions.push(commands.registerCommand('playfab-account.logout', async () => await logout(loginManager)));
 }
 
 // this method is called when your extension is deactivated
@@ -19,16 +39,46 @@ export function deactivate() {
     // NOOP
 }
 
-export function createAccount() {
-    // TODO: Implement
-    vscode.window.showInformationMessage('vscode-playfab-account create account');
+export async function createAccount(loginManager: PlayFabLoginManager) {
+    await loginManager.createAccount();
 }
 
-export function login() {
-    vscode.window.showInformationMessage('vscode-playfab-account login');
+export async function login(loginManager: PlayFabLoginManager) {
+    await loginManager.login();
 }
 
-export function logout() {
-    vscode.window.showInformationMessage('vscode-playfab-account logout');
+export async function logout(loginManager: PlayFabLoginManager) {
+    await loginManager.logout();
 }
 
+function createStatusBarItem(context: ExtensionContext, api: PlayFabAccount) {
+    const statusBarItem = window.createStatusBarItem();
+
+    function updateStatusBar() {
+        switch (api.status) {
+            case 'LoggingIn':
+                statusBarItem.text = localize('playfab-account.loggingIn', "PlayFab: Signing in...");
+                statusBarItem.show();
+                break;
+            case 'LoggedIn':
+                if (api.sessions.length) {
+                    const playfabConfig = workspace.getConfiguration('playfab');
+                    const showSignedInEmail = playfabConfig.get<boolean>('showSignedInEmail');
+                    statusBarItem.text = showSignedInEmail ? localize('playfab-account.loggedIn', "PlayFab: {0}", api.sessions[0].userId) : localize('playfab-account.loggedIn', "PlayFab: Signed In");
+                    statusBarItem.show();
+                }
+                break;
+            default:
+                statusBarItem.hide();
+                break;
+        }
+    }
+    context.subscriptions.push(
+        statusBarItem,
+        api.onStatusChanged(updateStatusBar),
+        api.onSessionsChanged(updateStatusBar),
+        workspace.onDidChangeConfiguration(updateStatusBar)
+    );
+    updateStatusBar();
+    return statusBarItem;
+}
