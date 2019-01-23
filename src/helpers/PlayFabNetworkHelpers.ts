@@ -14,7 +14,7 @@ import { resolve } from 'dns';
 import { promisify } from 'util';
 import { asyncOr, delay } from './PlayFabPromiseHelpers'
 
-export async function waitForOnline(cancelTitle: string, checkNetworkMessage: string, cancelCallback: () => void) {
+export async function waitForOnline(cancelTitle: string, checkNetworkMessage: string, cancelCallback: () => void): Promise<void> {
     const cancelSource = new CancellationTokenSource();
     const online = becomeOnline(2000, cancelSource.token);
     const timer = delay(2000, true);
@@ -34,7 +34,7 @@ export async function waitForOnline(cancelTitle: string, checkNetworkMessage: st
     }
 }
 
-async function becomeOnline(interval: number, token = new CancellationTokenSource().token) {
+async function becomeOnline(interval: number, token = new CancellationTokenSource().token): Promise<void> {
     let o = isOnline();
     let d = delay(interval, false);
     while (!token.isCancellationRequested && !await Promise.race([o, d])) {
@@ -44,7 +44,7 @@ async function becomeOnline(interval: number, token = new CancellationTokenSourc
     }
 }
 
-async function isOnline() {
+async function isOnline(): Promise<boolean> {
     let host = 'playfab.com'; // TODO: playfab.cn for China
     try {
         await promisify(resolve)(host);

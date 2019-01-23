@@ -23,11 +23,37 @@
     "activationEvents": [
         "onCommand:playfab-account.login",
         "onCommand:playfab-account.logout",
-        "onCommand:playfab-account.createAccount"
+        "onCommand:playfab-account.createAccount",
+        "onView:playfabExplorer"
     ],
     "main": "./out/extension",
     "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "playfab",
+                    "title": "PlayFab Explorer",
+                    "icon": "resources/playfab.svg"
+                }
+            ]
+        },
+        "views": {
+            "playfab": [
+                {
+                    "id": "playfabExplorer",
+                    "name": "Studios"
+                }
+            ]
+        },
         "commands": [
+            {
+                "command": "playfabExplorer.refresh",
+                "title": "Refresh",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
+            },
             {
                 "command": "playfab-account.login",
                 "title": "%playfab-account.commands.login%",
@@ -42,19 +68,35 @@
                 "command": "playfab-account.createAccount",
                 "title": "%playfab-account.commands.createAccount%",
                 "category": "%playfab-account.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.createTitle",
+                "title": "%playfab-explorer.commands.createTitle%",
+                "category": "%playfab-explorer.commands.playfab%"
             }
         ],
-        "configuration": {
-            "type": "object",
-            "title": "PlayFab configuration",
-            "properties": {
-                "playfab.showSignedInEmail": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "%playfab-account.configuration.showSignedInEmail.description%"
+        "menus": {
+            "view/title": [
+                {
+                    "command": "playfabExplorer.refresh",
+                    "when": "view == playfabExplorer",
+                    "group": "navigation"
+                }
+            ]
+        },
+        "configuration": [
+            {
+                "type": "object",
+                "title": "PlayFab configuration",
+                "properties": {
+                    "playfab.showSignedInEmail": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "%playfab-account.configuration.showSignedInEmail.description%"
+                    }
                 }
             }
-        }
+        ]
     },
     "scripts": {
         "vscode:prepublish": "rimraf dist && webpack --mode production",

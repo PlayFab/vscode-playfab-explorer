@@ -15,7 +15,12 @@ export class PlayFabHttpClient {
         this.account = account;
     }
 
-    async makeApiCall<TRequest, TResponse>(path: string, endpoint: string, request: TRequest, responseCallback: (response: TResponse) => void, errorCallback: (code: number, error: string) => void) {
+    async makeApiCall<TRequest, TResponse>(
+        path: string,
+        endpoint: string,
+        request: TRequest,
+        responseCallback: (response: TResponse) => void, 
+        errorCallback: (code: number, error: string) => void): Promise<void> {
         let url: string = endpoint + path;
         let requestBody: string = JSON.stringify(request);
 
