@@ -9,5 +9,8 @@
     "playfab-account.cancel": "Cancel",
     "playfab-account.checkNetwork": "You appear to be offline. Please check your network connection.",
     "playfab-account.offline": "Offline",
-    "playfab-account.configuration.showSignedInEmail.description": "Whether to show the email address (e.g., in the status bar) of the signed in account."
+    "playfab-account.configuration.showSignedInEmail.description": "Whether to show the email address (e.g., in the status bar) of the signed in account.",
+    "playfab-explorer.commands.playfab": "PlayFab Explorer",
+    "playfab-explorer.commands.createTitle": "Create a title"
+
 }

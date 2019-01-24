@@ -36,18 +36,18 @@ export class PlayFabLoginManager {
     constructor(private context: ExtensionContext) {
     }
 
-    async createAccount() {
+    async createAccount(): Promise<void> {
 
-        this.waitForOnline();
+        await this.waitForOnline();
 
         let request: CreateAccountRequest = await this.getUserInputForCreateAccount();
         let httpCli = new PlayFabHttpClient(this.api);
 
-        httpCli.makeApiCall(
+        await httpCli.makeApiCall(
             PlayFabLoginManager.createAccountPath,
             PlayFabLoginManager.baseUrl,
             request,
-            (response: CreateAccountResponse) => {
+            (response: CreateAccountResponse): void => {
                 this.api.sessions.splice(0, this.api.sessions.length, {
                     cloud: "global",
                     credentials: {
@@ -56,7 +56,7 @@ export class PlayFabLoginManager {
                     userId: request.Email
                 });
             },
-            (code: number, message: string) => {
+            (code: number, message: string): void => {
                 this.showLoginError(code, message);
                 this.clearSessions();
             });
@@ -64,18 +64,20 @@ export class PlayFabLoginManager {
         this.endLoggingInOrOut();
     }
 
-    async login() {
-        this.beginLoggingIn();
-        this.waitForOnline();
+    async login(): Promise<void> {
+
+        await this.waitForOnline();
+
+        this.beginLoggingIn();        
 
         let request = await this.getUserInputForLogin();
         let httpCli = new PlayFabHttpClient(this.api);
 
-        httpCli.makeApiCall(
+        await httpCli.makeApiCall(
             PlayFabLoginManager.loginPath,
             PlayFabLoginManager.baseUrl,
             request,
-            (response: LoginResponse) => {
+            (response: LoginResponse): void => {
                 this.api.sessions.splice(0, this.api.sessions.length, {
                     cloud: "global",
                     credentials: {
@@ -84,7 +86,7 @@ export class PlayFabLoginManager {
                     userId: request.Email
                 });
             },
-            (code: number, message: string) => {
+            (code: number, message: string): void => {
                 this.showLoginError(code, message);
                 this.clearSessions();
             });
@@ -92,7 +94,8 @@ export class PlayFabLoginManager {
         this.endLoggingInOrOut();
     }
 
-    async logout() {
+    async logout(): Promise<void> {
+
         await this.api.waitForLogin();
 
         let request: LogoutRequest = new LogoutRequest();
@@ -100,13 +103,13 @@ export class PlayFabLoginManager {
 
         let httpCli = new PlayFabHttpClient(this.api);
 
-        httpCli.makeApiCall(
+        await httpCli.makeApiCall(
             PlayFabLoginManager.logoutPath,
             PlayFabLoginManager.baseUrl,
             request,
-            (response: LogoutResponse) => {
+            (response: LogoutResponse): void => {
             },
-            (code: number, message: string) => {
+            (code: number, message: string): void => {
                 this.showLoginError(code, message);
             });
 
@@ -123,17 +126,17 @@ export class PlayFabLoginManager {
         getToken: () => this.getToken()
     }
 
-    private beginLoggingIn() {
+    private beginLoggingIn(): void {
         this.updateStatus("LoggingIn");
     }
 
-    private async clearSessions() {
+    private clearSessions(): void {
         const sessions = this.api.sessions;
         sessions.length = 0;
         this.onSessionsChanged.fire();
     }
 
-    private endLoggingInOrOut() {
+    private endLoggingInOrOut(): void {
         this.updateStatus(this.api.sessions.length ? "LoggedIn" : "LoggedOut");
     }
 
@@ -169,6 +172,7 @@ export class PlayFabLoginManager {
 
         if (password === secondpassword) {
             result = new CreateAccountRequest();
+
             result.Email = userName;
             result.Password = password;
             result.StudioName = studioName;
@@ -200,6 +204,7 @@ export class PlayFabLoginManager {
         });
 
         let request = new LoginRequest();
+
         request.Email = userName;
         request.Password = password;
         request.TwoFactorAuth = twofa;
@@ -209,18 +214,18 @@ export class PlayFabLoginManager {
         return request;
     }
 
-    private showLoginError(statusCode: number, message: string) {
+    private showLoginError(statusCode: number, message: string): void {
         window.showErrorMessage(`${statusCode} - ${message}`);
     }
 
-    private updateStatus(status: PlayFabLoginStatus) {
+    private updateStatus(status: PlayFabLoginStatus): void {
         if (this.api.status != status) {
             (<PlayFabAccountWritable>this.api).status = status;
             this.onStatusChanged.fire(this.api.status);
         }
     }
 
-    private async waitForLogin() {
+    private async waitForLogin(): Promise<boolean> {
         switch (this.api.status) {
             case 'LoggedIn':
                 return true;
@@ -240,11 +245,11 @@ export class PlayFabLoginManager {
         }
     }
 
-    private async waitForOnline() {
+    private async waitForOnline(): Promise<void> {
         let cancelTitle: string = localize('playfab-account.cancel', "Cancel")
         let checkNetworkMessage: string = localize('playfab-account.checkNetwork', "You appear to be offline. Please check your network connection.");
         let offlineMessage: string = localize('playfab-account.offline', "Offline");
-        waitForOnline(
+        await waitForOnline(
             cancelTitle,
             checkNetworkMessage,
             () => { throw new PlayFabLoginError(offlineMessage); }
