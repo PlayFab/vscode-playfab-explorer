@@ -27,7 +27,7 @@ export function activate(context: ExtensionContext): void {
 
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
-    console.log(`"${ExtensionInfo.getExtensionName()}" is now active!`);
+    console.log(`${ExtensionInfo.getExtensionName()} is now active!`);
 
     context.subscriptions.push(createStatusBarItem(context, loginManager.api));
     context.subscriptions.push(commands.registerCommand('playfab-account.createAccount', async () => await createAccount(loginManager)));

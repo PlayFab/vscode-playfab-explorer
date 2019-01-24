@@ -68,7 +68,7 @@ export class PlayFabLoginManager {
 
         await this.waitForOnline();
 
-        this.beginLoggingIn();        
+        this.beginLoggingIn();
 
         let request = await this.getUserInputForLogin();
         let httpCli = new PlayFabHttpClient(this.api);

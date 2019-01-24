@@ -3,9 +3,10 @@
 //  Licensed under the MIT License. See License.md in the project root for license information.
 //---------------------------------------------------------------------------------------------
 
-import { commands, Event, EventEmitter, ExtensionContext, TreeDataProvider, TreeItem, TreeItemCollapsibleState, TreeView, window, Uri } from 'vscode';
+import { commands, Event, EventEmitter, ExtensionContext, TextDocument, TreeDataProvider, TreeItem, TreeItemCollapsibleState, TreeView, window, Uri, workspace } from 'vscode';
 import { Studio, GetStudiosRequest, GetStudiosResponse } from './models/PlayFabStudioModels';
-import { Title } from './models/PlayFabTitleModels';
+import { Title, CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse, SetTitleDataRequest, SetTitleDataResponse } from './models/PlayFabTitleModels';
+import { CloudScriptFile, GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse, UpdateCloudScriptRequest, UpdateCloudScriptResponse } from './models/PlayFabLegacyCloudScriptModels';
 import { PlayFabHttpClient } from './helpers/PlayFabHttpHelper'
 import { PlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
 
@@ -24,6 +25,16 @@ class Entry implements IEntry {
 }
 
 export class PlayFabExplorer {
+    private static editorBaseUrl: string = "https://editor.playfabapi.com";
+    private static adminBaseUrl: string = "https://{titleId}.playfabapi.com"
+    private static createTitlePath = "/DeveloperTools/User/CreateTitle";
+    private static getTitleDataPath = "/Admin/GetTitleData";
+    private static setTitleDataPath = "/Admin/SetTitleData";
+    private static getTitleInternalDataPath = "/Admin/GetTitleInternalData";
+    private static setTitleInternalDataPath = "/Admin/SetTitleInternalData";
+    private static updateCloudScriptPath = "/Admin/UpdateCloudScript";
+    private static getCloudScriptRevisionPath = "/Admin/GetCloudScriptRevision";
+
     private _explorer: TreeView<Entry>;
     private _account: PlayFabAccount;
 
@@ -32,13 +43,196 @@ export class PlayFabExplorer {
         const treeDataProvider = new PlayFabStudioTreeProvider(account);
         this._explorer = window.createTreeView('playfabExplorer', { treeDataProvider });
         commands.registerCommand('playfabExplorer.refresh', () => treeDataProvider.refresh());
-        commands.registerCommand('playfabExplorer.createTitle', (studio) => this.createTitle(studio));
+        commands.registerCommand('playfabExplorer.createTitle', async (studio) => await this.createTitle(studio.data, account));
+        commands.registerCommand('playfabExplorer.getTitleData', async (title) => await this.getTitleData(title.data, account, PlayFabExplorer.getTitleDataPath));
+        commands.registerCommand('playfabExplorer.setTitleData', async (title) => await this.setTitleData(title.data, account, PlayFabExplorer.setTitleDataPath));
+        commands.registerCommand('playfabExplorer.getTitleInternalData', async (title) => await this.getTitleData(title.data, account, PlayFabExplorer.getTitleInternalDataPath));
+        commands.registerCommand('playfabExplorer.setTitleInternalData', async (title) => await this.setTitleData(title.data, account, PlayFabExplorer.setTitleInternalDataPath));
+        commands.registerCommand('playfabExplorer.getCloudScriptRevision', async (title) => await this.getCloudScriptRevision(title.data, account));
+        commands.registerCommand('playfabExplorer.updateCloudScript', async (title) => await this.updateCloudScript(title.data, account));
         commands.registerCommand('playfabExplorer.openGameManagerPageForTitle',
             (titleId: string) => commands.executeCommand('vscode.open', Uri.parse(`https://developer.playfab.com/en-US/${titleId}/dashboard`)));
     }
 
-    async createTitle(studio: Studio): Promise<void> {
+    async createTitle(studio: Studio, account: PlayFabAccount): Promise<void> {
         window.showInformationMessage("Create Title called");
+
+        let request = await this.getUserInputForCreateTitle();
+        request.StudioId = studio.Id;
+        request.DeveloperClientToken = account.getToken();
+
+        let httpcli = new PlayFabHttpClient(this._account);
+
+        await httpcli.makeApiCall(
+            PlayFabExplorer.createTitlePath,
+            PlayFabExplorer.editorBaseUrl,
+            request,
+            (response: CreateTitleResponse) => {
+                // NOOP
+            },
+            (code: number, error: string) => {
+                this.showError(code, error);
+            });
+    }
+
+    async getCloudScriptRevision(title: Title, account: PlayFabAccount): Promise<void> {
+        let request = await this.getUserInputForGetCloudScriptRevision();
+
+        let httpcli = new PlayFabHttpClient(this._account);
+        let baseUrl = PlayFabExplorer.adminBaseUrl;
+        baseUrl = baseUrl.replace("{titleId}", title.Id);
+
+        await httpcli.makeApiCallWithSecretKey(
+            PlayFabExplorer.getCloudScriptRevisionPath,
+            baseUrl,
+            request,
+            title.SecretKey,
+            (response: GetCloudScriptRevisionResponse) => {
+                if (response.Files.length > 0) {
+                    let file: CloudScriptFile = response.Files[0];
+                    workspace.openTextDocument({ language: "javascript", content: file.FileContents })
+                        .then((doc: TextDocument) => {
+                            window.showTextDocument(doc);
+                        });
+                }
+            },
+            (code: number, error: string) => {
+                this.showError(code, error);
+            });
+    }
+
+    async updateCloudScript(title: Title, account: PlayFabAccount): Promise<void> {
+
+        let request = new UpdateCloudScriptRequest();
+        request.Publish = true;
+        let file = new CloudScriptFile();
+        file.FileName = window.activeTextEditor.document.fileName;
+        file.FileContents = window.activeTextEditor.document.getText();
+        request.Files = [file];
+
+        let httpcli = new PlayFabHttpClient(this._account);
+        let baseUrl = PlayFabExplorer.adminBaseUrl;
+        baseUrl = baseUrl.replace("{titleId}", title.Id);
+
+        await httpcli.makeApiCallWithSecretKey(
+            PlayFabExplorer.updateCloudScriptPath,
+            baseUrl,
+            request,
+            title.SecretKey,
+            (response: UpdateCloudScriptResponse) => {
+                window.showInformationMessage(`CloudScript updated to revision ${response.Revision}`)
+            },
+            (code: number, error: string) => {
+                this.showError(code, error);
+            });
+    }
+
+    async getTitleData(title: Title, account: PlayFabAccount, path: string): Promise<void> {
+        let request = await this.getUserInputForGetTitleData();
+
+        let httpcli = new PlayFabHttpClient(this._account);
+        let baseUrl = PlayFabExplorer.adminBaseUrl;
+        baseUrl = baseUrl.replace("{titleId}", title.Id);
+
+        await httpcli.makeApiCallWithSecretKey(
+            path,
+            baseUrl,
+            request,
+            title.SecretKey,
+            (response: GetTitleDataResponse) => {
+                let map: Map<string, string> = new Map();
+                Object.keys(response.Data).forEach((key: string) => {
+                    map.set(key, response.Data[key]);
+                });
+                if (map.size > 0) {
+                    map.forEach((value: string, key: string) => {
+                        window.showInformationMessage(`${key} - ${value}`);
+                    });
+                }
+                else {
+                    window.showInformationMessage("No title data found with specified key(s)");
+                }
+            },
+            (code: number, error: string) => {
+                this.showError(code, error);
+            });
+    }
+
+    async setTitleData(title: Title, account: PlayFabAccount, path: string): Promise<void> {
+        let request = await this.getUserInputForSetTitleData();
+
+        let httpcli = new PlayFabHttpClient(this._account);
+        let baseUrl = PlayFabExplorer.adminBaseUrl;
+        baseUrl = baseUrl.replace("{titleId}", title.Id);
+
+        await httpcli.makeApiCallWithSecretKey(
+            path,
+            baseUrl,
+            request,
+            title.SecretKey,
+            (response: SetTitleDataResponse) => {
+                window.showInformationMessage("Title data set");
+            },
+            (code: number, error: string) => {
+                this.showError(code, error);
+            });
+    }
+
+    private async getUserInputForCreateTitle(): Promise<CreateTitleRequest> {
+        const titleName = await window.showInputBox({
+            value: '<FunGame>',
+            prompt: 'Please enter the name of your game'
+        });
+
+        let request = new CreateTitleRequest();
+        request.Name = titleName;
+        return request;
+    }
+
+    private async getUserInputForGetCloudScriptRevision(): Promise<GetCloudScriptRevisionRequest> {
+        const revisionStr = await window.showInputBox({
+            value: '<revision>',
+            prompt: 'Please enter the CloudScript revision'
+        });
+
+        let revision: number = parseInt(revisionStr);
+
+        let request = new GetCloudScriptRevisionRequest();
+        request.Version = 1;
+        request.Revision = revision;
+        return request;
+    }
+
+    private async getUserInputForGetTitleData(): Promise<GetTitleDataRequest> {
+        const keys = await window.showInputBox({
+            value: '<keyname>',
+            prompt: 'Please enter the key name(s)'
+        });
+
+        let request = new GetTitleDataRequest();
+        request.Keys = keys.split(' ');
+        return request;
+    }
+
+    private async getUserInputForSetTitleData(): Promise<SetTitleDataRequest> {
+        const key = await window.showInputBox({
+            value: '<keyname>',
+            prompt: 'Please enter the key name'
+        });
+
+        const value = await window.showInputBox({
+            value: '<value>',
+            prompt: 'Please enter the value'
+        });
+
+        let request = new SetTitleDataRequest();
+        request.Key = key;
+        request.Value = value;
+        return request;
+    }
+
+    private showError(statusCode: number, message: string): void {
+        window.showErrorMessage(`${statusCode} - ${message}`);
     }
 }
 
@@ -56,7 +250,6 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
     constructor(account: PlayFabAccount) {
         this._account = account;
         this.clearRootData();
-        this.refreshStudioData();
         const subscription = this._account.onStatusChanged((status: PlayFabLoginStatus) => {
             this.refreshStudioData();
         });
@@ -107,43 +300,42 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
         const treeItem = new TreeItem(
             entry.name,
             studio.Titles.length > 0 ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
-        treeItem.command = { command: "playfabExplorer.createTitle", title: "Create Title...", arguments: [studio] };
+        treeItem.contextValue = "studio";
         return treeItem;
     }
 
     private getTitleTreeItem(entry: IEntry): TreeItem {
         let title: Title = entry.data;
         const treeItem = new TreeItem(entry.name, TreeItemCollapsibleState.None);
+        treeItem.contextValue = "title";
         treeItem.command = { command: "playfabExplorer.openGameManagerPageForTitle", title: "Open in Game Manager", arguments: [title.Id] };
         return treeItem;
     }
 
     private updateStudioData(): void {
 
-        // 1. Ensure developer has signed in to PlayFab
+        // Ensure developer has signed in to PlayFab
         if (this._account.status != "LoggedIn") {
-            window.showInformationMessage("Please login to your PlayFab account");
+            if(this._account.status != "LoggingIn") {
+                window.showInformationMessage("Please login to your PlayFab account");
+            }
+
             this.clearRootData();
             return;
         }
 
-        // 2. Create request object
         let request: GetStudiosRequest = new GetStudiosRequest();
         request.DeveloperClientToken = this._account.getToken();
 
-        // 3. Create HTTP Client object
         let httpcli = new PlayFabHttpClient(this._account);
 
-        // 4. Make API call
         httpcli.makeApiCall(
             PlayFabStudioTreeProvider.getStudiosPath,
             PlayFabStudioTreeProvider.baseUrl,
             request,
-            // 5. Set rootData on success
             (response: GetStudiosResponse) => {
                 this._rootData = response.Studios;
             },
-            // 6. Pop error toast on failure.
             (code: number, error: string) => {
                 this.showError(code, error);
                 this.clearRootData();

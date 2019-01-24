@@ -11,6 +11,11 @@
     "playfab-account.offline": "Offline",
     "playfab-account.configuration.showSignedInEmail.description": "Whether to show the email address (e.g., in the status bar) of the signed in account.",
     "playfab-explorer.commands.playfab": "PlayFab Explorer",
-    "playfab-explorer.commands.createTitle": "Create a title"
-
+    "playfab-explorer.commands.createTitle": "Create a title",
+    "playfab-explorer.commands.getTitleData": "Get title data",
+    "playfab-explorer.commands.setTitleData": "Set title data",
+    "playfab-explorer.commands.getTitleInternalData": "Get title internal data",
+    "playfab-explorer.commands.setTitleInternalData": "Set title internal data",
+    "playfab-explorer.commands.getCloudScriptRevision": "Get CloudScript revision",
+    "playfab-explorer.commands.updateCloudScript": "Update CloudScript"
 }

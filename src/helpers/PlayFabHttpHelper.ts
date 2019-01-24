@@ -9,16 +9,36 @@ import { ExtensionInfo } from '../extension';
 
 export class PlayFabHttpClient {
 
-    private account: PlayFabAccount;
+    private _account: PlayFabAccount;
 
     constructor(account: PlayFabAccount) {
-        this.account = account;
+        this._account = account;
     }
 
-    async makeApiCall<TRequest, TResponse>(
+    public async makeApiCall<TRequest, TResponse>(
         path: string,
         endpoint: string,
         request: TRequest,
+        responseCallback: (response: TResponse) => void, 
+        errorCallback: (code: number, error: string) => void): Promise<void> {
+            await this.makeApiCallInternal(path, endpoint, request, null, responseCallback, errorCallback);
+    }
+    
+    public async makeApiCallWithSecretKey<TRequest, TResponse>(
+        path: string,
+        endpoint: string,
+        request: TRequest,
+        key: string,
+        responseCallback: (response: TResponse) => void, 
+        errorCallback: (code: number, error: string) => void): Promise<void> {
+            await this.makeApiCallInternal(path, endpoint, request, key, responseCallback, errorCallback);
+    }
+
+    private async makeApiCallInternal<TRequest, TResponse>(
+        path: string,
+        endpoint: string,
+        request: TRequest,
+        key: string,
         responseCallback: (response: TResponse) => void, 
         errorCallback: (code: number, error: string) => void): Promise<void> {
         let url: string = endpoint + path;
@@ -30,8 +50,8 @@ export class PlayFabHttpClient {
             "X-PlayFabSDK": ExtensionInfo.getExtensionInfo()
         };
 
-        if (path.includes('/Server/') || path.includes('/Admin/')) {
-            headers["X-SecretKey"] = this.account.getToken();
+        if (path.includes('/Server/') || path.includes('/Admin/') && key != null && key != undefined) {
+            headers["X-SecretKey"] = key;
         }
 
         let httpCli = new http.HttpClient(ExtensionInfo.getExtensionName());
