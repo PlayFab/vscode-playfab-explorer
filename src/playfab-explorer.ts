@@ -4,11 +4,14 @@
 //---------------------------------------------------------------------------------------------
 
 import { commands, Event, EventEmitter, ExtensionContext, TextDocument, TreeDataProvider, TreeItem, TreeItemCollapsibleState, TreeView, window, Uri, workspace } from 'vscode';
+import * as nls from 'vscode-nls';
 import { Studio, GetStudiosRequest, GetStudiosResponse } from './models/PlayFabStudioModels';
 import { Title, CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse, SetTitleDataRequest, SetTitleDataResponse } from './models/PlayFabTitleModels';
 import { CloudScriptFile, GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse, UpdateCloudScriptRequest, UpdateCloudScriptResponse } from './models/PlayFabLegacyCloudScriptModels';
 import { PlayFabHttpClient } from './helpers/PlayFabHttpHelper'
 import { PlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
+
+const localize = nls.loadMessageBundle();
 
 type EntryType = 'Studio' | 'Title';
 
@@ -27,13 +30,13 @@ class Entry implements IEntry {
 export class PlayFabExplorer {
     private static editorBaseUrl: string = "https://editor.playfabapi.com";
     private static adminBaseUrl: string = "https://{titleId}.playfabapi.com"
-    private static createTitlePath = "/DeveloperTools/User/CreateTitle";
-    private static getTitleDataPath = "/Admin/GetTitleData";
-    private static setTitleDataPath = "/Admin/SetTitleData";
-    private static getTitleInternalDataPath = "/Admin/GetTitleInternalData";
-    private static setTitleInternalDataPath = "/Admin/SetTitleInternalData";
-    private static updateCloudScriptPath = "/Admin/UpdateCloudScript";
-    private static getCloudScriptRevisionPath = "/Admin/GetCloudScriptRevision";
+    private static createTitlePath: string = "/DeveloperTools/User/CreateTitle";
+    private static getTitleDataPath: string = "/Admin/GetTitleData";
+    private static setTitleDataPath: string = "/Admin/SetTitleData";
+    private static getTitleInternalDataPath: string = "/Admin/GetTitleInternalData";
+    private static setTitleInternalDataPath: string = "/Admin/SetTitleInternalData";
+    private static updateCloudScriptPath: string = "/Admin/UpdateCloudScript";
+    private static getCloudScriptRevisionPath: string = "/Admin/GetCloudScriptRevision";
 
     private _explorer: TreeView<Entry>;
     private _account: PlayFabAccount;
@@ -55,9 +58,7 @@ export class PlayFabExplorer {
     }
 
     async createTitle(studio: Studio, account: PlayFabAccount): Promise<void> {
-        window.showInformationMessage("Create Title called");
-
-        let request = await this.getUserInputForCreateTitle();
+        let request: CreateTitleRequest = await this.getUserInputForCreateTitle();
         request.StudioId = studio.Id;
         request.DeveloperClientToken = account.getToken();
 
@@ -76,10 +77,10 @@ export class PlayFabExplorer {
     }
 
     async getCloudScriptRevision(title: Title, account: PlayFabAccount): Promise<void> {
-        let request = await this.getUserInputForGetCloudScriptRevision();
+        let request: GetCloudScriptRevisionRequest = await this.getUserInputForGetCloudScriptRevision();
 
         let httpcli = new PlayFabHttpClient(this._account);
-        let baseUrl = PlayFabExplorer.adminBaseUrl;
+        let baseUrl: string = PlayFabExplorer.adminBaseUrl;
         baseUrl = baseUrl.replace("{titleId}", title.Id);
 
         await httpcli.makeApiCallWithSecretKey(
@@ -102,8 +103,7 @@ export class PlayFabExplorer {
     }
 
     async updateCloudScript(title: Title, account: PlayFabAccount): Promise<void> {
-
-        let request = new UpdateCloudScriptRequest();
+        let request: UpdateCloudScriptRequest = new UpdateCloudScriptRequest();
         request.Publish = true;
         let file = new CloudScriptFile();
         file.FileName = window.activeTextEditor.document.fileName;
@@ -111,7 +111,7 @@ export class PlayFabExplorer {
         request.Files = [file];
 
         let httpcli = new PlayFabHttpClient(this._account);
-        let baseUrl = PlayFabExplorer.adminBaseUrl;
+        let baseUrl: string = PlayFabExplorer.adminBaseUrl;
         baseUrl = baseUrl.replace("{titleId}", title.Id);
 
         await httpcli.makeApiCallWithSecretKey(
@@ -120,7 +120,8 @@ export class PlayFabExplorer {
             request,
             title.SecretKey,
             (response: UpdateCloudScriptResponse) => {
-                window.showInformationMessage(`CloudScript updated to revision ${response.Revision}`)
+                const msg: string = localize("playfab-explorer.cloudscriptUpdated", "CloudScript updated to revision {0}", response.Revision);
+                window.showInformationMessage(msg)
             },
             (code: number, error: string) => {
                 this.showError(code, error);
@@ -128,10 +129,10 @@ export class PlayFabExplorer {
     }
 
     async getTitleData(title: Title, account: PlayFabAccount, path: string): Promise<void> {
-        let request = await this.getUserInputForGetTitleData();
+        let request: GetTitleDataRequest = await this.getUserInputForGetTitleData();
 
         let httpcli = new PlayFabHttpClient(this._account);
-        let baseUrl = PlayFabExplorer.adminBaseUrl;
+        let baseUrl: string = PlayFabExplorer.adminBaseUrl;
         baseUrl = baseUrl.replace("{titleId}", title.Id);
 
         await httpcli.makeApiCallWithSecretKey(
@@ -150,7 +151,8 @@ export class PlayFabExplorer {
                     });
                 }
                 else {
-                    window.showInformationMessage("No title data found with specified key(s)");
+                    const msg: string = localize("playfab-explorer.noTitleData", "No title data found with specified key(s)");
+                    window.showInformationMessage(msg);
                 }
             },
             (code: number, error: string) => {
@@ -159,10 +161,10 @@ export class PlayFabExplorer {
     }
 
     async setTitleData(title: Title, account: PlayFabAccount, path: string): Promise<void> {
-        let request = await this.getUserInputForSetTitleData();
+        let request: SetTitleDataRequest = await this.getUserInputForSetTitleData();
 
         let httpcli = new PlayFabHttpClient(this._account);
-        let baseUrl = PlayFabExplorer.adminBaseUrl;
+        let baseUrl: string = PlayFabExplorer.adminBaseUrl;
         baseUrl = baseUrl.replace("{titleId}", title.Id);
 
         await httpcli.makeApiCallWithSecretKey(
@@ -171,7 +173,8 @@ export class PlayFabExplorer {
             request,
             title.SecretKey,
             (response: SetTitleDataResponse) => {
-                window.showInformationMessage("Title data set");
+                const msg: string = localize("playfab-explorer.titleDataSet", "Title data set");
+                window.showInformationMessage(msg);
             },
             (code: number, error: string) => {
                 this.showError(code, error);
@@ -179,9 +182,12 @@ export class PlayFabExplorer {
     }
 
     private async getUserInputForCreateTitle(): Promise<CreateTitleRequest> {
+        const titleNameValue: string = localize("playfab-explorer.titleNameValue", "Game Name");
+        const titleNamePrompt: string = localize("playfab-explorer.titleNamePrompt", "Please enter the name of your game");
+
         const titleName = await window.showInputBox({
-            value: '<FunGame>',
-            prompt: 'Please enter the name of your game'
+            value: titleNameValue,
+            prompt: titleNamePrompt
         });
 
         let request = new CreateTitleRequest();
@@ -190,9 +196,12 @@ export class PlayFabExplorer {
     }
 
     private async getUserInputForGetCloudScriptRevision(): Promise<GetCloudScriptRevisionRequest> {
+        const revisionValue: string = localize("playfab-explorer.revisionPrompt", "Revision");
+        const revisionPrompt: string = localize("playfab-explorer.revisionPrompt", "Please enter the CloudScript revision");
+
         const revisionStr = await window.showInputBox({
-            value: '<revision>',
-            prompt: 'Please enter the CloudScript revision'
+            value: revisionValue,
+            prompt: revisionPrompt
         });
 
         let revision: number = parseInt(revisionStr);
@@ -204,9 +213,12 @@ export class PlayFabExplorer {
     }
 
     private async getUserInputForGetTitleData(): Promise<GetTitleDataRequest> {
+        const keysValue: string = localize("playfab-explorer.keysValue", "Key Names");
+        const keysPrompt: string = localize("playfab-explorer.keysPrompt", "Please enter the key name(s)");
+
         const keys = await window.showInputBox({
-            value: '<keyname>',
-            prompt: 'Please enter the key name(s)'
+            value: keysValue,
+            prompt: keysPrompt
         });
 
         let request = new GetTitleDataRequest();
@@ -215,14 +227,20 @@ export class PlayFabExplorer {
     }
 
     private async getUserInputForSetTitleData(): Promise<SetTitleDataRequest> {
+        const keyValue: string = localize("playfab-explorer.keyValue", "Key Name");
+        const keyPrompt: string = localize("playfab-explorer.keyPrompt", "Please enter the key name");
+
         const key = await window.showInputBox({
-            value: '<keyname>',
-            prompt: 'Please enter the key name'
+            value: keyValue,
+            prompt: keyPrompt
         });
 
+        const valueValue: string = localize("playfab-explorer.valueValue", "Value");
+        const valuePrompt: string = localize("playfab-explorer.valuePrompt", "Please enter the value");
+
         const value = await window.showInputBox({
-            value: '<value>',
-            prompt: 'Please enter the value'
+            value: valueValue,
+            prompt: valuePrompt
         });
 
         let request = new SetTitleDataRequest();
@@ -306,9 +324,10 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
 
     private getTitleTreeItem(entry: IEntry): TreeItem {
         let title: Title = entry.data;
+        const menuTitle = localize("playfab-explorer.commands.openGameManagerPageForTitle", "Open in Game Manager");
         const treeItem = new TreeItem(entry.name, TreeItemCollapsibleState.None);
         treeItem.contextValue = "title";
-        treeItem.command = { command: "playfabExplorer.openGameManagerPageForTitle", title: "Open in Game Manager", arguments: [title.Id] };
+        treeItem.command = { command: "playfabExplorer.openGameManagerPageForTitle", title: menuTitle, arguments: [title.Id] };
         return treeItem;
     }
 
@@ -316,8 +335,9 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
 
         // Ensure developer has signed in to PlayFab
         if (this._account.status != "LoggedIn") {
-            if(this._account.status != "LoggingIn") {
-                window.showInformationMessage("Please login to your PlayFab account");
+            if (this._account.status != "LoggingIn") {
+                const msg: string = localize("playfab-explorer.pleaseLogin", "Please log in to your PlayFab account");
+                window.showInformationMessage(msg);
             }
 
             this.clearRootData();

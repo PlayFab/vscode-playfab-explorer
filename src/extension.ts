@@ -55,7 +55,7 @@ export async function logout(loginManager: PlayFabLoginManager): Promise<void> {
 }
 
 function createStatusBarItem(context: ExtensionContext, api: PlayFabAccount): StatusBarItem {
-    const statusBarItem = window.createStatusBarItem();
+    const statusBarItem: StatusBarItem = window.createStatusBarItem();
 
     function updateStatusBar() {
         switch (api.status) {
