@@ -46,12 +46,12 @@ export class PlayFabHttpClient {
 
         // Set headers
         let headers = {
-            "Content-Type": "application/json",
-            "X-PlayFabSDK": ExtensionInfo.getExtensionInfo()
+            'Content-Type': 'application/json',
+            'X-PlayFabSDK': ExtensionInfo.getExtensionInfo()
         };
 
         if (path.includes('/Server/') || path.includes('/Admin/') && key != null && key != undefined) {
-            headers["X-SecretKey"] = key;
+            headers['X-SecretKey'] = key;
         }
 
         let httpCli = new http.HttpClient(ExtensionInfo.getExtensionName());
