@@ -25,10 +25,10 @@ class PlayFabLoginError extends Error {
 
 export class PlayFabLoginManager {
 
-    private static baseUrl: string = "https://editor.playfabapi.com";
-    private static createAccountPath = "/DeveloperTools/User/RegisterAccount";
-    private static loginPath: string = "/DeveloperTools/User/Login";
-    private static logoutPath: string = "/DeveloperTools/User/Logout";
+    private static baseUrl: string = 'https://editor.playfabapi.com';
+    private static createAccountPath: string = '/DeveloperTools/User/RegisterAccount';
+    private static loginPath: string = '/DeveloperTools/User/Login';
+    private static logoutPath: string = '/DeveloperTools/User/Logout';
 
     private onStatusChanged = new EventEmitter<PlayFabLoginStatus>();
     private onSessionsChanged = new EventEmitter<void>();
@@ -49,7 +49,7 @@ export class PlayFabLoginManager {
             request,
             (response: CreateAccountResponse): void => {
                 this.api.sessions.splice(0, this.api.sessions.length, {
-                    cloud: "global",
+                    cloud: 'global',
                     credentials: {
                         token: response.DeveloperClientToken
                     },
@@ -68,9 +68,9 @@ export class PlayFabLoginManager {
 
         await this.waitForOnline();
 
-        this.beginLoggingIn();        
+        this.beginLoggingIn();
 
-        let request = await this.getUserInputForLogin();
+        let request: LoginRequest = await this.getUserInputForLogin();
         let httpCli = new PlayFabHttpClient(this.api);
 
         await httpCli.makeApiCall(
@@ -79,7 +79,7 @@ export class PlayFabLoginManager {
             request,
             (response: LoginResponse): void => {
                 this.api.sessions.splice(0, this.api.sessions.length, {
-                    cloud: "global",
+                    cloud: 'global',
                     credentials: {
                         token: response.DeveloperClientToken
                     },
@@ -118,7 +118,7 @@ export class PlayFabLoginManager {
     }
 
     api: PlayFabAccount = {
-        status: "Initializing",
+        status: 'Initializing',
         onStatusChanged: this.onStatusChanged.event,
         waitForLogin: () => this.waitForLogin(),
         sessions: [],
@@ -127,7 +127,7 @@ export class PlayFabLoginManager {
     }
 
     private beginLoggingIn(): void {
-        this.updateStatus("LoggingIn");
+        this.updateStatus('LoggingIn');
     }
 
     private clearSessions(): void {
@@ -137,7 +137,7 @@ export class PlayFabLoginManager {
     }
 
     private endLoggingInOrOut(): void {
-        this.updateStatus(this.api.sessions.length ? "LoggedIn" : "LoggedOut");
+        this.updateStatus(this.api.sessions.length ? 'LoggedIn' : 'LoggedOut');
     }
 
     private getToken(): string {
@@ -145,27 +145,30 @@ export class PlayFabLoginManager {
     }
 
     private async getUserInputForCreateAccount(): Promise<CreateAccountRequest> {
-        const userName = await window.showInputBox({
+        const emailPrompt: string = localize('playfab-account.emailPrompt', 'Please enter your e-mail address');
+        const emailAddress: string = await window.showInputBox({
             value: 'user@company.com',
-            prompt: 'Please enter your e-mail address'
+            prompt: emailPrompt
         });
-        window.showInformationMessage(`User Name: ${userName}`);
 
-        const password = await window.showInputBox({
+        const newPasswordPrompt: string = localize('playfab-account.newPasswordPrompt', 'Please enter a password. Your password must be 8 characters or longer and contain at least two of these: uppercase characters, numbers, or symbols.');
+        const password: string = await window.showInputBox({
             value: '',
-            prompt: 'Please enter a password. Your password must be 8 characters or longer and contain at least two of these: uppercase characters, numbers, or symbols.',
+            prompt: newPasswordPrompt,
             password: true
         });
 
-        const secondpassword = await window.showInputBox({
+        const reenterPasswordPrompt: string = localize('playfab-account.reenterPasswordPrompt', 'Please re-enter the password.');
+        const secondpassword: string = await window.showInputBox({
             value: '',
-            prompt: 'Please re-enter the password.',
+            prompt: reenterPasswordPrompt,
             password: true
         });
 
-        const studioName = await window.showInputBox({
+        const studioNamePrompt: string = localize('playfab-account.studioNamePrompt', 'Please enter the name of your game studio.');
+        const studioName: string = await window.showInputBox({
             value: '',
-            prompt: 'Please enter the name of your game studio.'
+            prompt: studioNamePrompt
         });
 
         let result: CreateAccountRequest = null;
@@ -173,39 +176,43 @@ export class PlayFabLoginManager {
         if (password === secondpassword) {
             result = new CreateAccountRequest();
 
-            result.Email = userName;
+            result.Email = emailAddress;
             result.Password = password;
             result.StudioName = studioName;
             result.DeveloperToolProductName = ExtensionInfo.getExtensionName();
             result.DeveloperToolProductVersion = ExtensionInfo.getExtensionVersion();
         }
         else {
-            await window.showErrorMessage("Passwords did not match");
+            const msg: string = localize('playfab-account.passwordMismatch', 'Passwords did not match.');
+            await window.showErrorMessage(msg);
         }
 
         return result;
     }
 
     private async getUserInputForLogin(): Promise<LoginRequest> {
-        const userName = await window.showInputBox({
+        const emailPrompt: string = localize('playfab-account.emailPrompt', 'Please enter your e-mail address');
+        const emailAddress: string = await window.showInputBox({
             value: 'user@company.com',
-            prompt: 'Please enter your username/e-mail'
+            prompt: emailPrompt
         });
 
-        const password = await window.showInputBox({
+        const passwordPrompt: string = localize('playfab-account.passwordPrompt', 'Please enter your password');
+        const password: string = await window.showInputBox({
             value: '',
-            prompt: 'Please enter your password',
+            prompt: passwordPrompt,
             password: true
         });
 
-        const twofa = await window.showInputBox({
+        const twofaPrompt: string = localize('playfab-account.twofaPrompt', 'Please enter your two-factor auth code');
+        const twofa: string = await window.showInputBox({
             value: '123 456',
-            prompt: 'Please enter your two-factor auth code',
+            prompt: twofaPrompt,
         });
 
         let request = new LoginRequest();
 
-        request.Email = userName;
+        request.Email = emailAddress;
         request.Password = password;
         request.TwoFactorAuth = twofa;
         request.DeveloperToolProductName = ExtensionInfo.getExtensionName();
@@ -246,9 +253,9 @@ export class PlayFabLoginManager {
     }
 
     private async waitForOnline(): Promise<void> {
-        let cancelTitle: string = localize('playfab-account.cancel', "Cancel")
-        let checkNetworkMessage: string = localize('playfab-account.checkNetwork', "You appear to be offline. Please check your network connection.");
-        let offlineMessage: string = localize('playfab-account.offline', "Offline");
+        const cancelTitle: string = localize('playfab-account.cancel', 'Cancel')
+        const checkNetworkMessage: string = localize('playfab-account.checkNetwork', 'You appear to be offline. Please check your network connection.');
+        const offlineMessage: string = localize('playfab-account.offline', 'Offline');
         await waitForOnline(
             cancelTitle,
             checkNetworkMessage,

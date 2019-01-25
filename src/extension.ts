@@ -12,8 +12,8 @@ import { PlayFabExplorer } from './playfab-explorer'
 const localize = nls.loadMessageBundle();
 
 export class ExtensionInfo {
-    private static extensionName: string = "vscode-playfab-account";
-    private static extensionVersion: string = "0.0.1";
+    private static extensionName: string = 'vscode-playfab-account';
+    private static extensionVersion: string = '0.0.1';
 
     public static getExtensionInfo(): string { return ExtensionInfo.extensionName + '_' + ExtensionInfo.extensionVersion };
     public static getExtensionName(): string { return ExtensionInfo.extensionName; }
@@ -27,7 +27,7 @@ export function activate(context: ExtensionContext): void {
 
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
-    console.log(`"${ExtensionInfo.getExtensionName()}" is now active!`);
+    console.log(`${ExtensionInfo.getExtensionName()} is now active!`);
 
     context.subscriptions.push(createStatusBarItem(context, loginManager.api));
     context.subscriptions.push(commands.registerCommand('playfab-account.createAccount', async () => await createAccount(loginManager)));
@@ -55,19 +55,19 @@ export async function logout(loginManager: PlayFabLoginManager): Promise<void> {
 }
 
 function createStatusBarItem(context: ExtensionContext, api: PlayFabAccount): StatusBarItem {
-    const statusBarItem = window.createStatusBarItem();
+    const statusBarItem: StatusBarItem = window.createStatusBarItem();
 
     function updateStatusBar() {
         switch (api.status) {
             case 'LoggingIn':
-                statusBarItem.text = localize('playfab-account.loggingIn', "PlayFab: Signing in...");
+                statusBarItem.text = localize('playfab-account.loggingIn', 'PlayFab: Signing in...');
                 statusBarItem.show();
                 break;
             case 'LoggedIn':
                 if (api.sessions.length) {
                     const playfabConfig = workspace.getConfiguration('playfab');
                     const showSignedInEmail = playfabConfig.get<boolean>('showSignedInEmail');
-                    statusBarItem.text = showSignedInEmail ? localize('playfab-account.loggedIn', "PlayFab: {0}", api.sessions[0].userId) : localize('playfab-account.loggedIn', "PlayFab: Signed In");
+                    statusBarItem.text = showSignedInEmail ? localize('playfab-account.loggedIn', 'PlayFab: {0}', api.sessions[0].userId) : localize('playfab-account.loggedIn', 'PlayFab: Signed In');
                     statusBarItem.show();
                 }
                 break;

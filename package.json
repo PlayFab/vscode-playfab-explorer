@@ -73,6 +73,36 @@
                 "command": "playfabExplorer.createTitle",
                 "title": "%playfab-explorer.commands.createTitle%",
                 "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.getTitleData",
+                "title": "%playfab-explorer.commands.getTitleData%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.setTitleData",
+                "title": "%playfab-explorer.commands.setTitleData%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.getTitleInternalData",
+                "title": "%playfab-explorer.commands.getTitleInternalData%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.setTitleInternalData",
+                "title": "%playfab-explorer.commands.setTitleInternalData%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.getCloudScriptRevision",
+                "title": "%playfab-explorer.commands.getCloudScriptRevision%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.updateCloudScript",
+                "title": "%playfab-explorer.commands.updateCloudScript%",
+                "category": "%playfab-explorer.commands.playfab%"
             }
         ],
         "menus": {
@@ -82,7 +112,37 @@
                     "when": "view == playfabExplorer",
                     "group": "navigation"
                 }
-            ]
+            ],
+            "view/item/context": [
+                {
+                    "command": "playfabExplorer.createTitle",
+                    "when": "view == playfabExplorer && viewItem == studio"
+                },
+                {
+                    "command": "playfabExplorer.getTitleData",
+                    "when": "view == playfabExplorer && viewItem == title"
+                },
+                {
+                    "command": "playfabExplorer.setTitleData",
+                    "when": "view == playfabExplorer && viewItem == title"
+                },
+                {
+                    "command": "playfabExplorer.getTitleInternalData",
+                    "when": "view == playfabExplorer && viewItem == title"
+                },
+                {
+                    "command": "playfabExplorer.setTitleInternalData",
+                    "when": "view == playfabExplorer && viewItem == title"
+                },
+                {
+                    "command": "playfabExplorer.getCloudScriptRevision",
+                    "when": "view == playfabExplorer && viewItem == title"
+                },
+                {
+                    "command": "playfabExplorer.updateCloudScript",
+                    "when": "view == playfabExplorer && viewItem == title"
+                }
+            ]            
         },
         "configuration": [
             {
