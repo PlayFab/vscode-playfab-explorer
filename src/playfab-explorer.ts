@@ -83,7 +83,7 @@ export class PlayFabExplorer {
         let baseUrl: string = PlayFabExplorer.adminBaseUrl;
         baseUrl = baseUrl.replace('{titleId}', title.Id);
 
-        await httpcli.makeApiCallWithSecretKey(
+        await httpcli.makeTitleApiCall(
             PlayFabExplorer.getCloudScriptRevisionPath,
             baseUrl,
             request,
@@ -94,6 +94,9 @@ export class PlayFabExplorer {
                     workspace.openTextDocument({ language: 'javascript', content: file.FileContents })
                         .then((doc: TextDocument) => {
                             window.showTextDocument(doc);
+                        })
+                        .then(() => {
+                            window.showInformationMessage(`Downloaded CloudScript revision ${response.Revision} for ${title.Name}`);
                         });
                 }
             },
@@ -106,7 +109,7 @@ export class PlayFabExplorer {
         let request: UpdateCloudScriptRequest = new UpdateCloudScriptRequest();
         request.Publish = true;
         let file = new CloudScriptFile();
-        file.FileName = window.activeTextEditor.document.fileName;
+        file.Filename = window.activeTextEditor.document.fileName;
         file.FileContents = window.activeTextEditor.document.getText();
         request.Files = [file];
 
@@ -114,7 +117,7 @@ export class PlayFabExplorer {
         let baseUrl: string = PlayFabExplorer.adminBaseUrl;
         baseUrl = baseUrl.replace('{titleId}', title.Id);
 
-        await httpcli.makeApiCallWithSecretKey(
+        await httpcli.makeTitleApiCall(
             PlayFabExplorer.updateCloudScriptPath,
             baseUrl,
             request,
@@ -135,7 +138,7 @@ export class PlayFabExplorer {
         let baseUrl: string = PlayFabExplorer.adminBaseUrl;
         baseUrl = baseUrl.replace('{titleId}', title.Id);
 
-        await httpcli.makeApiCallWithSecretKey(
+        await httpcli.makeTitleApiCall(
             path,
             baseUrl,
             request,
@@ -167,7 +170,7 @@ export class PlayFabExplorer {
         let baseUrl: string = PlayFabExplorer.adminBaseUrl;
         baseUrl = baseUrl.replace('{titleId}', title.Id);
 
-        await httpcli.makeApiCallWithSecretKey(
+        await httpcli.makeTitleApiCall(
             path,
             baseUrl,
             request,
@@ -196,8 +199,8 @@ export class PlayFabExplorer {
     }
 
     private async getUserInputForGetCloudScriptRevision(): Promise<GetCloudScriptRevisionRequest> {
-        const revisionValue: string = localize('playfab-explorer.revisionPrompt', 'Revision');
-        const revisionPrompt: string = localize('playfab-explorer.revisionPrompt', 'Please enter the CloudScript revision');
+        const revisionValue: string = null;
+        const revisionPrompt: string = localize('playfab-explorer.revisionPrompt', 'Optionally enter a CloudScript revision');
 
         const revisionStr = await window.showInputBox({
             value: revisionValue,
@@ -207,7 +210,7 @@ export class PlayFabExplorer {
         let revision: number = parseInt(revisionStr);
 
         let request = new GetCloudScriptRevisionRequest();
-        request.Version = 1;
+        request.Version = null;
         request.Revision = revision;
         return request;
     }

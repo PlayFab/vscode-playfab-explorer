@@ -4,7 +4,7 @@
 //---------------------------------------------------------------------------------------------
 
 export class CloudScriptFile {
-    FileName: string;
+    Filename: string;
     FileContents: string;
 }
 
@@ -18,7 +18,7 @@ export class GetCloudScriptRevisionResponse {
     Revision: number;
     CreatedAt: Date;
     Files: CloudScriptFile[];
-    IsPublished: boolean;    
+    IsPublished: boolean;
 }
 
 export class UpdateCloudScriptRequest {
@@ -27,8 +27,7 @@ export class UpdateCloudScriptRequest {
     DeveloperPlayFabId: string;
 }
 
-export class UpdateCloudScriptResponse
-{
+export class UpdateCloudScriptResponse {
     Version: number;
     Revision: number;
 }

@@ -19,19 +19,19 @@ export class PlayFabHttpClient {
         path: string,
         endpoint: string,
         request: TRequest,
-        responseCallback: (response: TResponse) => void, 
+        responseCallback: (response: TResponse) => void,
         errorCallback: (code: number, error: string) => void): Promise<void> {
-            await this.makeApiCallInternal(path, endpoint, request, null, responseCallback, errorCallback);
+        await this.makeApiCallInternal(path, endpoint, request, null, responseCallback, errorCallback);
     }
-    
-    public async makeApiCallWithSecretKey<TRequest, TResponse>(
+
+    public async makeTitleApiCall<TRequest, TResponse>(
         path: string,
         endpoint: string,
         request: TRequest,
-        key: string,
-        responseCallback: (response: TResponse) => void, 
+        titleSecret: string,
+        responseCallback: (response: TResponse) => void,
         errorCallback: (code: number, error: string) => void): Promise<void> {
-            await this.makeApiCallInternal(path, endpoint, request, key, responseCallback, errorCallback);
+        await this.makeApiCallInternal(path, endpoint, request, titleSecret, responseCallback, errorCallback);
     }
 
     private async makeApiCallInternal<TRequest, TResponse>(
@@ -39,7 +39,7 @@ export class PlayFabHttpClient {
         endpoint: string,
         request: TRequest,
         key: string,
-        responseCallback: (response: TResponse) => void, 
+        responseCallback: (response: TResponse) => void,
         errorCallback: (code: number, error: string) => void): Promise<void> {
         let url: string = endpoint + path;
         let requestBody: string = JSON.stringify(request);
