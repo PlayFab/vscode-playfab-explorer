@@ -226,7 +226,7 @@ export class PlayFabLoginManager {
     }
 
     private updateStatus(status: PlayFabLoginStatus): void {
-        if (this.api.status != status) {
+        if (this.api.status !== status) {
             (<PlayFabAccountWritable>this.api).status = status;
             this.onStatusChanged.fire(this.api.status);
         }

@@ -2,8 +2,10 @@
     "playfab-account.description": "A common PlayFab Sign-In extension for VS Code.",
     "playfab-account.commands.playfab": "PlayFab Account",
     "playfab-account.commands.login": "Sign In",
+    "playfab-account.commands.loginTitle": "Sign In to PlayFab...",
     "playfab-account.commands.logout": "Sign Out",
     "playfab-account.commands.createAccount": "Create an account",
+    "playfab-account.commands.createAccountTitle": "Create a PlayFab account...",
     "playfab-account.loggingin": "PlayFab: Signing in...",
     "playfab-account.loggedin": "PlayFab: {0}",
     "playfab-account.cancel": "Cancel",
@@ -25,6 +27,8 @@
     "playfab-explorer.commands.setTitleInternalData": "Set title internal data",
     "playfab-explorer.commands.getCloudScriptRevision": "Get CloudScript revision",
     "playfab-explorer.commands.updateCloudScript": "Update CloudScript",
+    "playfab-explorer.commands.createFunctionApp": "Create Function App",
+    "playfab-explorer.commands.addFunction": "Add Function",
     "playfab-explorer.commands.openGameManagerPageForTitle": "Open in Game Manager",
     "playfab-explorer.cloudscriptUpdated": "CloudScript updated to revision {0}.",
     "playfab-explorer.noTitleData": "No title data found with specified key(s).",
@@ -38,6 +42,5 @@
     "playfab-explorer.keyValue": "Key Name",
     "playfab-explorer.keyPrompt": "Please enter the key name.",
     "playfab-explorer.valueValue": "Value",
-    "playfab-explorer.valuePrompt": "Please enter the value.",
-    "playfab-explorer.pleaseLogin": "Please log in to your PlayFab account."
+    "playfab-explorer.valuePrompt": "Please enter the value."
 }
