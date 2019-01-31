@@ -3,7 +3,7 @@
 //  Licensed under the MIT License. See License.md in the project root for license information.
 //---------------------------------------------------------------------------------------------
 
-import { commands, Event, EventEmitter, ExtensionContext, TextDocument, TreeDataProvider, TreeItem, TreeItemCollapsibleState, TreeView, window, Uri, workspace } from 'vscode';
+import { commands, Command, Event, EventEmitter, ExtensionContext, TextDocument, TreeDataProvider, TreeItem, TreeItemCollapsibleState, TreeView, window, Uri, workspace, QuickPickOptions, QuickInputButtons } from 'vscode';
 import * as nls from 'vscode-nls';
 import { Studio, GetStudiosRequest, GetStudiosResponse } from './models/PlayFabStudioModels';
 import { Title, CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse, SetTitleDataRequest, SetTitleDataResponse } from './models/PlayFabTitleModels';
@@ -13,7 +13,7 @@ import { PlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
 
 const localize = nls.loadMessageBundle();
 
-type EntryType = 'Studio' | 'Title';
+type EntryType = 'Studio' | 'Title' | "Command";
 
 export interface IEntry {
     name: string;
@@ -276,8 +276,8 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
         });
     }
 
-    public refresh(): void {
-        this.refreshStudioData();
+    public async refresh(): Promise<void> {
+        await this.refreshStudioData();
     }
 
     public async getChildren(entry?: IEntry): Promise<IEntry[]> {
@@ -292,13 +292,9 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
             }
         }
 
-        return this._rootData.map((studio: Studio) => {
-            let result = new Entry();
-            result.name = studio.Name;
-            result.type = 'Studio';
-            result.data = studio;
-            return result;
-        });
+        // Entry is null/undefined, which means we are being asked for the root nodes. 
+        // Return Studio or Command entries as appropriate
+        return this.isLoggedIn() ? this.getStudioEntries() : this.getCommandEntries();
     }
 
     public getTreeItem(entry: IEntry): TreeItem {
@@ -307,6 +303,8 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
                 return this.getStudioTreeItem(entry);
             case 'Title':
                 return this.getTitleTreeItem(entry);
+            case 'Command':
+                return this.getCommandTreeItem(entry);
             default:
                 return null;
         }
@@ -314,6 +312,48 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
 
     private clearRootData(): void {
         this._rootData = [];
+    }
+
+    private getCommandEntries(): IEntry[] {
+        const signInTitle: string = localize("playfab-account.commands.loginTitle", "Sign In to PlayFab...");
+        const signInEntry: IEntry = {
+            name: "login",
+            type: "Command",
+            data: { command: "playfab-account.login", title: signInTitle }
+        };
+
+        const createAccountTitle: string = localize("playfab-account.commands.createAccountTitle", "Create a PlayFab account...");
+        const createAccountEntry: IEntry = {
+            name: "createAccount",
+            type: "Command",
+            data: { command: "playfab-account.createAccount", title: createAccountTitle }
+        };
+
+        return [
+            signInEntry, createAccountEntry
+        ];
+    }
+
+    private getCommandTreeItem(entry: IEntry): TreeItem {
+        const command: Command = entry.data;
+        const treeItem = new TreeItem(
+            command.title,
+            TreeItemCollapsibleState.None);
+        treeItem.contextValue = 'command';
+        treeItem.command = command;
+        return treeItem;
+    }
+
+    private getStudioEntries(): IEntry[] {
+        return this._rootData.map(
+            (studio: Studio) => {
+                let result: IEntry = {
+                    name: studio.Name,
+                    type: 'Studio',
+                    data: studio
+                }
+                return result;
+            });
     }
 
     private getStudioTreeItem(entry: IEntry): TreeItem {
@@ -334,15 +374,14 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
         return treeItem;
     }
 
-    private updateStudioData(): void {
+    private isLoggedIn(): boolean {
+        return this._account.status === 'LoggedIn';
+    }
+
+    private async updateStudioData(): Promise<void> {
 
         // Ensure developer has signed in to PlayFab
-        if (this._account.status != 'LoggedIn') {
-            if (this._account.status != 'LoggingIn') {
-                const msg: string = localize('playfab-explorer.pleaseLogin', 'Please log in to your PlayFab account');
-                window.showInformationMessage(msg);
-            }
-
+        if (!this.isLoggedIn()) {
             this.clearRootData();
             return;
         }
@@ -352,7 +391,7 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
 
         let httpcli = new PlayFabHttpClient(this._account);
 
-        httpcli.makeApiCall(
+        await httpcli.makeApiCall(
             PlayFabStudioTreeProvider.getStudiosPath,
             PlayFabStudioTreeProvider.baseUrl,
             request,
@@ -381,8 +420,8 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
         return [];
     }
 
-    private refreshStudioData(): void {
-        this.updateStudioData();
+    private async refreshStudioData(): Promise<void> {
+        await this.updateStudioData();
         this._onDidChangeTreeData.fire();
     }
 
