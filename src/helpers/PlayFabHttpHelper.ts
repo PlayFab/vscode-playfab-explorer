@@ -4,16 +4,26 @@
 //---------------------------------------------------------------------------------------------
 
 import * as http from 'typed-rest-client/HttpClient';
-import { PlayFabAccount } from '../playfab-account.api';
 import { ExtensionInfo } from '../extension';
 
-export class PlayFabHttpClient {
+export interface IHttpClient {
+    makeApiCall<TRequest, TResponse>(
+        path: string,
+        endpoint: string,
+        request: TRequest,
+        responseCallback: (response: TResponse) => void,
+        errorCallback: (code: number, error: string) => void): Promise<void>;
 
-    private _account: PlayFabAccount;
+    makeTitleApiCall<TRequest, TResponse>(
+            path: string,
+            endpoint: string,
+            request: TRequest,
+            titleSecret: string,
+            responseCallback: (response: TResponse) => void,
+            errorCallback: (code: number, error: string) => void): Promise<void>;
+}
 
-    constructor(account: PlayFabAccount) {
-        this._account = account;
-    }
+export class PlayFabHttpClient implements IHttpClient {
 
     public async makeApiCall<TRequest, TResponse>(
         path: string,

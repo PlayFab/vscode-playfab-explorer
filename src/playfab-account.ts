@@ -7,7 +7,7 @@ import * as nls from 'vscode-nls';
 import { ExtensionContext, window, EventEmitter } from 'vscode';
 import { ExtensionInfo } from './extension';
 import { PlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
-import { PlayFabHttpClient } from './helpers/PlayFabHttpHelper'
+import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper'
 import { CreateAccountRequest, CreateAccountResponse, LoginRequest, LoginResponse, LogoutRequest, LogoutResponse } from './models/PlayFabAccountModels'
 import { waitForOnline } from './helpers/PlayFabNetworkHelpers'
 
@@ -33,7 +33,10 @@ export class PlayFabLoginManager {
     private onStatusChanged = new EventEmitter<PlayFabLoginStatus>();
     private onSessionsChanged = new EventEmitter<void>();
 
-    constructor(private context: ExtensionContext) {
+    private _httpCli: IHttpClient;
+
+    constructor(private context: ExtensionContext, httpClient: IHttpClient = null) {
+        this._httpCli = httpClient || new PlayFabHttpClient();
     }
 
     async createAccount(): Promise<void> {
@@ -41,9 +44,8 @@ export class PlayFabLoginManager {
         await this.waitForOnline();
 
         let request: CreateAccountRequest = await this.getUserInputForCreateAccount();
-        let httpCli = new PlayFabHttpClient(this.api);
 
-        await httpCli.makeApiCall(
+        await this._httpCli.makeApiCall(
             PlayFabLoginManager.createAccountPath,
             PlayFabLoginManager.baseUrl,
             request,
@@ -71,9 +73,8 @@ export class PlayFabLoginManager {
         this.beginLoggingIn();
 
         let request: LoginRequest = await this.getUserInputForLogin();
-        let httpCli = new PlayFabHttpClient(this.api);
-
-        await httpCli.makeApiCall(
+        
+        await this._httpCli.makeApiCall(
             PlayFabLoginManager.loginPath,
             PlayFabLoginManager.baseUrl,
             request,
@@ -101,9 +102,7 @@ export class PlayFabLoginManager {
         let request: LogoutRequest = new LogoutRequest();
         request.DeveloperClientToken = this.api.getToken();
 
-        let httpCli = new PlayFabHttpClient(this.api);
-
-        await httpCli.makeApiCall(
+        await this._httpCli.makeApiCall(
             PlayFabLoginManager.logoutPath,
             PlayFabLoginManager.baseUrl,
             request,
@@ -113,7 +112,7 @@ export class PlayFabLoginManager {
                 this.showLoginError(code, message);
             });
 
-        await this.clearSessions();
+        this.clearSessions();
         this.endLoggingInOrOut();
     }
 
