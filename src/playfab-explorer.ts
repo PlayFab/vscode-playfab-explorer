@@ -8,7 +8,7 @@ import * as nls from 'vscode-nls';
 import { Studio, GetStudiosRequest, GetStudiosResponse } from './models/PlayFabStudioModels';
 import { Title, CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse, SetTitleDataRequest, SetTitleDataResponse } from './models/PlayFabTitleModels';
 import { CloudScriptFile, GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse, UpdateCloudScriptRequest, UpdateCloudScriptResponse } from './models/PlayFabLegacyCloudScriptModels';
-import { PlayFabHttpClient } from './helpers/PlayFabHttpHelper'
+import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper'
 import { PlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
 
 const localize = nls.loadMessageBundle();
@@ -40,9 +40,11 @@ export class PlayFabExplorer {
 
     private _explorer: TreeView<Entry>;
     private _account: PlayFabAccount;
+    private _httpClient: IHttpClient;
 
-    constructor(context: ExtensionContext, account: PlayFabAccount) {
+    constructor(context: ExtensionContext, account: PlayFabAccount, httpClient: IHttpClient = null) {
         this._account = account;
+        this._httpClient = httpClient || new PlayFabHttpClient();
         const treeDataProvider = new PlayFabStudioTreeProvider(account);
         this._explorer = window.createTreeView('playfabExplorer', { treeDataProvider });
         commands.registerCommand('playfabExplorer.refresh', () => treeDataProvider.refresh());
@@ -62,9 +64,7 @@ export class PlayFabExplorer {
         request.StudioId = studio.Id;
         request.DeveloperClientToken = account.getToken();
 
-        let httpcli = new PlayFabHttpClient(this._account);
-
-        await httpcli.makeApiCall(
+        await this._httpClient.makeApiCall(
             PlayFabExplorer.createTitlePath,
             PlayFabExplorer.editorBaseUrl,
             request,
@@ -79,11 +79,10 @@ export class PlayFabExplorer {
     async getCloudScriptRevision(title: Title, account: PlayFabAccount): Promise<void> {
         let request: GetCloudScriptRevisionRequest = await this.getUserInputForGetCloudScriptRevision();
 
-        let httpcli = new PlayFabHttpClient(this._account);
         let baseUrl: string = PlayFabExplorer.adminBaseUrl;
         baseUrl = baseUrl.replace('{titleId}', title.Id);
 
-        await httpcli.makeTitleApiCall(
+        await this._httpClient.makeTitleApiCall(
             PlayFabExplorer.getCloudScriptRevisionPath,
             baseUrl,
             request,
@@ -113,11 +112,10 @@ export class PlayFabExplorer {
         file.FileContents = window.activeTextEditor.document.getText();
         request.Files = [file];
 
-        let httpcli = new PlayFabHttpClient(this._account);
         let baseUrl: string = PlayFabExplorer.adminBaseUrl;
         baseUrl = baseUrl.replace('{titleId}', title.Id);
 
-        await httpcli.makeTitleApiCall(
+        await this._httpClient.makeTitleApiCall(
             PlayFabExplorer.updateCloudScriptPath,
             baseUrl,
             request,
@@ -134,11 +132,10 @@ export class PlayFabExplorer {
     async getTitleData(title: Title, account: PlayFabAccount, path: string): Promise<void> {
         let request: GetTitleDataRequest = await this.getUserInputForGetTitleData();
 
-        let httpcli = new PlayFabHttpClient(this._account);
         let baseUrl: string = PlayFabExplorer.adminBaseUrl;
         baseUrl = baseUrl.replace('{titleId}', title.Id);
 
-        await httpcli.makeTitleApiCall(
+        await this._httpClient.makeTitleApiCall(
             path,
             baseUrl,
             request,
@@ -166,11 +163,10 @@ export class PlayFabExplorer {
     async setTitleData(title: Title, account: PlayFabAccount, path: string): Promise<void> {
         let request: SetTitleDataRequest = await this.getUserInputForSetTitleData();
 
-        let httpcli = new PlayFabHttpClient(this._account);
         let baseUrl: string = PlayFabExplorer.adminBaseUrl;
         baseUrl = baseUrl.replace('{titleId}', title.Id);
 
-        await httpcli.makeTitleApiCall(
+        await this._httpClient.makeTitleApiCall(
             path,
             baseUrl,
             request,
@@ -264,12 +260,14 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
 
     private _rootData: Studio[];
     private _account: PlayFabAccount;
+    private _httpClient: IHttpClient;
 
     private _onDidChangeTreeData: EventEmitter<IEntry | undefined> = new EventEmitter<IEntry | undefined>();
     readonly onDidChangeTreeData: Event<IEntry | undefined> = this._onDidChangeTreeData.event;
 
-    constructor(account: PlayFabAccount) {
+    constructor(account: PlayFabAccount, httpClient: IHttpClient = null) {
         this._account = account;
+        this._httpClient = httpClient || new PlayFabHttpClient();
         this.clearRootData();
         const subscription = this._account.onStatusChanged((status: PlayFabLoginStatus) => {
             this.refreshStudioData();
@@ -389,9 +387,7 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
         let request: GetStudiosRequest = new GetStudiosRequest();
         request.DeveloperClientToken = this._account.getToken();
 
-        let httpcli = new PlayFabHttpClient(this._account);
-
-        await httpcli.makeApiCall(
+        await this._httpClient.makeApiCall(
             PlayFabStudioTreeProvider.getStudiosPath,
             PlayFabStudioTreeProvider.baseUrl,
             request,
