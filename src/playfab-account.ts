@@ -17,6 +17,10 @@ interface PlayFabAccountWritable extends PlayFabAccount {
     status: PlayFabLoginStatus;
 }
 
+export interface IPlayFabLoginInputGatherer {
+    getUserInputForLogin(): Promise<LoginRequest>;    
+}
+
 class PlayFabLoginError extends Error {
     constructor(message: string, public reason?: any) {
         super(message);
@@ -34,9 +38,14 @@ export class PlayFabLoginManager {
     private onSessionsChanged = new EventEmitter<void>();
 
     private _httpCli: IHttpClient;
+    private _inputGatherer: IPlayFabLoginInputGatherer;
 
-    constructor(private context: ExtensionContext, httpClient: IHttpClient = null) {
-        this._httpCli = httpClient || new PlayFabHttpClient();
+    constructor(
+        private context: ExtensionContext, 
+        httpClient: IHttpClient = new PlayFabHttpClient(),
+        inputGatherer: IPlayFabLoginInputGatherer = new PlayFabLoginUserInputGatherer()) {
+        this._httpCli = httpClient;
+        this._inputGatherer = inputGatherer;
     }
 
     async createAccount(): Promise<void> {
@@ -190,34 +199,7 @@ export class PlayFabLoginManager {
     }
 
     private async getUserInputForLogin(): Promise<LoginRequest> {
-        const emailPrompt: string = localize('playfab-account.emailPrompt', 'Please enter your e-mail address');
-        const emailAddress: string = await window.showInputBox({
-            value: 'user@company.com',
-            prompt: emailPrompt
-        });
-
-        const passwordPrompt: string = localize('playfab-account.passwordPrompt', 'Please enter your password');
-        const password: string = await window.showInputBox({
-            value: '',
-            prompt: passwordPrompt,
-            password: true
-        });
-
-        const twofaPrompt: string = localize('playfab-account.twofaPrompt', 'Please enter your two-factor auth code');
-        const twofa: string = await window.showInputBox({
-            value: '123 456',
-            prompt: twofaPrompt,
-        });
-
-        let request = new LoginRequest();
-
-        request.Email = emailAddress;
-        request.Password = password;
-        request.TwoFactorAuth = twofa;
-        request.DeveloperToolProductName = ExtensionInfo.getExtensionName();
-        request.DeveloperToolProductVersion = ExtensionInfo.getExtensionVersion();
-
-        return request;
+        return await this._inputGatherer.getUserInputForLogin();
     }
 
     private showLoginError(statusCode: number, message: string): void {
@@ -260,5 +242,38 @@ export class PlayFabLoginManager {
             checkNetworkMessage,
             () => { throw new PlayFabLoginError(offlineMessage); }
         );
+    }
+}
+
+class PlayFabLoginUserInputGatherer implements IPlayFabLoginInputGatherer {
+    public async getUserInputForLogin(): Promise<LoginRequest> {
+        const emailPrompt: string = localize('playfab-account.emailPrompt', 'Please enter your e-mail address');
+        const emailAddress: string = await window.showInputBox({
+            value: 'user@company.com',
+            prompt: emailPrompt
+        });
+
+        const passwordPrompt: string = localize('playfab-account.passwordPrompt', 'Please enter your password');
+        const password: string = await window.showInputBox({
+            value: '',
+            prompt: passwordPrompt,
+            password: true
+        });
+
+        const twofaPrompt: string = localize('playfab-account.twofaPrompt', 'Please enter your two-factor auth code');
+        const twofa: string = await window.showInputBox({
+            value: '123 456',
+            prompt: twofaPrompt,
+        });
+
+        let request = new LoginRequest();
+
+        request.Email = emailAddress;
+        request.Password = password;
+        request.TwoFactorAuth = twofa;
+        request.DeveloperToolProductName = ExtensionInfo.getExtensionName();
+        request.DeveloperToolProductVersion = ExtensionInfo.getExtensionVersion();
+
+        return request;
     }
 }
