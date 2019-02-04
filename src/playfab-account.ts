@@ -18,6 +18,7 @@ interface PlayFabAccountWritable extends PlayFabAccount {
 }
 
 export interface IPlayFabLoginInputGatherer {
+    getUserInputForCreateAccount(): Promise<CreateAccountRequest>;
     getUserInputForLogin(): Promise<LoginRequest>;    
 }
 
@@ -153,49 +154,7 @@ export class PlayFabLoginManager {
     }
 
     private async getUserInputForCreateAccount(): Promise<CreateAccountRequest> {
-        const emailPrompt: string = localize('playfab-account.emailPrompt', 'Please enter your e-mail address');
-        const emailAddress: string = await window.showInputBox({
-            value: 'user@company.com',
-            prompt: emailPrompt
-        });
-
-        const newPasswordPrompt: string = localize('playfab-account.newPasswordPrompt', 'Please enter a password. Your password must be 8 characters or longer and contain at least two of these: uppercase characters, numbers, or symbols.');
-        const password: string = await window.showInputBox({
-            value: '',
-            prompt: newPasswordPrompt,
-            password: true
-        });
-
-        const reenterPasswordPrompt: string = localize('playfab-account.reenterPasswordPrompt', 'Please re-enter the password.');
-        const secondpassword: string = await window.showInputBox({
-            value: '',
-            prompt: reenterPasswordPrompt,
-            password: true
-        });
-
-        const studioNamePrompt: string = localize('playfab-account.studioNamePrompt', 'Please enter the name of your game studio.');
-        const studioName: string = await window.showInputBox({
-            value: '',
-            prompt: studioNamePrompt
-        });
-
-        let result: CreateAccountRequest = null;
-
-        if (password === secondpassword) {
-            result = new CreateAccountRequest();
-
-            result.Email = emailAddress;
-            result.Password = password;
-            result.StudioName = studioName;
-            result.DeveloperToolProductName = ExtensionInfo.getExtensionName();
-            result.DeveloperToolProductVersion = ExtensionInfo.getExtensionVersion();
-        }
-        else {
-            const msg: string = localize('playfab-account.passwordMismatch', 'Passwords did not match.');
-            await window.showErrorMessage(msg);
-        }
-
-        return result;
+        return await this._inputGatherer.getUserInputForCreateAccount();
     }
 
     private async getUserInputForLogin(): Promise<LoginRequest> {
@@ -246,6 +205,52 @@ export class PlayFabLoginManager {
 }
 
 class PlayFabLoginUserInputGatherer implements IPlayFabLoginInputGatherer {
+    public async getUserInputForCreateAccount(): Promise<CreateAccountRequest> {
+        const emailPrompt: string = localize('playfab-account.emailPrompt', 'Please enter your e-mail address');
+        const emailAddress: string = await window.showInputBox({
+            value: 'user@company.com',
+            prompt: emailPrompt
+        });
+
+        const newPasswordPrompt: string = localize('playfab-account.newPasswordPrompt', 'Please enter a password. Your password must be 8 characters or longer and contain at least two of these: uppercase characters, numbers, or symbols.');
+        const password: string = await window.showInputBox({
+            value: '',
+            prompt: newPasswordPrompt,
+            password: true
+        });
+
+        const reenterPasswordPrompt: string = localize('playfab-account.reenterPasswordPrompt', 'Please re-enter the password.');
+        const secondpassword: string = await window.showInputBox({
+            value: '',
+            prompt: reenterPasswordPrompt,
+            password: true
+        });
+
+        const studioNamePrompt: string = localize('playfab-account.studioNamePrompt', 'Please enter the name of your game studio.');
+        const studioName: string = await window.showInputBox({
+            value: '',
+            prompt: studioNamePrompt
+        });
+
+        let result: CreateAccountRequest = null;
+
+        if (password === secondpassword) {
+            result = new CreateAccountRequest();
+
+            result.Email = emailAddress;
+            result.Password = password;
+            result.StudioName = studioName;
+            result.DeveloperToolProductName = ExtensionInfo.getExtensionName();
+            result.DeveloperToolProductVersion = ExtensionInfo.getExtensionVersion();
+        }
+        else {
+            const msg: string = localize('playfab-account.passwordMismatch', 'Passwords did not match.');
+            await window.showErrorMessage(msg);
+        }
+
+        return result;
+    }
+
     public async getUserInputForLogin(): Promise<LoginRequest> {
         const emailPrompt: string = localize('playfab-account.emailPrompt', 'Please enter your e-mail address');
         const emailAddress: string = await window.showInputBox({
