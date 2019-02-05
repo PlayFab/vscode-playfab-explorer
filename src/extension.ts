@@ -23,35 +23,23 @@ export class ExtensionInfo {
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: ExtensionContext): void {
-    const loginManager = new PlayFabLoginManager(context);
-
+    
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     console.log(`${ExtensionInfo.getExtensionName()} is now active!`);
 
-    context.subscriptions.push(createStatusBarItem(context, loginManager.api));
-    context.subscriptions.push(commands.registerCommand('playfab-account.createAccount', async () => await createAccount(loginManager)));
-    context.subscriptions.push(commands.registerCommand('playfab-account.login', async () => await login(loginManager)));
-    context.subscriptions.push(commands.registerCommand('playfab-account.logout', async () => await logout(loginManager)));
+    const loginManager = new PlayFabLoginManager(context);
+    loginManager.registerCommands(context);
 
-    new PlayFabExplorer(context, loginManager.api);
+    context.subscriptions.push(createStatusBarItem(context, loginManager.api));
+
+    const explorer = new PlayFabExplorer(loginManager.api);
+    explorer.registerCommands(context);
 }
 
 // this method is called when your extension is deactivated
 export function deactivate(): void {
     // NOOP
-}
-
-export async function createAccount(loginManager: PlayFabLoginManager): Promise<void> {
-    await loginManager.createAccount();
-}
-
-export async function login(loginManager: PlayFabLoginManager): Promise<void> {
-    await loginManager.login();
-}
-
-export async function logout(loginManager: PlayFabLoginManager): Promise<void> {
-    await loginManager.logout();
 }
 
 function createStatusBarItem(context: ExtensionContext, api: PlayFabAccount): StatusBarItem {
@@ -77,7 +65,6 @@ function createStatusBarItem(context: ExtensionContext, api: PlayFabAccount): St
         }
     }
     context.subscriptions.push(
-        statusBarItem,
         api.onStatusChanged(updateStatusBar),
         api.onSessionsChanged(updateStatusBar),
         workspace.onDidChangeConfiguration(updateStatusBar)

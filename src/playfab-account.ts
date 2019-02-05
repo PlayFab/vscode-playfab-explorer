@@ -4,10 +4,11 @@
 //---------------------------------------------------------------------------------------------
 
 import * as nls from 'vscode-nls';
-import { ExtensionContext, window, EventEmitter } from 'vscode';
+import { commands, ExtensionContext, window, EventEmitter } from 'vscode';
 import { ExtensionInfo } from './extension';
 import { PlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
 import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper'
+import { PlayFabUriConstants } from './helpers/PlayFabUriConstants'
 import { CreateAccountRequest, CreateAccountResponse, LoginRequest, LoginResponse, LogoutRequest, LogoutResponse } from './models/PlayFabAccountModels'
 import { waitForOnline } from './helpers/PlayFabNetworkHelpers'
 
@@ -19,7 +20,7 @@ interface PlayFabAccountWritable extends PlayFabAccount {
 
 export interface IPlayFabLoginInputGatherer {
     getUserInputForCreateAccount(): Promise<CreateAccountRequest>;
-    getUserInputForLogin(): Promise<LoginRequest>;    
+    getUserInputForLogin(): Promise<LoginRequest>;
 }
 
 class PlayFabLoginError extends Error {
@@ -30,11 +31,6 @@ class PlayFabLoginError extends Error {
 
 export class PlayFabLoginManager {
 
-    private static baseUrl: string = 'https://editor.playfabapi.com';
-    private static createAccountPath: string = '/DeveloperTools/User/RegisterAccount';
-    private static loginPath: string = '/DeveloperTools/User/Login';
-    private static logoutPath: string = '/DeveloperTools/User/Logout';
-
     private onStatusChanged = new EventEmitter<PlayFabLoginStatus>();
     private onSessionsChanged = new EventEmitter<void>();
 
@@ -42,7 +38,7 @@ export class PlayFabLoginManager {
     private _inputGatherer: IPlayFabLoginInputGatherer;
 
     constructor(
-        private context: ExtensionContext, 
+        private context: ExtensionContext,
         httpClient: IHttpClient = new PlayFabHttpClient(),
         inputGatherer: IPlayFabLoginInputGatherer = new PlayFabLoginUserInputGatherer()) {
         this._httpCli = httpClient;
@@ -56,8 +52,8 @@ export class PlayFabLoginManager {
         let request: CreateAccountRequest = await this.getUserInputForCreateAccount();
 
         await this._httpCli.makeApiCall(
-            PlayFabLoginManager.createAccountPath,
-            PlayFabLoginManager.baseUrl,
+            PlayFabUriConstants.createAccountPath,
+            PlayFabUriConstants.editorBaseUrl,
             request,
             (response: CreateAccountResponse): void => {
                 this.api.sessions.splice(0, this.api.sessions.length, {
@@ -83,10 +79,10 @@ export class PlayFabLoginManager {
         this.beginLoggingIn();
 
         let request: LoginRequest = await this.getUserInputForLogin();
-        
+
         await this._httpCli.makeApiCall(
-            PlayFabLoginManager.loginPath,
-            PlayFabLoginManager.baseUrl,
+            PlayFabUriConstants.loginPath,
+            PlayFabUriConstants.editorBaseUrl,
             request,
             (response: LoginResponse): void => {
                 this.api.sessions.splice(0, this.api.sessions.length, {
@@ -113,8 +109,8 @@ export class PlayFabLoginManager {
         request.DeveloperClientToken = this.api.getToken();
 
         await this._httpCli.makeApiCall(
-            PlayFabLoginManager.logoutPath,
-            PlayFabLoginManager.baseUrl,
+            PlayFabUriConstants.logoutPath,
+            PlayFabUriConstants.editorBaseUrl,
             request,
             (response: LogoutResponse): void => {
             },
@@ -124,6 +120,12 @@ export class PlayFabLoginManager {
 
         this.clearSessions();
         this.endLoggingInOrOut();
+    }
+
+    public registerCommands(context: ExtensionContext) {
+        context.subscriptions.push(commands.registerCommand('playfab-account.createAccount', async () => await this.createAccount()));
+        context.subscriptions.push(commands.registerCommand('playfab-account.login', async () => await this.login()));
+        context.subscriptions.push(commands.registerCommand('playfab-account.logout', async () => await this.logout()));
     }
 
     api: PlayFabAccount = {

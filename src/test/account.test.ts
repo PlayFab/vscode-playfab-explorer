@@ -1,23 +1,16 @@
-//
-// Note: This example test is leveraging the Mocha test framework.
-// Please refer to their documentation on https://mochajs.org/ for help.
-//
+//---------------------------------------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation. All rights reserved.
+//  Licensed under the MIT License. See License.md in the project root for license information.
+//---------------------------------------------------------------------------------------------
 
-// The module 'assert' provides assertion methods from node
 import * as assert from 'assert'
 import * as Moq from 'typemoq'
 import { IHttpClient } from '../helpers/PlayFabHttpHelper'
+import { PlayFabUriConstants } from '../helpers/PlayFabUriConstants'
 import { CreateAccountRequest, CreateAccountResponse, LoginResponse, LoginRequest, LogoutRequest, LogoutResponse } from '../models/PlayFabAccountModels';
 import { PlayFabLoginManager, IPlayFabLoginInputGatherer } from '../playfab-account';
-import { beforeEach } from 'mocha';
 
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
-// import * as vscode from 'vscode';
-// import * as myExtension from '../extension';
-
-// Defines a Mocha test suite to group tests of similar kind together
-suite('Extension Tests', function () {
+suite('Account Tests', function () {
 
   class User {
     email: string;
@@ -32,10 +25,10 @@ suite('Extension Tests', function () {
   let user1: User = {
     email: "user1@domain.suffix",
     password: "supersecret",
-    twofa:  "123456",
-    studioName:  "Small And Fast",
-    devToolName:  "UnitTest",
-    devToolVersion:  "001",
+    twofa: "123456",
+    studioName: "Small And Fast",
+    devToolName: "UnitTest",
+    devToolVersion: "001",
     token: "abcdef"
   };
 
@@ -77,7 +70,7 @@ suite('Extension Tests', function () {
 
   let httpCli: Moq.IMock<IHttpClient> = Moq.Mock.ofType<IHttpClient>();
   httpCli.setup(x => x.makeApiCall(
-    Moq.It.isValue('/DeveloperTools/User/Login'),
+    Moq.It.isValue(PlayFabUriConstants.loginPath),
     Moq.It.isAnyString(),
     Moq.It.is<LoginRequest>(x => true),
     Moq.It.isAny(),
@@ -97,7 +90,7 @@ suite('Extension Tests', function () {
       });
 
   httpCli.setup(x => x.makeApiCall(
-    Moq.It.isValue('/DeveloperTools/User/Logout'),
+    Moq.It.isValue(PlayFabUriConstants.logoutPath),
     Moq.It.isAnyString(),
     Moq.It.is<LoginRequest>(x => true),
     Moq.It.isAny(),
@@ -116,7 +109,7 @@ suite('Extension Tests', function () {
       });
 
   httpCli.setup(x => x.makeApiCall(
-    Moq.It.isValue('/DeveloperTools/User/RegisterAccount'),
+    Moq.It.isValue(PlayFabUriConstants.createAccountPath),
     Moq.It.isAnyString(),
     Moq.It.is<CreateAccountRequest>(x => true),
     Moq.It.isAny(),
@@ -162,7 +155,7 @@ suite('Extension Tests', function () {
     apiToken = loginManager.api.getToken();
     assert(apiToken === user2.token, "Token does not match");
   });
-  
+
   test('LoginWhenLoggedOut', async function () {
     user = user1;
     let loginManager: PlayFabLoginManager = new PlayFabLoginManager(null, httpCli.object, inputGatherer.object);
@@ -199,7 +192,7 @@ suite('Extension Tests', function () {
     assert(apiToken === user1.token, "Token does not match");
 
     user = user2;
-    
+
     await loginManager.login()
     assert(loginManager.api.status === "LoggedIn", "Status is not LoggedIn");
     apiToken = loginManager.api.getToken();
