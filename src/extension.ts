@@ -3,13 +3,13 @@
 //  Licensed under the MIT License. See License.md in the project root for license information.
 //---------------------------------------------------------------------------------------------
 
-import { commands, ExtensionContext, StatusBarItem, window, workspace } from 'vscode';
-import * as nls from 'vscode-nls';
+import { ExtensionContext, StatusBarItem, window, workspace } from 'vscode';
+import { loadMessageBundle } from 'vscode-nls';
 import { PlayFabLoginManager } from './playfab-account';
 import { PlayFabAccount } from './playfab-account.api';
-import { PlayFabExplorer } from './playfab-explorer'
+import { PlayFabExplorer } from './playfab-explorer';
 
-const localize = nls.loadMessageBundle();
+const localize = loadMessageBundle();
 
 export class ExtensionInfo {
     private static extensionName: string = 'vscode-playfab-account';
@@ -23,7 +23,7 @@ export class ExtensionInfo {
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: ExtensionContext): void {
-    
+
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     console.log(`${ExtensionInfo.getExtensionName()} is now active!`);

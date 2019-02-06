@@ -5,10 +5,13 @@
 
 import * as assert from 'assert'
 import * as Moq from 'typemoq'
+import { PlayFabLoginManager, IPlayFabLoginInputGatherer } from '../playfab-account';
 import { IHttpClient } from '../helpers/PlayFabHttpHelper'
 import { PlayFabUriConstants } from '../helpers/PlayFabUriConstants'
-import { CreateAccountRequest, CreateAccountResponse, LoginResponse, LoginRequest, LogoutRequest, LogoutResponse } from '../models/PlayFabAccountModels';
-import { PlayFabLoginManager, IPlayFabLoginInputGatherer } from '../playfab-account';
+import {
+  CreateAccountRequest, CreateAccountResponse, LoginResponse, LoginRequest,
+  LogoutRequest, LogoutResponse
+} from '../models/PlayFabAccountModels';
 
 suite('Account Tests', function () {
 

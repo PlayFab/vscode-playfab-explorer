@@ -3,21 +3,30 @@
 //  Licensed under the MIT License. See License.md in the project root for license information.
 //---------------------------------------------------------------------------------------------
 
-import { commands, Command, Event, EventEmitter, ExtensionContext, TextDocument, TreeDataProvider, TreeItem, TreeItemCollapsibleState, TreeView, window, Uri, workspace, QuickPickOptions, QuickInputButtons } from 'vscode';
+import {
+    commands, Command, Event, EventEmitter, ExtensionContext, TextDocument, TreeDataProvider, TreeItem,
+    TreeItemCollapsibleState, TreeView, window, Uri, workspace
+} from 'vscode';
 import { loadMessageBundle } from 'vscode-nls';
-import { Studio, GetStudiosRequest, GetStudiosResponse } from './models/PlayFabStudioModels';
-import { Title, CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse, SetTitleDataRequest, SetTitleDataResponse } from './models/PlayFabTitleModels';
-import { CloudScriptFile, GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse, UpdateCloudScriptRequest, UpdateCloudScriptResponse } from './models/PlayFabLegacyCloudScriptModels';
-import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper'
-import { PlayFabUriConstants } from './helpers/PlayFabUriConstants'
 import { PlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
-import { MapFromObject } from './helpers/PlayFabDataHelpers'
+import { MapFromObject } from './helpers/PlayFabDataHelpers';
+import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper';
+import { PlayFabUriConstants } from './helpers/PlayFabUriConstants';
+import {
+    CloudScriptFile, GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse,
+    UpdateCloudScriptRequest, UpdateCloudScriptResponse
+} from './models/PlayFabLegacyCloudScriptModels';
+import { Studio, GetStudiosRequest, GetStudiosResponse } from './models/PlayFabStudioModels';
+import {
+    Title, CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse,
+    SetTitleDataRequest, SetTitleDataResponse
+} from './models/PlayFabTitleModels';
 
 const localize = loadMessageBundle();
 
 type EntryType = 'Studio' | 'Title' | "Command";
 
-export interface IEntry {
+interface IEntry {
     name: string;
     type: EntryType;
     data: any;

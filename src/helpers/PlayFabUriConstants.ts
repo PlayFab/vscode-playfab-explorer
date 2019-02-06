@@ -6,7 +6,7 @@
 export class PlayFabUriConstants {
     private static adminBaseUrl: string = 'https://{titleId}.playfabapi.com'
 
-    public static editorBaseUrl: string = 'https://editor.playfabapi.com';    
+    public static editorBaseUrl: string = 'https://editor.playfabapi.com';
 
     public static GetAdminBaseUrl(titleId: string): string {
         return PlayFabUriConstants.adminBaseUrl.replace('{titleId}', titleId);
