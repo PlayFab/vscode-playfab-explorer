@@ -3,16 +3,20 @@
 //  Licensed under the MIT License. See License.md in the project root for license information.
 //---------------------------------------------------------------------------------------------
 
-import * as nls from 'vscode-nls';
 import { commands, ExtensionContext, window, EventEmitter } from 'vscode';
+import { loadMessageBundle } from 'vscode-nls';
 import { ExtensionInfo } from './extension';
 import { PlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
-import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper'
-import { PlayFabUriConstants } from './helpers/PlayFabUriConstants'
-import { CreateAccountRequest, CreateAccountResponse, LoginRequest, LoginResponse, LogoutRequest, LogoutResponse } from './models/PlayFabAccountModels'
-import { waitForOnline } from './helpers/PlayFabNetworkHelpers'
+import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper';
+import { waitForOnline } from './helpers/PlayFabNetworkHelpers';
+import { PlayFabUriConstants } from './helpers/PlayFabUriConstants';
+import {
+    CreateAccountRequest, CreateAccountResponse, LoginRequest, LoginResponse,
+    LogoutRequest, LogoutResponse
+} from './models/PlayFabAccountModels';
 
-const localize = nls.loadMessageBundle();
+
+const localize = loadMessageBundle();
 
 interface PlayFabAccountWritable extends PlayFabAccount {
     status: PlayFabLoginStatus;

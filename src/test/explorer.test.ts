@@ -5,14 +5,20 @@
 
 import * as assert from 'assert'
 import * as Moq from 'typemoq'
-import { IHttpClient } from '../helpers/PlayFabHttpHelper'
-import { CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse, SetTitleDataRequest, SetTitleDataResponse, Title } from '../models/PlayFabTitleModels'
-import { GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse, UpdateCloudScriptRequest, UpdateCloudScriptResponse } from '../models/PlayFabLegacyCloudScriptModels'
-import { IPlayFabExplorerInputGatherer, PlayFabExplorer } from '../playfab-explorer'
-import { PlayFabUriConstants } from '../helpers/PlayFabUriConstants';
 import { PlayFabAccount } from '../playfab-account.api';
-import { Studio } from '../models/PlayFabStudioModels';
+import { IPlayFabExplorerInputGatherer, PlayFabExplorer } from '../playfab-explorer'
 import { MapFromObject } from '../helpers/PlayFabDataHelpers'
+import { IHttpClient } from '../helpers/PlayFabHttpHelper'
+import { PlayFabUriConstants } from '../helpers/PlayFabUriConstants';
+import {
+  CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse,
+  SetTitleDataRequest, SetTitleDataResponse, Title
+} from '../models/PlayFabTitleModels'
+import {
+  GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse, UpdateCloudScriptRequest,
+  UpdateCloudScriptResponse
+} from '../models/PlayFabLegacyCloudScriptModels'
+import { Studio } from '../models/PlayFabStudioModels';
 
 suite('Explorer Tests', function () {
 
