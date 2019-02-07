@@ -16,6 +16,7 @@ import {
     CloudScriptFile, GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse,
     UpdateCloudScriptRequest, UpdateCloudScriptResponse
 } from './models/PlayFabLegacyCloudScriptModels';
+import { ErrorResponse } from "./models/PlayFabHttpModels";
 import { Studio, GetStudiosRequest, GetStudiosResponse } from './models/PlayFabStudioModels';
 import {
     Title, CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse,
@@ -77,8 +78,8 @@ export class PlayFabExplorer {
             (response: CreateTitleResponse) => {
                 // NOOP
             },
-            (code: number, error: string) => {
-                this.showError(code, error);
+            (response: ErrorResponse) => {
+                this.showError(response);
             });
     }
 
@@ -104,8 +105,8 @@ export class PlayFabExplorer {
                         });
                 }
             },
-            (code: number, error: string) => {
-                this.showError(code, error);
+            (response: ErrorResponse) => {
+                this.showError(response);
             });
     }
 
@@ -128,8 +129,8 @@ export class PlayFabExplorer {
                 const msg: string = localize('playfab-explorer.cloudscriptUpdated', 'CloudScript updated to revision {0}', response.Revision);
                 window.showInformationMessage(msg)
             },
-            (code: number, error: string) => {
-                this.showError(code, error);
+            (response: ErrorResponse) => {
+                this.showError(response);
             });
     }
 
@@ -155,8 +156,8 @@ export class PlayFabExplorer {
                     window.showInformationMessage(msg);
                 }
             },
-            (code: number, error: string) => {
-                this.showError(code, error);
+            (response: ErrorResponse) => {
+                this.showError(response);
             });
     }
 
@@ -174,8 +175,8 @@ export class PlayFabExplorer {
                 const msg: string = localize('playfab-explorer.titleDataSet', 'Title data set');
                 window.showInformationMessage(msg);
             },
-            (code: number, error: string) => {
-                this.showError(code, error);
+            (response: ErrorResponse) => {
+                this.showError(response);
             });
     }
 
@@ -208,8 +209,8 @@ export class PlayFabExplorer {
         return await this._inputGatherer.getUserInputForSetTitleData();
     }
 
-    private showError(statusCode: number, message: string): void {
-        window.showErrorMessage(`${statusCode} - ${message}`);
+    private showError(response: ErrorResponse): void {
+        window.showErrorMessage(`${response.error} - ${response.errorMessage}`);
     }
 }
 
@@ -421,8 +422,8 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
             (response: GetStudiosResponse) => {
                 this._rootData = response.Studios;
             },
-            (code: number, error: string) => {
-                this.showError(code, error);
+            (response: ErrorResponse) => {
+                this.showError(response);
                 this.clearRootData();
             });
     }
@@ -448,7 +449,7 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
         this._onDidChangeTreeData.fire();
     }
 
-    private showError(statusCode: number, message: string): void {
-        window.showErrorMessage(`${statusCode} - ${message}`);
+    private showError(response: ErrorResponse): void {
+        window.showErrorMessage(`${response.error} - ${response.errorMessage}`);
     }
 }
