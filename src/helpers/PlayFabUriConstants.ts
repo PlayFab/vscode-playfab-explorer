@@ -4,12 +4,12 @@
 //---------------------------------------------------------------------------------------------
 
 export class PlayFabUriConstants {
-    private static adminBaseUrl: string = 'https://{titleId}.playfabapi.com'
+    private static playfabBaseUrl: string = 'https://{titleId}.playfabapi.com'
 
     public static editorBaseUrl: string = 'https://editor.playfabapi.com';
 
-    public static GetAdminBaseUrl(titleId: string): string {
-        return PlayFabUriConstants.adminBaseUrl.replace('{titleId}', titleId);
+    public static GetPlayFabBaseUrl(titleId: string): string {
+        return PlayFabUriConstants.playfabBaseUrl.replace('{titleId}', titleId);
     }
 
     public static createTitlePath: string = '/DeveloperTools/User/CreateTitle';
@@ -17,6 +17,8 @@ export class PlayFabUriConstants {
     public static setTitleDataPath: string = '/Admin/SetTitleData';
     public static getTitleInternalDataPath: string = '/Admin/GetTitleInternalData';
     public static setTitleInternalDataPath: string = '/Admin/SetTitleInternalData';
+    public static registerFunctionPath: string = '/CloudScript/RegisterFunction';
+    public static unregisterFunctionPath: string = '/CloudScript/UnregisterFunction';    
     public static updateCloudScriptPath: string = '/Admin/UpdateCloudScript';
     public static getCloudScriptRevisionPath: string = '/Admin/GetCloudScriptRevision';
 
@@ -25,4 +27,6 @@ export class PlayFabUriConstants {
     public static createAccountPath: string = '/DeveloperTools/User/RegisterAccount';
     public static loginPath: string = '/DeveloperTools/User/Login';
     public static logoutPath: string = '/DeveloperTools/User/Logout';
+
+    public static getEntityToken: string = '/Authentication/GetEntityToken';
 };

@@ -3,8 +3,8 @@
 //  Licensed under the MIT License. See License.md in the project root for license information.
 //---------------------------------------------------------------------------------------------
 
-import * as assert from 'assert'
-import { MapFromObject } from '../helpers/PlayFabDataHelpers'
+import * as assert from 'assert';
+import { GetLastPathPartFromUri, MapFromObject } from '../helpers/PlayFabDataHelpers';
 
 suite('DataHelper Tests', function () {
 
@@ -47,4 +47,57 @@ suite('DataHelper Tests', function () {
         assert(map.size == 0, `Expected empty map, but map has ${map.size} entries.`);
     });
 
+    test('GetLastPathPartFromUriForEmptyStringReturnsNull', function() {
+        let result: string = GetLastPathPartFromUri("");
+        assert(result === null, `Expected empty string but got ${result}`);
+    });
+
+    test('GetLastPathPartFromUriForUriWithNoPathReturnsNull', function() {
+        let result: string = GetLastPathPartFromUri("http://www.microsoft.com");
+        assert(result === null, `Expected empty string but got ${result}`);
+    });
+
+    test('GetLastPathPartFromUriForUriWithNoSlashAtEndOfPathReturnsExpectedValue', function() {
+        let result: string = GetLastPathPartFromUri("http://www.microsoft.com/path1");
+        assert(result === "path1", `Expected path1 but got ${result}`);
+
+        result = GetLastPathPartFromUri("http://www.microsoft.com/path1/path2");
+        assert(result === "path2", `Expected path2 but got ${result}`)
+
+        result = GetLastPathPartFromUri("http://www.microsoft.com/path1/path2/path3");
+        assert(result === "path3", `Expected path3 but got ${result}`)
+    });
+
+    test('GetLastPathPartFromUriForUriWithNoSlashAtEndOfPathAndQueryStringReturnsExpectedValue', function() {
+        let result: string = GetLastPathPartFromUri("http://www.microsoft.com/path1?code=abc");
+        assert(result === "path1", `Expected path1 but got ${result}`);
+
+        result = GetLastPathPartFromUri("http://www.microsoft.com/path1/path2?code=abc");
+        assert(result === "path2", `Expected path2 but got ${result}`)
+
+        result = GetLastPathPartFromUri("http://www.microsoft.com/path1/path2/path3?code=abc");
+        assert(result === "path3", `Expected path3 but got ${result}`)
+    });
+
+    test('GetLastPathPartFromUriForUriWithSlashAtEndOfPathReturnsExpectedValue', function() {
+        let result: string = GetLastPathPartFromUri("http://www.microsoft.com/path1/");
+        assert(result === null, `Expected null string but got ${result}`);
+
+        result = GetLastPathPartFromUri("http://www.microsoft.com/path1/path2/");
+        assert(result === null, `Expected null string but got ${result}`)
+
+        result = GetLastPathPartFromUri("http://www.microsoft.com/path1/path2/path3/");
+        assert(result === null, `Expected null but got ${result}`)
+    });
+
+    test('GetLastPathPartFromUriForUriWithSlashAtEndOfPathAndQueryStringReturnsExpectedValue', function() {
+        let result: string = GetLastPathPartFromUri("http://www.microsoft.com/path1/?code=abc");
+        assert(result === null, `Expected null string but got ${result}`);
+
+        result = GetLastPathPartFromUri("http://www.microsoft.com/path1/path2/?code=abc");
+        assert(result === null, `Expected null string but got ${result}`)
+
+        result = GetLastPathPartFromUri("http://www.microsoft.com/path1/path2/path3/?code=abc");
+        assert(result === null, `Expected null but got ${result}`)
+    });
 });
