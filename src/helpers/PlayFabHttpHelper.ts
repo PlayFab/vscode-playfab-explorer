@@ -15,13 +15,29 @@ export interface IHttpClient {
         responseCallback: (response: TResponse) => void,
         errorCallback: (response: ErrorResponse) => void): Promise<void>;
 
+    makeEntityApiCall<TRequest, TResponse>(
+        path: string,
+        endpoint: string,
+        request: TRequest,
+        entityToken: string,
+        responseCallback: (response: TResponse) => void,
+        errorCallback: (response: ErrorResponse) => void): Promise<void>;
+
     makeTitleApiCall<TRequest, TResponse>(
-            path: string,
-            endpoint: string,
-            request: TRequest,
-            titleSecret: string,
-            responseCallback: (response: TResponse) => void,
-            errorCallback: (response: ErrorResponse) => void): Promise<void>;
+        path: string,
+        endpoint: string,
+        request: TRequest,
+        titleSecret: string,
+        responseCallback: (response: TResponse) => void,
+        errorCallback: (response: ErrorResponse) => void): Promise<void>;
+}
+
+class EntityToken {
+    token: string;
+}
+
+class TitleSecret {
+    secret: string;
 }
 
 export class PlayFabHttpClient implements IHttpClient {
@@ -35,6 +51,16 @@ export class PlayFabHttpClient implements IHttpClient {
         await this.makeApiCallInternal(path, endpoint, request, null, responseCallback, errorCallback);
     }
 
+    public async makeEntityApiCall<TRequest, TResponse>(
+        path: string,
+        endpoint: string,
+        request: TRequest,
+        entityToken: string,
+        responseCallback: (response: TResponse) => void,
+        errorCallback: (response: ErrorResponse) => void): Promise<void> {
+        await this.makeApiCallInternal(path, endpoint, request, { token: entityToken }, responseCallback, errorCallback);
+    }
+
     public async makeTitleApiCall<TRequest, TResponse>(
         path: string,
         endpoint: string,
@@ -42,14 +68,14 @@ export class PlayFabHttpClient implements IHttpClient {
         titleSecret: string,
         responseCallback: (response: TResponse) => void,
         errorCallback: (response: ErrorResponse) => void): Promise<void> {
-        await this.makeApiCallInternal(path, endpoint, request, titleSecret, responseCallback, errorCallback);
+        await this.makeApiCallInternal(path, endpoint, request, { secret: titleSecret }, responseCallback, errorCallback);
     }
 
     private async makeApiCallInternal<TRequest, TResponse>(
         path: string,
         endpoint: string,
         request: TRequest,
-        key: string,
+        keyOrToken: EntityToken | TitleSecret,
         responseCallback: (response: TResponse) => void,
         errorCallback: (response: ErrorResponse) => void): Promise<void> {
         let url: string = endpoint + path;
@@ -61,25 +87,30 @@ export class PlayFabHttpClient implements IHttpClient {
             'X-PlayFabSDK': ExtensionInfo.getExtensionInfo()
         };
 
-        if (path.includes('/Server/') || path.includes('/Admin/') && key != null && key != undefined) {
-            headers['X-SecretKey'] = key;
+        if (keyOrToken != null && keyOrToken != undefined) {
+            if ((<TitleSecret>keyOrToken).secret) {
+                headers['X-SecretKey'] = (<TitleSecret>keyOrToken).secret;
+            }
+            else if ((<EntityToken>keyOrToken).token) {
+                headers['X-EntityToken'] = (<EntityToken>keyOrToken).token;
+            }
         }
 
         let httpCli = new http.HttpClient(ExtensionInfo.getExtensionName());
         var httpResponse: http.HttpClientResponse = await httpCli.post(url, requestBody, headers);
-                
+
         let rawBody: string = await httpResponse.readBody();
-        
-        if (this.isSuccessCode(httpResponse.message.statusCode)) {            
+
+        if (this.isSuccessCode(httpResponse.message.statusCode)) {
             let rawResponse = JSON.parse(rawBody);
             let response: TResponse = rawResponse.data;
 
             responseCallback(response);
         }
         else {
-            
             let rawErrorRespone = JSON.parse(rawBody);
             let errorResponse: ErrorResponse = rawErrorRespone;
+
             errorCallback(errorResponse);
         }
     }
