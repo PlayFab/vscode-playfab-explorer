@@ -14,6 +14,7 @@ import {
     CreateAccountRequest, CreateAccountResponse, LoginRequest, LoginResponse,
     LogoutRequest, LogoutResponse
 } from './models/PlayFabAccountModels';
+import { ErrorResponse } from './models/PlayFabHttpModels';
 
 
 const localize = loadMessageBundle();
@@ -25,6 +26,7 @@ interface PlayFabAccountWritable extends PlayFabAccount {
 export interface IPlayFabLoginInputGatherer {
     getUserInputForCreateAccount(): Promise<CreateAccountRequest>;
     getUserInputForLogin(): Promise<LoginRequest>;
+    getUserInputForTwoFA(request: LoginRequest): Promise<LoginRequest>;
 }
 
 class PlayFabLoginError extends Error {
@@ -68,8 +70,8 @@ export class PlayFabLoginManager {
                     userId: request.Email
                 });
             },
-            (code: number, message: string): void => {
-                this.showLoginError(code, message);
+            (response: ErrorResponse): void => {
+                this.showLoginError(response);
                 this.clearSessions();
             });
 
@@ -83,6 +85,7 @@ export class PlayFabLoginManager {
         this.beginLoggingIn();
 
         let request: LoginRequest = await this.getUserInputForLogin();
+        let needTwofa: boolean = false;
 
         await this._httpCli.makeApiCall(
             PlayFabUriConstants.loginPath,
@@ -97,10 +100,37 @@ export class PlayFabLoginManager {
                     userId: request.Email
                 });
             },
-            (code: number, message: string): void => {
-                this.showLoginError(code, message);
+            (response: ErrorResponse): void => {
                 this.clearSessions();
+                needTwofa = this.IsTwoFaError(response);
+                if(!needTwofa)
+                {
+                    this.showLoginError(response);
+                }
             });
+
+        if(needTwofa)
+        {
+            request = await this.getUserInputForTwoFA(request);
+
+            await this._httpCli.makeApiCall(
+                PlayFabUriConstants.loginPath,
+                PlayFabUriConstants.editorBaseUrl,
+                request,
+                (response: LoginResponse): void => {
+                    this.api.sessions.splice(0, this.api.sessions.length, {
+                        cloud: 'global',
+                        credentials: {
+                            token: response.DeveloperClientToken
+                        },
+                        userId: request.Email
+                    });
+                },
+                (response: ErrorResponse): void => {
+                    this.showLoginError(response);
+                    this.clearSessions();
+                });
+        }
 
         this.endLoggingInOrOut();
     }
@@ -118,8 +148,8 @@ export class PlayFabLoginManager {
             request,
             (response: LogoutResponse): void => {
             },
-            (code: number, message: string): void => {
-                this.showLoginError(code, message);
+            (response: ErrorResponse): void => {
+                this.showLoginError(response);
             });
 
         this.clearSessions();
@@ -167,8 +197,16 @@ export class PlayFabLoginManager {
         return await this._inputGatherer.getUserInputForLogin();
     }
 
-    private showLoginError(statusCode: number, message: string): void {
-        window.showErrorMessage(`${statusCode} - ${message}`);
+    private async getUserInputForTwoFA(request: LoginRequest): Promise<LoginRequest> {
+        return await this._inputGatherer.getUserInputForTwoFA(request);
+    }
+
+    private IsTwoFaError(response: ErrorResponse): boolean {
+        return response.errorCode === 1246;
+    }
+    
+    private showLoginError(response: ErrorResponse): void {
+        window.showErrorMessage(response.errorMessage);
     }
 
     private updateStatus(status: PlayFabLoginStatus): void {
@@ -271,20 +309,26 @@ class PlayFabLoginUserInputGatherer implements IPlayFabLoginInputGatherer {
             password: true
         });
 
+        let request = new LoginRequest();
+
+        request.Email = emailAddress;
+        request.Password = password;
+        request.TwoFactorAuth = "";
+        request.DeveloperToolProductName = ExtensionInfo.getExtensionName();
+        request.DeveloperToolProductVersion = ExtensionInfo.getExtensionVersion();
+
+        return request;
+    }
+
+    public async getUserInputForTwoFA(request: LoginRequest): Promise<LoginRequest> {
         const twofaPrompt: string = localize('playfab-account.twofaPrompt', 'Please enter your two-factor auth code');
         const twofa: string = await window.showInputBox({
             value: '123 456',
             prompt: twofaPrompt,
         });
 
-        let request = new LoginRequest();
-
-        request.Email = emailAddress;
-        request.Password = password;
         request.TwoFactorAuth = twofa;
-        request.DeveloperToolProductName = ExtensionInfo.getExtensionName();
-        request.DeveloperToolProductVersion = ExtensionInfo.getExtensionVersion();
-
         return request;
     }
+    
 }

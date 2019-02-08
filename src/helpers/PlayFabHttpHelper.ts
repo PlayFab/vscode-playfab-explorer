@@ -5,6 +5,7 @@
 
 import * as http from 'typed-rest-client/HttpClient';
 import { ExtensionInfo } from '../extension';
+import { ErrorResponse } from "../models/PlayFabHttpModels"
 
 export interface IHttpClient {
     makeApiCall<TRequest, TResponse>(
@@ -12,7 +13,7 @@ export interface IHttpClient {
         endpoint: string,
         request: TRequest,
         responseCallback: (response: TResponse) => void,
-        errorCallback: (code: number, error: string) => void): Promise<void>;
+        errorCallback: (response: ErrorResponse) => void): Promise<void>;
 
     makeTitleApiCall<TRequest, TResponse>(
             path: string,
@@ -20,7 +21,7 @@ export interface IHttpClient {
             request: TRequest,
             titleSecret: string,
             responseCallback: (response: TResponse) => void,
-            errorCallback: (code: number, error: string) => void): Promise<void>;
+            errorCallback: (response: ErrorResponse) => void): Promise<void>;
 }
 
 export class PlayFabHttpClient implements IHttpClient {
@@ -30,7 +31,7 @@ export class PlayFabHttpClient implements IHttpClient {
         endpoint: string,
         request: TRequest,
         responseCallback: (response: TResponse) => void,
-        errorCallback: (code: number, error: string) => void): Promise<void> {
+        errorCallback: (response: ErrorResponse) => void): Promise<void> {
         await this.makeApiCallInternal(path, endpoint, request, null, responseCallback, errorCallback);
     }
 
@@ -40,7 +41,7 @@ export class PlayFabHttpClient implements IHttpClient {
         request: TRequest,
         titleSecret: string,
         responseCallback: (response: TResponse) => void,
-        errorCallback: (code: number, error: string) => void): Promise<void> {
+        errorCallback: (response: ErrorResponse) => void): Promise<void> {
         await this.makeApiCallInternal(path, endpoint, request, titleSecret, responseCallback, errorCallback);
     }
 
@@ -50,7 +51,7 @@ export class PlayFabHttpClient implements IHttpClient {
         request: TRequest,
         key: string,
         responseCallback: (response: TResponse) => void,
-        errorCallback: (code: number, error: string) => void): Promise<void> {
+        errorCallback: (response: ErrorResponse) => void): Promise<void> {
         let url: string = endpoint + path;
         let requestBody: string = JSON.stringify(request);
 
@@ -66,17 +67,20 @@ export class PlayFabHttpClient implements IHttpClient {
 
         let httpCli = new http.HttpClient(ExtensionInfo.getExtensionName());
         var httpResponse: http.HttpClientResponse = await httpCli.post(url, requestBody, headers);
-
-        if (this.isSuccessCode(httpResponse.message.statusCode)) {
-
-            let rawBody: string = await httpResponse.readBody();
+                
+        let rawBody: string = await httpResponse.readBody();
+        
+        if (this.isSuccessCode(httpResponse.message.statusCode)) {            
             let rawResponse = JSON.parse(rawBody);
             let response: TResponse = rawResponse.data;
 
             responseCallback(response);
         }
         else {
-            errorCallback(httpResponse.message.statusCode, httpResponse.message.statusMessage);
+            
+            let rawErrorRespone = JSON.parse(rawBody);
+            let errorResponse: ErrorResponse = rawErrorRespone;
+            errorCallback(errorResponse);
         }
     }
 

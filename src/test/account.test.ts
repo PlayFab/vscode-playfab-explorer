@@ -12,6 +12,7 @@ import {
   CreateAccountRequest, CreateAccountResponse, LoginResponse, LoginRequest,
   LogoutRequest, LogoutResponse
 } from '../models/PlayFabAccountModels';
+import { ErrorResponse } from '../models/PlayFabHttpModels';
 
 suite('Account Tests', function () {
 
@@ -28,7 +29,7 @@ suite('Account Tests', function () {
   let user1: User = {
     email: "user1@domain.suffix",
     password: "supersecret",
-    twofa: "123456",
+    twofa: "",
     studioName: "Small And Fast",
     devToolName: "UnitTest",
     devToolVersion: "001",
@@ -63,11 +64,16 @@ suite('Account Tests', function () {
       let result: LoginRequest = {
         Email: user.email,
         Password: user.password,
-        TwoFactorAuth: user.twofa,
+        TwoFactorAuth: "",
         DeveloperToolProductName: user.devToolName,
         DeveloperToolProductVersion: user.devToolVersion
       };
       return result;
+    });
+  inputGatherer.setup(x => x.getUserInputForTwoFA(Moq.It.is<LoginRequest>(x => true)))
+    .returns(async (request: LoginRequest) => {
+      request.TwoFactorAuth = user.twofa;
+      return request;
     });
 
 
@@ -83,7 +89,7 @@ suite('Account Tests', function () {
         endpoint: string,
         request: LoginRequest,
         successCallback: (response: LoginResponse) => void,
-        errorCallback: (code: number, message: string) => void
+        errorCallback: (response: ErrorResponse) => void
       ): Promise<void> => {
         let response: LoginResponse = {
           DeveloperClientToken: user.token,
@@ -103,7 +109,7 @@ suite('Account Tests', function () {
         endpoint: string,
         request: LogoutRequest,
         successCallback: (response: LogoutResponse) => void,
-        errorCallback: (code: number, message: string) => void
+        errorCallback: (response: ErrorResponse) => void
       ): Promise<void> => {
         let response: LogoutResponse = {
         };
@@ -122,7 +128,7 @@ suite('Account Tests', function () {
         endpoint: string,
         request: CreateAccountRequest,
         successCallback: (response: CreateAccountResponse) => void,
-        errorCallback: (code: number, message: string) => void
+        errorCallback: (response: ErrorResponse) => void
       ): Promise<void> => {
         let response: CreateAccountResponse = {
           DeveloperClientToken: user.token
@@ -136,7 +142,7 @@ suite('Account Tests', function () {
     user = user1;
     let loginManager: PlayFabLoginManager = new PlayFabLoginManager(null, httpCli.object, inputGatherer.object);
     assert(loginManager.api.status === "Initializing", "Status is not Initializing");
-    await loginManager.createAccount()
+    await loginManager.createAccount();
     assert(loginManager.api.status === "LoggedIn", "Status is not LoggedIn");
     let apiToken: string = loginManager.api.getToken();
     assert(apiToken === user1.token, "Token does not match");
@@ -146,14 +152,14 @@ suite('Account Tests', function () {
     user = user1;
     let loginManager: PlayFabLoginManager = new PlayFabLoginManager(null, httpCli.object, inputGatherer.object);
     assert(loginManager.api.status === "Initializing", "Status is not Initializing");
-    await loginManager.login()
+    await loginManager.login();
     assert(loginManager.api.status === "LoggedIn", "Status is not LoggedIn");
     let apiToken: string = loginManager.api.getToken();
     assert(apiToken === user1.token, "Token does not match");
 
     user = user2;
 
-    await loginManager.createAccount()
+    await loginManager.createAccount();
     assert(loginManager.api.status === "LoggedIn", "Status is not LoggedIn");
     apiToken = loginManager.api.getToken();
     assert(apiToken === user2.token, "Token does not match");
@@ -163,23 +169,77 @@ suite('Account Tests', function () {
     user = user1;
     let loginManager: PlayFabLoginManager = new PlayFabLoginManager(null, httpCli.object, inputGatherer.object);
     assert(loginManager.api.status === "Initializing", "Status is not Initializing");
-    await loginManager.login()
+    await loginManager.login();
 
     assert(loginManager.api.status === "LoggedIn", "Status is not LoggedIn");
     let apiToken: string = loginManager.api.getToken();
     assert(apiToken === user1.token, "Token does not match");
   });
 
+  test('LoginWhenLoggedOutNeed2FA', async function () {
+    user = user2;
+
+    let httpCli2FA: Moq.IMock<IHttpClient> = Moq.Mock.ofType<IHttpClient>();
+    let callCount: number = 0;
+    httpCli2FA.setup(x => x.makeApiCall(
+      Moq.It.isValue(PlayFabUriConstants.loginPath),
+      Moq.It.isAnyString(),
+      Moq.It.is<LoginRequest>(x => true),
+      Moq.It.isAny(),
+      Moq.It.isAny()))
+      .returns(
+        (path: string,
+          endpoint: string,
+          request: LoginRequest,
+          successCallback: (response: LoginResponse) => void,
+          errorCallback: (response: ErrorResponse) => void
+        ): Promise<void> => {
+
+          switch (callCount) {
+            case 0:
+              let errorResponse: ErrorResponse = {
+                code: 400,
+                status: "BadRequest",
+                error: "TwoFaError",
+                errorCode: 1246,
+                errorMessage: "TwoFa error"
+              };
+              errorCallback(errorResponse);
+              callCount++;
+              break;
+            case 1:
+              let response: LoginResponse = {
+                DeveloperClientToken: user.token
+              };
+              successCallback(response);
+              callCount++;
+              break;
+            default:
+              break;
+          }
+
+          return;
+        });
+
+    let loginManager: PlayFabLoginManager = new PlayFabLoginManager(null, httpCli2FA.object, inputGatherer.object);
+    assert(loginManager.api.status === "Initializing", "Status is not Initializing");
+    await loginManager.login();
+
+    assert(loginManager.api.status === "LoggedIn", "Status is not LoggedIn");
+    let apiToken: string = loginManager.api.getToken();
+    assert(apiToken === user2.token, "Token does not match");
+  });
+
   test('LoginSameUserWhenLoggedIn', async function () {
     user = user1;
     let loginManager: PlayFabLoginManager = new PlayFabLoginManager(null, httpCli.object, inputGatherer.object);
     assert(loginManager.api.status === "Initializing", "Status is not Initializing");
-    await loginManager.login()
+    await loginManager.login();
     assert(loginManager.api.status === "LoggedIn", "Status is not LoggedIn");
     let apiToken: string = loginManager.api.getToken();
     assert(apiToken === user1.token, "Token does not match");
 
-    await loginManager.login()
+    await loginManager.login();
     assert(loginManager.api.status === "LoggedIn", "Status is not LoggedIn");
     apiToken = loginManager.api.getToken();
     assert(apiToken === user1.token, "Token does not match");
@@ -189,14 +249,14 @@ suite('Account Tests', function () {
     user = user1;
     let loginManager: PlayFabLoginManager = new PlayFabLoginManager(null, httpCli.object, inputGatherer.object);
     assert(loginManager.api.status === "Initializing", "Status is not Initializing");
-    await loginManager.login()
+    await loginManager.login();
     assert(loginManager.api.status === "LoggedIn", "Status is not LoggedIn");
     let apiToken: string = loginManager.api.getToken();
     assert(apiToken === user1.token, "Token does not match");
 
     user = user2;
 
-    await loginManager.login()
+    await loginManager.login();
     assert(loginManager.api.status === "LoggedIn", "Status is not LoggedIn");
     apiToken = loginManager.api.getToken();
     assert(apiToken === user2.token, "Token does not match");
@@ -205,7 +265,7 @@ suite('Account Tests', function () {
   test('LogoutWhenLoggedIn', async function () {
     user = user1;
     let loginManager: PlayFabLoginManager = new PlayFabLoginManager(null, httpCli.object, inputGatherer.object);
-    await loginManager.login()
+    await loginManager.login();
     assert(loginManager.api.status === "LoggedIn", "Status is not LoggedIn");
     await loginManager.logout();
     assert(loginManager.api.status === "LoggedOut", "Status is not LoggedOut");
@@ -214,11 +274,14 @@ suite('Account Tests', function () {
   test('LogoutWhenLoggedOut', async function () {
     user = user1;
     let loginManager: PlayFabLoginManager = new PlayFabLoginManager(null, httpCli.object, inputGatherer.object);
-    await loginManager.login()
+    await loginManager.login();
     assert(loginManager.api.status === "LoggedIn", "Status is not LoggedIn");
     await loginManager.logout();
     assert(loginManager.api.status === "LoggedOut", "Status is not LoggedOut");
     await loginManager.logout();
     assert(loginManager.api.status === "LoggedOut", "Status is not LoggedOut");
   });
+
+
+
 })

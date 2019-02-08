@@ -18,7 +18,9 @@ import {
   GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse, UpdateCloudScriptRequest,
   UpdateCloudScriptResponse
 } from '../models/PlayFabLegacyCloudScriptModels'
+import { ErrorResponse } from '../models/PlayFabHttpModels';
 import { Studio } from '../models/PlayFabStudioModels';
+
 
 suite('Explorer Tests', function () {
 
@@ -93,7 +95,7 @@ suite('Explorer Tests', function () {
         endpoint: string,
         request: CreateTitleRequest,
         successCallback: (response: CreateTitleResponse) => void,
-        errorCallback: (code: number, message: string) => void
+        errorCallback: (response: ErrorResponse) => void
       ): Promise<void> => {
         createTitleHttpCount++;
         let response: CreateTitleResponse = {
@@ -117,7 +119,7 @@ suite('Explorer Tests', function () {
         request: GetCloudScriptRevisionRequest,
         key: string,
         successCallback: (response: GetCloudScriptRevisionResponse) => void,
-        errorCallback: (code: number, message: string) => void
+        errorCallback: (response: ErrorResponse) => void
       ): Promise<void> => {
         getCloudScriptRevisionHttpCount++;
         let response: GetCloudScriptRevisionResponse = {
@@ -145,7 +147,7 @@ suite('Explorer Tests', function () {
         request: UpdateCloudScriptRequest,
         key: string,
         successCallback: (response: UpdateCloudScriptResponse) => void,
-        errorCallback: (code: number, message: string) => void
+        errorCallback: (response: ErrorResponse) => void
       ): Promise<void> => {
         updateCloudScriptHttpCount++;
         let response: UpdateCloudScriptResponse = {
@@ -170,7 +172,7 @@ suite('Explorer Tests', function () {
         request: GetTitleDataRequest,
         key: string,
         successCallback: (response: GetTitleDataResponse) => void,
-        errorCallback: (code: number, message: string) => void
+        errorCallback: (response: ErrorResponse) => void
       ): Promise<void> => {
         getTitleDataHttpCount++;
         let response: GetTitleDataResponse = {
@@ -194,7 +196,7 @@ suite('Explorer Tests', function () {
         request: GetTitleDataRequest,
         key: string,
         successCallback: (response: GetTitleDataResponse) => void,
-        errorCallback: (code: number, message: string) => void
+        errorCallback: (response: ErrorResponse) => void
       ): Promise<void> => {
         getTitleInternalDataHttpCount++;
         let response: GetTitleDataResponse = {
@@ -218,7 +220,7 @@ suite('Explorer Tests', function () {
         request: SetTitleDataRequest,
         key: string,
         successCallback: (response: SetTitleDataResponse) => void,
-        errorCallback: (code: number, message: string) => void
+        errorCallback: (response: ErrorResponse) => void
       ): Promise<void> => {
         setTitleDataHttpCount++;
         let response: SetTitleDataResponse = {
@@ -241,7 +243,7 @@ suite('Explorer Tests', function () {
         request: SetTitleDataRequest,
         key: string,
         successCallback: (response: SetTitleDataResponse) => void,
-        errorCallback: (code: number, message: string) => void
+        errorCallback: (response: ErrorResponse) => void
       ): Promise<void> => {
         setTitleInternalDataHttpCount++;
         let response: SetTitleDataResponse = {
