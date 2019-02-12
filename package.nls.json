@@ -25,6 +25,8 @@
     "playfab-explorer.commands.setTitleData": "Set title data",
     "playfab-explorer.commands.getTitleInternalData": "Get title internal data",
     "playfab-explorer.commands.setTitleInternalData": "Set title internal data",
+    "playfab-explorer.commands.registerFunction": "Register function",
+    "playfab-explorer.commands.unregisterFunction": "Unregister function",
     "playfab-explorer.commands.getCloudScriptRevision": "Get CloudScript revision",
     "playfab-explorer.commands.updateCloudScript": "Update CloudScript",
     "playfab-explorer.commands.createFunctionApp": "Create Function App",
@@ -42,5 +44,9 @@
     "playfab-explorer.keyValue": "Key Name",
     "playfab-explorer.keyPrompt": "Please enter the key name.",
     "playfab-explorer.valueValue": "Value",
-    "playfab-explorer.valuePrompt": "Please enter the value."
+    "playfab-explorer.valuePrompt": "Please enter the value.",
+    "playfab-explorer.functionNameValue": "Function Name",
+    "playfab-explorer.functionNamePrompt": "Please enter the name of the function.",
+    "playfab-explorer.functionUriValue": "Function URL",
+    "playfab-explorer.functionUriPrompt": "Please enter the URL of the function."
 }

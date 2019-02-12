@@ -9,9 +9,11 @@ import {
 } from 'vscode';
 import { loadMessageBundle } from 'vscode-nls';
 import { PlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
-import { MapFromObject } from './helpers/PlayFabDataHelpers';
+import { GetLastPathPartFromUri, MapFromObject } from './helpers/PlayFabDataHelpers';
 import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper';
 import { PlayFabUriConstants } from './helpers/PlayFabUriConstants';
+import { GetEntityTokenRequest, GetEntityTokenResponse } from './models/PlayFabAuthenticationModels';
+import { RegisterFunctionRequest, RegisterFunctionResponse, UnregisterFunctionRequest, UnregisterFunctionResponse } from './models/PlayFabCloudScriptModels';
 import {
     CloudScriptFile, GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse,
     UpdateCloudScriptRequest, UpdateCloudScriptResponse
@@ -43,7 +45,10 @@ export interface IPlayFabExplorerInputGatherer {
     getUserInputForCreateTitle(): Promise<CreateTitleRequest>;
     getUserInputForGetCloudScriptRevision(): Promise<GetCloudScriptRevisionRequest>;
     getUserInputForGetTitleData(): Promise<GetTitleDataRequest>;
+    getUserInputForRegisterFunction(): Promise<RegisterFunctionRequest>;
+    getUserInputForUnregisterFunction(): Promise<UnregisterFunctionRequest>;
     getUserInputForSetTitleData(): Promise<SetTitleDataRequest>;
+    getUserInputForUnregisterFunction(): Promise<UnregisterFunctionRequest>;
 }
 
 export class PlayFabExplorer {
@@ -86,7 +91,7 @@ export class PlayFabExplorer {
     async getCloudScriptRevision(title: Title): Promise<void> {
         let request: GetCloudScriptRevisionRequest = await this.getUserInputForGetCloudScriptRevision();
 
-        let baseUrl: string = PlayFabUriConstants.GetAdminBaseUrl(title.Id);
+        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
 
         await this._httpClient.makeTitleApiCall(
             PlayFabUriConstants.getCloudScriptRevisionPath,
@@ -110,6 +115,43 @@ export class PlayFabExplorer {
             });
     }
 
+    async registerFunction(title: Title): Promise<void> {
+        let tokenRequest: GetEntityTokenRequest = {
+            Context: null
+        };
+
+        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
+        let entityToken: string = null;
+        await this._httpClient.makeTitleApiCall(
+            PlayFabUriConstants.getEntityToken,
+            baseUrl,
+            tokenRequest,
+            title.SecretKey,
+            (response: GetEntityTokenResponse) => {
+                entityToken = response.EntityToken;
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
+
+        let request: RegisterFunctionRequest = await this.getUserInputForRegisterFunction();
+        await this._httpClient.makeEntityApiCall(
+            PlayFabUriConstants.registerFunctionPath,
+            baseUrl,
+            request,
+            entityToken,
+            (response: RegisterFunctionResponse) => {
+                window.showInformationMessage(`Registered function ${request.FunctionName} at ${request.FunctionUrl}`);
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
+    }
+
+    async unregisterFunction(title: Title): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
+
     async updateCloudScript(title: Title): Promise<void> {
         let request: UpdateCloudScriptRequest = new UpdateCloudScriptRequest();
         request.Publish = true;
@@ -118,7 +160,7 @@ export class PlayFabExplorer {
         file.FileContents = window.activeTextEditor.document.getText();
         request.Files = [file];
 
-        let baseUrl: string = PlayFabUriConstants.GetAdminBaseUrl(title.Id);
+        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
 
         await this._httpClient.makeTitleApiCall(
             PlayFabUriConstants.updateCloudScriptPath,
@@ -137,7 +179,7 @@ export class PlayFabExplorer {
     async getTitleData(title: Title, path: string): Promise<void> {
         let request: GetTitleDataRequest = await this.getUserInputForGetTitleData();
 
-        let baseUrl: string = PlayFabUriConstants.GetAdminBaseUrl(title.Id);
+        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
 
         await this._httpClient.makeTitleApiCall(
             path,
@@ -164,7 +206,7 @@ export class PlayFabExplorer {
     async setTitleData(title: Title, path: string): Promise<void> {
         let request: SetTitleDataRequest = await this.getUserInputForSetTitleData();
 
-        let baseUrl: string = PlayFabUriConstants.GetAdminBaseUrl(title.Id);
+        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
 
         await this._httpClient.makeTitleApiCall(
             path,
@@ -189,6 +231,8 @@ export class PlayFabExplorer {
         context.subscriptions.push(commands.registerCommand('playfabExplorer.setTitleInternalData', async (title) => await this.setTitleData(title.data, PlayFabUriConstants.setTitleInternalDataPath)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.getCloudScriptRevision', async (title) => await this.getCloudScriptRevision(title.data)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.updateCloudScript', async (title) => await this.updateCloudScript(title.data)));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.registerFunction', async (title) => await this.registerFunction(title.data)));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.unregisterFunction', async (title) => await this.unregisterFunction(title.data)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.openGameManagerPageForTitle',
             (titleId: string) => commands.executeCommand('vscode.open', Uri.parse(`https://developer.playfab.com/en-US/${titleId}/dashboard`))));
     }
@@ -205,8 +249,16 @@ export class PlayFabExplorer {
         return await this._inputGatherer.getUserInputForGetTitleData();
     }
 
+    private async getUserInputForRegisterFunction(): Promise<RegisterFunctionRequest> {
+        return await this._inputGatherer.getUserInputForRegisterFunction();
+    }
+
     private async getUserInputForSetTitleData(): Promise<SetTitleDataRequest> {
         return await this._inputGatherer.getUserInputForSetTitleData();
+    }
+
+    private async getUserInputForUnregisterFunction(): Promise<UnregisterFunctionRequest> {
+        return await this._inputGatherer.getUserInputForUnregisterFunction();
     }
 
     private showError(response: ErrorResponse): void {
@@ -215,6 +267,7 @@ export class PlayFabExplorer {
 }
 
 class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer {
+
     public async getUserInputForCreateTitle(): Promise<CreateTitleRequest> {
         const titleNameValue: string = localize('playfab-explorer.titleNameValue', 'Game Name');
         const titleNamePrompt: string = localize('playfab-explorer.titleNamePrompt', 'Please enter the name of your game');
@@ -260,6 +313,35 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
         return request;
     }
 
+    public async getUserInputForRegisterFunction(): Promise<RegisterFunctionRequest> {
+        const functionUriValue: string = localize('playfab-explorer.functionUriValue', 'Function Uri');
+        const functionUriPrompt: string = localize('playfab-explorer.functionUriPrompt', 'Please enter the function uri');
+
+        const functionUri = await window.showInputBox({
+            value: functionUriValue,
+            prompt: functionUriPrompt
+        });
+
+        let tentativeFunctionName: string = GetLastPathPartFromUri(functionUri);
+
+        const functionNameValue: string = tentativeFunctionName || localize('playfab-explorer.functionNameValue', 'Function Name');
+        const functionNamePrompt: string = localize('playfab-explorer.functionNamePrompt', 'Please enter the function name');
+
+        const functionName = await window.showInputBox({
+            value: functionNameValue,
+            prompt: functionNamePrompt
+        });
+
+        
+
+        let request: RegisterFunctionRequest = {
+            FunctionName: functionName,
+            FunctionUrl: functionUri
+        };
+
+        return request;
+    }
+
     public async getUserInputForSetTitleData(): Promise<SetTitleDataRequest> {
         const keyValue: string = localize('playfab-explorer.keyValue', 'Key Name');
         const keyPrompt: string = localize('playfab-explorer.keyPrompt', 'Please enter the key name');
@@ -282,6 +364,22 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
         request.Value = value;
         return request;
     }
+
+    public async getUserInputForUnregisterFunction(): Promise<UnregisterFunctionRequest> {
+        const functionNameValue: string = localize('playfab-explorer.functionNameValue', 'Function Name');
+        const functionNamePrompt: string = localize('playfab-explorer.functionNamePrompt', 'Please enter the function name');
+
+        const functionName = await window.showInputBox({
+            value: functionNameValue,
+            prompt: functionNamePrompt
+        });
+
+        let request: UnregisterFunctionRequest = {
+            FunctionName: functionName,
+        };
+
+        return request;
+    }    
 };
 
 export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {

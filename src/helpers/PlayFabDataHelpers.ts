@@ -12,3 +12,20 @@ export function MapFromObject(obj: object): Map<string, string> {
     }
     return map;
 }
+
+
+export function GetLastPathPartFromUri(uri: string): string {
+    let uriSchemeHostAndPath: string = uri.split('?')[0];
+    let hostStartIndex: number = uriSchemeHostAndPath.indexOf("//") + 2;
+    let uriHostAndPath: string = uriSchemeHostAndPath.substring(hostStartIndex);
+    let pathStartIndex: number = uriHostAndPath.indexOf("/") + 1;
+    let uriPath: string = uriHostAndPath.substring(pathStartIndex);
+
+    let result: string = null;
+    if(uriPath !== uriHostAndPath){
+        let uriPathParts: string[] = uriPath.split('/');    
+        result =  uriPathParts[uriPathParts.length - 1];
+    }
+
+    return result === "" ? null : result;
+}
