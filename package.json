@@ -177,9 +177,7 @@
         ]
     },
     "scripts": {
-        "vscode:prepublish": "rimraf dist && webpack --mode production",
-        "webpack": "rimraf dist && webpack --mode development",
-        "webpack-dev": "rimraf dist && webpack --mode development --watch",
+        "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "which": "which tsc",
         "watch": "tsc -watch -p ./",
