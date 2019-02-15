@@ -234,7 +234,7 @@ export class PlayFabExplorer {
         context.subscriptions.push(commands.registerCommand('playfabExplorer.registerFunction', async (title) => await this.registerFunction(title.data)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.unregisterFunction', async (title) => await this.unregisterFunction(title.data)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.openGameManagerPageForTitle',
-            (titleId: string) => commands.executeCommand('vscode.open', Uri.parse(`https://developer.playfab.com/en-US/${titleId}/dashboard`))));
+            (title) => commands.executeCommand('vscode.open', Uri.parse(`https://developer.playfab.com/en-US/${title.data.Id}/dashboard`))));
     }
 
     private async getUserInputForCreateTitle(): Promise<CreateTitleRequest> {
@@ -490,11 +490,8 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
     }
 
     private getTitleTreeItem(entry: IEntry): TreeItem {
-        let title: Title = entry.data;
-        const menuTitle = localize('playfab-explorer.commands.openGameManagerPageForTitle', 'Open in Game Manager');
         const treeItem = new TreeItem(entry.name, TreeItemCollapsibleState.None);
         treeItem.contextValue = 'title';
-        treeItem.command = { command: 'playfabExplorer.openGameManagerPageForTitle', title: menuTitle, arguments: [title.Id] };
         return treeItem;
     }
 
