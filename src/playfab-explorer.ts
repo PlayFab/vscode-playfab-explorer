@@ -5,7 +5,7 @@
 
 import {
     commands, Command, Event, EventEmitter, ExtensionContext, TextDocument, TreeDataProvider, TreeItem,
-    TreeItemCollapsibleState, TreeView, window, Uri, workspace
+    TreeItemCollapsibleState, TreeView, window, Uri, workspace, WorkspaceConfiguration
 } from 'vscode';
 import { loadMessageBundle } from 'vscode-nls';
 import { PlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
@@ -400,6 +400,7 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
         const subscription = this._account.onStatusChanged((status: PlayFabLoginStatus) => {
             this.refreshStudioData();
         });
+        const subscription2 = workspace.onDidChangeConfiguration(this.refresh, this);
     }
 
     public async refresh(): Promise<void> {
@@ -501,6 +502,11 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
         return this._account.status === 'LoggedIn';
     }
 
+    private getConfigValue(name: string): boolean {
+        const playfabConfig: WorkspaceConfiguration = workspace.getConfiguration('playfab');
+        return playfabConfig.get<boolean>(name);
+    }
+
     private async updateStudioData(): Promise<void> {
 
         // Ensure developer has signed in to PlayFab
@@ -518,6 +524,10 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
             request,
             (response: GetStudiosResponse) => {
                 this._rootData = response.Studios;
+
+                if (this.getConfigValue('sortStudiosAlphabetically')) {
+                    this._rootData = response.Studios.sort(PlayFabStudioTreeProvider.sortStudiosByName);
+                }
             },
             (response: ErrorResponse) => {
                 this.showError(response);
@@ -528,6 +538,11 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
     private getStudioChildren(entry: Entry): IEntry[] {
         let studio: Studio = entry.data;
         let titles: Title[] = studio.Titles;
+
+        if (this.getConfigValue('sortTitlesAlphabetically')) {
+            titles = studio.Titles.sort(PlayFabStudioTreeProvider.sortTitlesByName);
+        }
+
         return titles.map((title: Title) => {
             let result = new Entry();
             result.name = title.Name;
@@ -548,5 +563,24 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
 
     private showError(response: ErrorResponse): void {
         window.showErrorMessage(`${response.error} - ${response.errorMessage}`);
+    }
+
+    private static sortString(left: string, right: string): number {
+        if (left > right) {
+            return 1;
+        }
+        else if (left < right) {
+            return -1;
+        }
+
+        return 0;
+    }
+
+    private static sortStudiosByName(left: Studio, right: Studio): number {
+        return PlayFabStudioTreeProvider.sortString(left.Name, right.Name);
+    }
+
+    private static sortTitlesByName(left: Title, right: Title): number {
+        return PlayFabStudioTreeProvider.sortString(left.Name, right.Name);
     }
 }

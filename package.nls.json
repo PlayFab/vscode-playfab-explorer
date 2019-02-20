@@ -19,6 +19,8 @@
     "playfab-account.passwordPrompt": "Please enter your password.",
     "playfab-account.twofaPrompt": "Please enter your two-factor auth code.",
     "playfab-account.configuration.showSignedInEmail.description": "Whether to show the email address (e.g., in the status bar) of the signed in account.",
+    "playfab-account.configuration.sortStudiosAlphabetically.description": "Whether to sort studios alphabetically in the tree.",
+    "playfab-account.configuration.sortTitlesAlphabetically.description": "Whether to sort titles alphabetically in the tree.",
     "playfab-explorer.commands.playfab": "PlayFab Explorer",
     "playfab-explorer.commands.createTitle": "Create a title",
     "playfab-explorer.commands.getTitleData": "Get title data",

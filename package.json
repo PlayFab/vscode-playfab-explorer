@@ -190,6 +190,16 @@
                         "type": "boolean",
                         "default": true,
                         "description": "%playfab-account.configuration.showSignedInEmail.description%"
+                    },
+                    "playfab.sortStudiosAlphabetically": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "%playfab-account.configuration.sortStudiosAlphabetically.description%"
+                    },
+                    "playfab.sortTitlesAlphabetically": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "%playfab-account.configuration.sortTitlesAlphabetically.description%"
                     }
                 }
             }
