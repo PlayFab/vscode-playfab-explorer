@@ -3,7 +3,6 @@ The PlayFab Account extension provides a single PlayFab sign-in experience for a
 
 ## Commands
 
-
 | Command |  |
 | --- | --- |
 | `PlayFab: Sign In`  | Sign in to your PlayFab account.
@@ -15,7 +14,9 @@ The PlayFab Account extension provides a single PlayFab sign-in experience for a
 
 | Name | Description | Default |
 | --- | --- | --- |
-| playfab.showSignedInEmail | Whether to show the email address (e.g., in the status bar) of the signed in account.	 | true
+| playfab.showSignedInEmail | Whether to show the email address (e.g., in the status bar) of the signed in account. | true
+| playfab.sortStudiosAlphabetically | Whether to sort studios alphabetically in the tree view. | true
+| playfab.sortTitlesAlphabetically | Whether to sort titles alphabetically in the tree view. | true
 
 ## Contributing
 
