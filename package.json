@@ -3,7 +3,7 @@
     "displayName": "PlayFab Account",
     "description": "%playfab-account.description%",
     "license": "SEE LICENSE IN LICENSE.md",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "publisher": "ms-playfab",
     "icon": "resources/playfab.png",
     "repository": {
@@ -73,6 +73,11 @@
                 "command": "playfabExplorer.createTitle",
                 "title": "%playfab-explorer.commands.createTitle%",
                 "category": "%playfab-explorer.commands.playfab%"
+            },            
+            {
+                "command": "playfabExplorer.openGameManagerPageForTitle",
+                "title": "%playfab-explorer.commands.openGameManagerPageForTitle%",
+                "category": "%playfab-explorer.commands.playfab%"
             },
             {
                 "command": "playfabExplorer.getTitleData",
@@ -130,44 +135,49 @@
                     "group": "1@1"
                 },
                 {
-                    "command": "playfabExplorer.getTitleData",
+                    "command": "playfabExplorer.openGameManagerPageForTitle",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "1@1"
                 },
                 {
-                    "command": "playfabExplorer.setTitleData",
-                    "when": "view == playfabExplorer && viewItem == title",
-                    "group": "1@2"
-                },
-                {
-                    "command": "playfabExplorer.getTitleInternalData",
-                    "when": "view == playfabExplorer && viewItem == title",
-                    "group": "1@3"
-                },
-                {
-                    "command": "playfabExplorer.setTitleInternalData",
-                    "when": "view == playfabExplorer && viewItem == title",
-                    "group": "1@4"
-                },
-                {
-                    "command": "playfabExplorer.registerFunction",
+                    "command": "playfabExplorer.getTitleData",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "2@1"
                 },
                 {
-                    "command": "playfabExplorer.unregisterFunction",
+                    "command": "playfabExplorer.setTitleData",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "2@2"
                 },
                 {
-                    "command": "playfabExplorer.getCloudScriptRevision",
+                    "command": "playfabExplorer.getTitleInternalData",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "2@3"
+                },
+                {
+                    "command": "playfabExplorer.setTitleInternalData",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "2@4"
+                },
+                {
+                    "command": "playfabExplorer.registerFunction",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "3@1"
                 },
                 {
-                    "command": "playfabExplorer.updateCloudScript",
+                    "command": "playfabExplorer.unregisterFunction",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "3@2"
+                },
+                {
+                    "command": "playfabExplorer.getCloudScriptRevision",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "4@1"
+                },
+                {
+                    "command": "playfabExplorer.updateCloudScript",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "4@2"
                 }
             ]
         },
