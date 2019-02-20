@@ -86,6 +86,8 @@ export class PlayFabExplorer {
             (response: ErrorResponse) => {
                 this.showError(response);
             });
+
+        this._treeDataProvider.refresh();
     }
 
     async getCloudScriptRevision(title: Title): Promise<void> {
@@ -332,7 +334,7 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
             prompt: functionNamePrompt
         });
 
-        
+
 
         let request: RegisterFunctionRequest = {
             FunctionName: functionName,
@@ -379,7 +381,7 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
         };
 
         return request;
-    }    
+    }
 };
 
 export class PlayFabStudioTreeProvider implements TreeDataProvider<IEntry> {
