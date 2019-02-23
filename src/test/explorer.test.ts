@@ -5,7 +5,7 @@
 
 import * as assert from 'assert'
 import * as Moq from 'typemoq'
-import { PlayFabAccount } from '../playfab-account.api';
+import { IPlayFabAccount } from '../playfab-account.api';
 import { IPlayFabExplorerInputGatherer, PlayFabExplorer } from '../playfab-explorer'
 import { MapFromObject } from '../helpers/PlayFabDataHelpers'
 import { IHttpClient } from '../helpers/PlayFabHttpHelper'
@@ -398,7 +398,7 @@ suite('Explorer Tests', function () {
         return;
       });
 
-  let account: Moq.IMock<PlayFabAccount> = Moq.Mock.ofType<PlayFabAccount>();
+  let account: Moq.IMock<IPlayFabAccount> = Moq.Mock.ofType<IPlayFabAccount>();
   account.setup(x => x.getToken()).returns(() => { return "abc123" });
 
   // Defines a Mocha unit test

@@ -6,7 +6,7 @@
 import { commands, ExtensionContext, window, EventEmitter, workspace } from 'vscode';
 import { loadMessageBundle } from 'vscode-nls';
 import { ExtensionInfo } from './extension';
-import { PlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
+import { IPlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
 import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper';
 import { waitForOnline } from './helpers/PlayFabNetworkHelpers';
 import { PlayFabUriConstants } from './helpers/PlayFabUriConstants';
@@ -19,7 +19,7 @@ import { ErrorResponse } from './models/PlayFabHttpModels';
 
 const localize = loadMessageBundle();
 
-interface PlayFabAccountWritable extends PlayFabAccount {
+interface PlayFabAccountWritable extends IPlayFabAccount {
     status: PlayFabLoginStatus;
 }
 
@@ -167,7 +167,7 @@ export class PlayFabLoginManager {
         context.subscriptions.push(commands.registerCommand('playfab-account.logout', async () => await this.logout()));
     }
 
-    api: PlayFabAccount = {
+    api: IPlayFabAccount = {
         status: 'Initializing',
         onStatusChanged: this.onStatusChanged.event,
         waitForLogin: () => this.waitForLogin(),
