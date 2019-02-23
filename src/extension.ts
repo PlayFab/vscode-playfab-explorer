@@ -12,8 +12,8 @@ import { PlayFabExplorer } from './playfab-explorer';
 const localize = loadMessageBundle();
 
 export class ExtensionInfo {
-    private static extensionName: string = 'vscode-playfab-account';
-    private static extensionVersion: string = '0.0.1';
+    private static extensionName: string = 'vscode-playfab-explorer';
+    private static extensionVersion: string = '0.0.4';
 
     public static getExtensionInfo(): string { return ExtensionInfo.extensionName + '_' + ExtensionInfo.extensionVersion };
     public static getExtensionName(): string { return ExtensionInfo.extensionName; }
