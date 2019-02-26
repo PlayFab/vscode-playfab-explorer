@@ -9,7 +9,7 @@ import {
 } from 'vscode';
 import { loadMessageBundle } from 'vscode-nls';
 import { IPlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
-import { ITreeNode, NodeType } from './playfab-treeprovider.api';
+import { ITreeNode, NodeType, IPlayFabStudioTree } from './playfab-treeprovider.api';
 import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper';
 import { PlayFabUriConstants } from './helpers/PlayFabUriConstants';
 import { ErrorResponse } from "./models/PlayFabHttpModels";
@@ -75,6 +75,11 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<ITreeNode> {
             default:
                 return null;
         }
+    }
+
+    api: IPlayFabStudioTree = {
+        studios: this._rootData,
+        onStudiosChanged: this._onDidChangeTreeData.event
     }
 
     private clearRootData(): void {

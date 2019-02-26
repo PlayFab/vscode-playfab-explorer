@@ -3,7 +3,7 @@
 //  Licensed under the MIT License. See License.md in the project root for license information.
 //---------------------------------------------------------------------------------------------
 
-import { Command } from 'vscode';
+import { Command, Event } from 'vscode';
 import { Studio } from './models/PlayFabStudioModels';
 import { Title } from './models/PlayFabTitleModels';
 
@@ -13,4 +13,9 @@ export interface ITreeNode {
     name: string;
     type: NodeType;
     data: Studio | Title | Command;
+}
+
+export interface IPlayFabStudioTree {
+    readonly studios: Studio[];
+    readonly onStudiosChanged: Event<ITreeNode>;
 }
