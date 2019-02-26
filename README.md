@@ -1,5 +1,5 @@
-# PlayFab Account and Sign-In
-The PlayFab Account extension provides a single PlayFab sign-in experience for all other PlayFab extensions. 
+# PlayFab Explorer
+The PlayFab Explorer extension provides a single PlayFab sign-in experience and tree view for all other PlayFab extensions. 
 
 ## Commands
 
@@ -8,7 +8,7 @@ The PlayFab Account extension provides a single PlayFab sign-in experience for a
 | `PlayFab: Sign In`  | Sign in to your PlayFab account.
 | `PlayFab: Sign Out` | Sign out of your PlayFab account.
 | `PlayFab: Create an Account`  | If you don't have an PlayFab Account, you can [sign up](https://developer.playfab.com/en-US/sign-up) for one today.
-<sup>1</sup> On Windows: Requires Node.js 6 or later to be installed (https://nodejs.org).
+| `PlayFab: Create title`  | Create a new title.
 
 ## Settings
 
