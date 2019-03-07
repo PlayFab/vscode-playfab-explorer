@@ -4,13 +4,14 @@
 //---------------------------------------------------------------------------------------------
 
 import {
-    commands, Command, Event, EventEmitter, ExtensionContext, TextDocument, TreeDataProvider, TreeItem,
-    TreeItemCollapsibleState, TreeView, window, Uri, workspace, WorkspaceConfiguration
+    commands, Command, Event, EventEmitter, ExtensionContext, TextDocument, TextEditor, TreeDataProvider,
+    TreeItem, TreeItemCollapsibleState, TreeView, window, Uri, workspace, WorkspaceConfiguration
 } from 'vscode';
 import { loadMessageBundle } from 'vscode-nls';
 import { PlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
 import { GetLastPathPartFromUri, MapFromObject } from './helpers/PlayFabDataHelpers';
 import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper';
+import { delay } from './helpers/PlayFabPromiseHelpers';
 import { PlayFabUriConstants } from './helpers/PlayFabUriConstants';
 import { GetEntityTokenRequest, GetEntityTokenResponse } from './models/PlayFabAuthenticationModels';
 import { RegisterFunctionRequest, RegisterFunctionResponse, UnregisterFunctionRequest, UnregisterFunctionResponse } from './models/PlayFabCloudScriptModels';
@@ -24,6 +25,7 @@ import {
     Title, CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse,
     SetTitleDataRequest, SetTitleDataResponse
 } from './models/PlayFabTitleModels';
+
 
 const localize = loadMessageBundle();
 
@@ -191,9 +193,10 @@ export class PlayFabExplorer {
             (response: GetTitleDataResponse) => {
                 let map: Map<string, string> = MapFromObject(response.Data);
                 if (map.size > 0) {
-                    map.forEach((value: string, key: string) => {
-                        window.showInformationMessage(`${key} - ${value}`);
-                    });
+                    workspace.openTextDocument({ language: 'json', content: JSON.stringify(response.Data) })
+                        .then((doc: TextDocument) => {
+                            window.showTextDocument(doc);
+                        })
                 }
                 else {
                     const msg: string = localize('playfab-explorer.noTitleData', 'No title data found with specified key(s)');
@@ -206,22 +209,15 @@ export class PlayFabExplorer {
     }
 
     async setTitleData(title: Title, path: string): Promise<void> {
-        let request: SetTitleDataRequest = await this.getUserInputForSetTitleData();
 
-        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
+        let textEditor: TextEditor = window.activeTextEditor;
 
-        await this._httpClient.makeTitleApiCall(
-            path,
-            baseUrl,
-            request,
-            title.SecretKey,
-            (response: SetTitleDataResponse) => {
-                const msg: string = localize('playfab-explorer.titleDataSet', 'Title data set');
-                window.showInformationMessage(msg);
-            },
-            (response: ErrorResponse) => {
-                this.showError(response);
-            });
+        if (textEditor !== undefined && textEditor.document.languageId === "json") {
+            await this.setTitleDataFromJsonFile(title, path, textEditor.document.getText());
+        }
+        else {
+            await this.setTitleDataFromUserInput(title, path);
+        }
     }
 
     public registerCommands(context: ExtensionContext): void {
@@ -263,6 +259,52 @@ export class PlayFabExplorer {
         return await this._inputGatherer.getUserInputForUnregisterFunction();
     }
 
+    private async setTitleDataFromJsonFile(title: Title, path: string, documentContent: string): Promise<void> {
+        try {
+            let obj: any = JSON.parse(documentContent);
+
+            if (obj && !Array.isArray(obj)) {
+                for (let key of Object.keys(obj)) {
+                    let request: SetTitleDataRequest = new SetTitleDataRequest();
+                    request.Key = key;
+                    request.Value = obj[key];
+                    await this.makeSetTitleDataApiCall(title, path, request);
+                    // Need a slight delay between set title data API calls otherwise we get Conflict errors
+                    await delay(100);
+                }
+            }
+
+            return;
+        }
+        catch (SyntaxException) {
+            window.showErrorMessage("Title Data could not be parsed");
+        }
+    }
+
+    private async setTitleDataFromUserInput(title: Title, path: string): Promise<void> {
+        let request: SetTitleDataRequest = await this.getUserInputForSetTitleData();
+        await this.makeSetTitleDataApiCall(title, path, request, true);
+    }
+
+    private async makeSetTitleDataApiCall(title: Title, path: string, request: SetTitleDataRequest, showSuccessMessages: boolean = false): Promise<void> {
+        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
+
+        await this._httpClient.makeTitleApiCall(
+            path,
+            baseUrl,
+            request,
+            title.SecretKey,
+            (response: SetTitleDataResponse) => {
+                if (showSuccessMessages) {
+                    const msg: string = localize('playfab-explorer.titleDataSet', 'Title data set');
+                    window.showInformationMessage(msg);
+                }
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
+    }
+
     private showError(response: ErrorResponse): void {
         window.showErrorMessage(`${response.error} - ${response.errorMessage}`);
     }
@@ -302,16 +344,14 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
     }
 
     public async getUserInputForGetTitleData(): Promise<GetTitleDataRequest> {
-        const keysValue: string = localize('playfab-explorer.keysValue', 'Key Names');
-        const keysPrompt: string = localize('playfab-explorer.keysPrompt', 'Please enter the key name(s)');
+        const keysPrompt: string = localize('playfab-explorer.keysPrompt', 'Please enter the key name(s) or leave blank for all.');
 
         const keys = await window.showInputBox({
-            value: keysValue,
             prompt: keysPrompt
         });
 
         let request = new GetTitleDataRequest();
-        request.Keys = keys.split(' ');
+        request.Keys = keys === "" ? null : keys.split(' ');
         return request;
     }
 
@@ -333,8 +373,6 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
             value: functionNameValue,
             prompt: functionNamePrompt
         });
-
-
 
         let request: RegisterFunctionRequest = {
             FunctionName: functionName,

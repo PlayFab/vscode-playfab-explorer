@@ -13,7 +13,6 @@ export function MapFromObject(obj: object): Map<string, string> {
     return map;
 }
 
-
 export function GetLastPathPartFromUri(uri: string): string {
     let uriSchemeHostAndPath: string = uri.split('?')[0];
     let hostStartIndex: number = uriSchemeHostAndPath.indexOf("//") + 2;
