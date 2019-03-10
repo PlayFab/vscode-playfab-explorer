@@ -13,7 +13,10 @@ import { GetLastPathPartFromUri, MapFromObject } from './helpers/PlayFabDataHelp
 import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper';
 import { PlayFabUriConstants } from './helpers/PlayFabUriConstants';
 import { GetEntityTokenRequest, GetEntityTokenResponse } from './models/PlayFabAuthenticationModels';
-import { RegisterFunctionRequest, RegisterFunctionResponse, UnregisterFunctionRequest, UnregisterFunctionResponse } from './models/PlayFabCloudScriptModels';
+import {
+    RegisterFunctionRequest, RegisterFunctionResponse, UnregisterFunctionRequest,
+    UnregisterFunctionResponse
+} from './models/PlayFabCloudScriptModels';
 import {
     CloudScriptFile, GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse,
     UpdateCloudScriptRequest, UpdateCloudScriptResponse
@@ -24,6 +27,8 @@ import {
     Title, CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse,
     SetTitleDataRequest, SetTitleDataResponse
 } from './models/PlayFabTitleModels';
+import * as path from "path";
+import * as fs from "fs";
 
 const localize = loadMessageBundle();
 
@@ -53,6 +58,8 @@ export interface IPlayFabExplorerInputGatherer {
 
 export class PlayFabExplorer {
 
+    private _playFabLocalSettingsFileName: string = "playfab.local.settings.json";
+    private _playFabLocalSettingsFilePath: string = path.join(process.env.Temp, this._playFabLocalSettingsFileName);
     private _explorer: TreeView<Entry>;
     private _account: PlayFabAccount;
     private _httpClient: IHttpClient;
@@ -88,6 +95,39 @@ export class PlayFabExplorer {
             });
 
         this._treeDataProvider.refresh();
+    }
+
+    async disableLocalDebugging(): Promise<void> {
+        fs.unlink(this._playFabLocalSettingsFilePath, (error:NodeJS.ErrnoException) : void => {
+            if(error) {
+                const msg: string = localize('playfab-explorer.disableLocalDebuggingFailed', 'Unable to disable local debugging');
+                window.showErrorMessage(msg);
+            }
+            else {
+                const msg: string = localize('playfab-explorer.disableLocalDebuggingSucceeded', 'Local debugging disabled');
+                window.showInformationMessage(msg);
+            }
+        });
+        
+    }
+
+    async enableLocalDebugging(): Promise<void> {
+        // Need to emit a JSON file of the form;
+        // {
+        //     "LocalApiServer": "http://localhost:7071/api/"
+        // }
+
+        let fileContent: string = '{ "LocalApiServer": "http://localhost:7071/api/" }';
+        fs.writeFile(this._playFabLocalSettingsFilePath, fileContent, null, (error: NodeJS.ErrnoException): void => {
+            if(error) {
+                const msg: string = localize('playfab-explorer.enableLocalDebuggingFailed', 'Unable to enable local debugging');
+                window.showErrorMessage(msg);
+            }
+            else {
+                const msg: string = localize('playfab-explorer.enableLocalDebuggingSucceeded', 'Local debugging enabled');
+                window.showInformationMessage(msg);
+            }
+        });
     }
 
     async getCloudScriptRevision(title: Title): Promise<void> {
@@ -235,6 +275,8 @@ export class PlayFabExplorer {
         context.subscriptions.push(commands.registerCommand('playfabExplorer.updateCloudScript', async (title) => await this.updateCloudScript(title.data)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.registerFunction', async (title) => await this.registerFunction(title.data)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.unregisterFunction', async (title) => await this.unregisterFunction(title.data)));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.enableLocalDebugging', async () => await this.enableLocalDebugging()));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.disableLocalDebugging', async () => await this.disableLocalDebugging()));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.openGameManagerPageForTitle',
             (title) => commands.executeCommand('vscode.open', Uri.parse(`https://developer.playfab.com/en-US/${title.data.Id}/dashboard`))));
     }

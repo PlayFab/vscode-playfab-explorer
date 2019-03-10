@@ -73,7 +73,7 @@
                 "command": "playfabExplorer.createTitle",
                 "title": "%playfab-explorer.commands.createTitle%",
                 "category": "%playfab-explorer.commands.playfab%"
-            },            
+            },
             {
                 "command": "playfabExplorer.openGameManagerPageForTitle",
                 "title": "%playfab-explorer.commands.openGameManagerPageForTitle%",
@@ -107,6 +107,16 @@
             {
                 "command": "playfabExplorer.unregisterFunction",
                 "title": "%playfab-explorer.commands.unregisterFunction%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.enableLocalDebugging",
+                "title": "%playfab-explorer.commands.enableLocalDebugging%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.disableLocalDebugging",
+                "title": "%playfab-explorer.commands.disableLocalDebugging%",
                 "category": "%playfab-explorer.commands.playfab%"
             },
             {
@@ -168,6 +178,16 @@
                     "command": "playfabExplorer.unregisterFunction",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "3@2"
+                },
+                {
+                    "command": "playfabExplorer.enableLocalDebugging",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "3@3"
+                },
+                {
+                    "command": "playfabExplorer.disableLocalDebugging",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "3@4"
                 },
                 {
                     "command": "playfabExplorer.getCloudScriptRevision",
