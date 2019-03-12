@@ -13,6 +13,32 @@ export function MapFromObject(obj: object): Map<string, string> {
     return map;
 }
 
+export function EscapeValue(value: any): string {
+    if (value === null || typeof value === "string") {
+        return value;
+    }
+    else {
+        return JSON.stringify(value);
+    }
+}
+
+export function UnescapeValue(value: string): any {
+    if (value === null ||
+        value.startsWith('{') || value.startsWith('[') ||
+        value === 'true' || value === 'false') {
+        return JSON.parse(value);
+    }
+    else {
+        let num: number = Number.parseFloat(value);
+
+        if (Number.isNaN(num)) {
+            return value;
+        }
+        else {
+            return num;
+        }
+    }
+}
 
 export function GetLastPathPartFromUri(uri: string): string {
     let uriSchemeHostAndPath: string = uri.split('?')[0];
@@ -22,9 +48,9 @@ export function GetLastPathPartFromUri(uri: string): string {
     let uriPath: string = uriHostAndPath.substring(pathStartIndex);
 
     let result: string = null;
-    if(uriPath !== uriHostAndPath){
-        let uriPathParts: string[] = uriPath.split('/');    
-        result =  uriPathParts[uriPathParts.length - 1];
+    if (uriPath !== uriHostAndPath) {
+        let uriPathParts: string[] = uriPath.split('/');
+        result = uriPathParts[uriPathParts.length - 1];
     }
 
     return result === "" ? null : result;

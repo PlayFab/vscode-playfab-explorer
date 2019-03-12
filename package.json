@@ -3,7 +3,7 @@
     "displayName": "PlayFab Explorer",
     "description": "%playfab-explorer.description%",
     "license": "SEE LICENSE IN LICENSE.md",
-    "version": "0.0.4",
+    "version": "0.0.10",
     "publisher": "ms-playfab",
     "icon": "resources/playfab.png",
     "repository": {
@@ -225,6 +225,11 @@
                         "type": "string",
                         "default": "user@company.com",
                         "description": "%playfab-account.configuration.loginId.description%"
+                    },
+                    "playfab.titleDataSpaces": {
+                        "type": "integer",
+                        "default": 2,
+                        "description": "%playfab-account.configuration.titleDataSpaces.description%"
                     }
                 }
             }
@@ -242,6 +247,7 @@
         "mocha": "^5.2.0",
         "tslint": "^5.11.0",
         "typescript": "^2.6.1",
+        "underscore": "^1.9.1",
         "vscode": "^1.1.26"
     },
     "dependencies": {
