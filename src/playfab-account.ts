@@ -3,7 +3,7 @@
 //  Licensed under the MIT License. See License.md in the project root for license information.
 //---------------------------------------------------------------------------------------------
 
-import { commands, ExtensionContext, window, EventEmitter } from 'vscode';
+import { commands, ExtensionContext, window, EventEmitter, workspace } from 'vscode';
 import { loadMessageBundle } from 'vscode-nls';
 import { ExtensionInfo } from './extension';
 import { PlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
@@ -103,14 +103,12 @@ export class PlayFabLoginManager {
             (response: ErrorResponse): void => {
                 this.clearSessions();
                 needTwofa = this.IsTwoFaError(response);
-                if(!needTwofa)
-                {
+                if (!needTwofa) {
                     this.showLoginError(response);
                 }
             });
 
-        if(needTwofa)
-        {
+        if (needTwofa) {
             request = await this.getUserInputForTwoFA(request);
 
             await this._httpCli.makeApiCall(
@@ -204,7 +202,7 @@ export class PlayFabLoginManager {
     private IsTwoFaError(response: ErrorResponse): boolean {
         return response.errorCode === 1246;
     }
-    
+
     private showLoginError(response: ErrorResponse): void {
         window.showErrorMessage(response.errorMessage);
     }
@@ -297,10 +295,14 @@ class PlayFabLoginUserInputGatherer implements IPlayFabLoginInputGatherer {
 
     public async getUserInputForLogin(): Promise<LoginRequest> {
         const emailPrompt: string = localize('playfab-account.emailPrompt', 'Please enter your e-mail address');
+        const playfabConfig = workspace.getConfiguration('playfab');
+        const defaultEmailAddress: string = playfabConfig.get<string>('loginId');
         const emailAddress: string = await window.showInputBox({
-            value: 'user@company.com',
+            value: defaultEmailAddress,
             prompt: emailPrompt
         });
+
+        playfabConfig.update('loginId', emailAddress);
 
         const passwordPrompt: string = localize('playfab-account.passwordPrompt', 'Please enter your password');
         const password: string = await window.showInputBox({
@@ -330,5 +332,5 @@ class PlayFabLoginUserInputGatherer implements IPlayFabLoginInputGatherer {
         request.TwoFactorAuth = twofa;
         return request;
     }
-    
+
 }
