@@ -59,7 +59,7 @@ suite('Account Tests', function () {
       };
       return result;
     });
-  inputGatherer.setup(x => x.getUserInputForLogin())
+  inputGatherer.setup(x => x.getUserInputForLogin(Moq.It.isAnyString()))
     .returns(async () => {
       let result: LoginRequest = {
         Email: user.email,

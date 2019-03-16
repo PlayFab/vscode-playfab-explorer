@@ -25,7 +25,7 @@ interface PlayFabAccountWritable extends PlayFabAccount {
 
 export interface IPlayFabLoginInputGatherer {
     getUserInputForCreateAccount(): Promise<CreateAccountRequest>;
-    getUserInputForLogin(): Promise<LoginRequest>;
+    getUserInputForLogin(defaultEmailAddress: string): Promise<LoginRequest>;
     getUserInputForTwoFA(request: LoginRequest): Promise<LoginRequest>;
 }
 
@@ -42,6 +42,8 @@ export class PlayFabLoginManager {
 
     private _httpCli: IHttpClient;
     private _inputGatherer: IPlayFabLoginInputGatherer;
+    private _playfabConfig = workspace.getConfiguration('playfab');
+
 
     constructor(
         private context: ExtensionContext,
@@ -69,6 +71,7 @@ export class PlayFabLoginManager {
                     },
                     userId: request.Email
                 });
+                this.updateLoginId(request.Email);
             },
             (response: ErrorResponse): void => {
                 this.showLoginError(response);
@@ -84,7 +87,8 @@ export class PlayFabLoginManager {
 
         this.beginLoggingIn();
 
-        let request: LoginRequest = await this.getUserInputForLogin();
+        const defaultEmailAddress: string = this._playfabConfig.get<string>('loginId');
+        let request: LoginRequest = await this.getUserInputForLogin(defaultEmailAddress);
         let needTwofa: boolean = false;
 
         await this._httpCli.makeApiCall(
@@ -99,12 +103,14 @@ export class PlayFabLoginManager {
                     },
                     userId: request.Email
                 });
+                this.updateLoginId(request.Email);
             },
             (response: ErrorResponse): void => {
                 this.clearSessions();
                 needTwofa = this.IsTwoFaError(response);
                 if (!needTwofa) {
                     this.showLoginError(response);
+                    this.clearSessions();
                 }
             });
 
@@ -123,6 +129,7 @@ export class PlayFabLoginManager {
                         },
                         userId: request.Email
                     });
+                    this.updateLoginId(request.Email);
                 },
                 (response: ErrorResponse): void => {
                     this.showLoginError(response);
@@ -191,8 +198,8 @@ export class PlayFabLoginManager {
         return await this._inputGatherer.getUserInputForCreateAccount();
     }
 
-    private async getUserInputForLogin(): Promise<LoginRequest> {
-        return await this._inputGatherer.getUserInputForLogin();
+    private async getUserInputForLogin(defaultEmailAddress: string): Promise<LoginRequest> {
+        return await this._inputGatherer.getUserInputForLogin(defaultEmailAddress);
     }
 
     private async getUserInputForTwoFA(request: LoginRequest): Promise<LoginRequest> {
@@ -205,6 +212,10 @@ export class PlayFabLoginManager {
 
     private showLoginError(response: ErrorResponse): void {
         window.showErrorMessage(response.errorMessage);
+    }
+
+    private updateLoginId(emailAddress: string): void {
+        this._playfabConfig.update('loginId', emailAddress);
     }
 
     private updateStatus(status: PlayFabLoginStatus): void {
@@ -293,16 +304,12 @@ class PlayFabLoginUserInputGatherer implements IPlayFabLoginInputGatherer {
         return result;
     }
 
-    public async getUserInputForLogin(): Promise<LoginRequest> {
+    public async getUserInputForLogin(defaultEmailAddress: string): Promise<LoginRequest> {
         const emailPrompt: string = localize('playfab-account.emailPrompt', 'Please enter your e-mail address');
-        const playfabConfig = workspace.getConfiguration('playfab');
-        const defaultEmailAddress: string = playfabConfig.get<string>('loginId');
         const emailAddress: string = await window.showInputBox({
             value: defaultEmailAddress,
             prompt: emailPrompt
         });
-
-        playfabConfig.update('loginId', emailAddress);
 
         const passwordPrompt: string = localize('playfab-account.passwordPrompt', 'Please enter your password');
         const password: string = await window.showInputBox({
