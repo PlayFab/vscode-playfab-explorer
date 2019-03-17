@@ -98,17 +98,24 @@ export class PlayFabExplorer {
     }
 
     async disableLocalDebugging(): Promise<void> {
-        fs.unlink(this._playFabLocalSettingsFilePath, (error:NodeJS.ErrnoException) : void => {
-            if(error) {
-                const msg: string = localize('playfab-explorer.disableLocalDebuggingFailed', 'Unable to disable local debugging');
-                window.showErrorMessage(msg);
+        fs.exists(this._playFabLocalSettingsFilePath, (exists: boolean) => {
+            if (exists) {
+                fs.unlink(this._playFabLocalSettingsFilePath, (error: NodeJS.ErrnoException): void => {
+                    if (error) {
+                        const msg: string = localize('playfab-explorer.disableLocalDebuggingFailed', 'Unable to disable local debugging');
+                        window.showErrorMessage(msg);
+                    }
+                    else {
+                        const msg: string = localize('playfab-explorer.disableLocalDebuggingSucceeded', 'Local debugging disabled');
+                        window.showInformationMessage(msg);
+                    }
+                });
             }
             else {
                 const msg: string = localize('playfab-explorer.disableLocalDebuggingSucceeded', 'Local debugging disabled');
                 window.showInformationMessage(msg);
             }
         });
-        
     }
 
     async enableLocalDebugging(): Promise<void> {
@@ -119,7 +126,7 @@ export class PlayFabExplorer {
 
         let fileContent: string = '{ "LocalApiServer": "http://localhost:7071/api/" }';
         fs.writeFile(this._playFabLocalSettingsFilePath, fileContent, null, (error: NodeJS.ErrnoException): void => {
-            if(error) {
+            if (error) {
                 const msg: string = localize('playfab-explorer.enableLocalDebuggingFailed', 'Unable to enable local debugging');
                 window.showErrorMessage(msg);
             }
