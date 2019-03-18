@@ -220,6 +220,11 @@
                         "type": "boolean",
                         "default": true,
                         "description": "%playfab-account.configuration.sortTitlesAlphabetically.description%"
+                    },
+                    "playfab.loginId": {
+                        "type": "string",
+                        "default": "user@company.com",
+                        "description": "%playfab-account.configuration.loginId.description%"
                     }
                 }
             }
