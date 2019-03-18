@@ -89,7 +89,7 @@ export class PlayFabLoginManager {
 
         const defaultEmailAddress: string = this._playfabConfig.get<string>('loginId');
         let request: LoginRequest = await this.getUserInputForLogin(defaultEmailAddress);
-        let needTwofa: boolean = false;
+        let needTwoFa: boolean = false;
 
         await this._httpCli.makeApiCall(
             PlayFabUriConstants.loginPath,
@@ -107,14 +107,14 @@ export class PlayFabLoginManager {
             },
             (response: ErrorResponse): void => {
                 this.clearSessions();
-                needTwofa = this.IsTwoFaError(response);
-                if (!needTwofa) {
+                needTwoFa = this.IsTwoFaError(response);
+                if (!needTwoFa) {
                     this.showLoginError(response);
                     this.clearSessions();
                 }
             });
 
-        if (needTwofa) {
+        if (needTwoFa) {
             request = await this.getUserInputForTwoFA(request);
 
             await this._httpCli.makeApiCall(
