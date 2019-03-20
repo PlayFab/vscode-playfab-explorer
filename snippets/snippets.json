@@ -1,0 +1,20 @@
+{
+    "Http-Azure-Function": {
+        "prefix": "pf!http",
+        "body": [
+            "[FunctionName(\"${1:PlayFabHTTPCloudScript}\")]",
+            "public static async Task<${2:returnType}> ${1:PlayFabHTTPCloudScript} (",
+            "\t[HttpTrigger(AuthorizationLevel.Function, \"post\", Route = ${3:null})] EntityRequest entityReq, HttpRequest httpReq,",
+            "\tILogger log)",
+            "{",
+            "\tvar args = PlayFabSimpleJson.DeserializeObject<${4:dynamic}>(req.FunctionParameter);\n",
+            "\t$LINE_COMMENT Your function logic goes here",
+            "\t$5",
+            "\treturn new ${2:returnType}",
+            "\t{",
+            "\t\t",
+            "\t};",
+            "}"
+        ]
+    }
+}

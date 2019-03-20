@@ -28,6 +28,12 @@
     ],
     "main": "./out/extension",
     "contributes": {
+        "snippets": [
+            {
+                "language": "csharp",
+                "path": "./snippets/snippets.json"
+            }
+        ],
         "viewsContainers": {
             "activitybar": [
                 {
