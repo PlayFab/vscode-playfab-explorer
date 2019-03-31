@@ -4,18 +4,14 @@
 //---------------------------------------------------------------------------------------------
 
 import {
-    commands, Command, Event, EventEmitter, ExtensionContext, TextDocument, TextEditor, TreeDataProvider,
-    TreeItem, TreeItemCollapsibleState, TreeView, window, Uri, workspace, WorkspaceConfiguration
+    commands, ExtensionContext, TextDocument, TextEditor, 
+    TreeView, window, Uri, workspace, WorkspaceConfiguration
 } from 'vscode';
-import { loadMessageBundle } from 'vscode-nls';
-import { PlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
-import { GetLastPathPartFromUri, MapFromObject, EscapeValue, UnescapeValue } from './helpers/PlayFabDataHelpers';
-import { commands, ExtensionContext, TextDocument, TreeView, window, Uri, workspace } from 'vscode';
 import { loadMessageBundle } from 'vscode-nls';
 import { IPlayFabAccount } from './playfab-account.api';
 import { PlayFabStudioTreeProvider } from './playfab-treeprovider';
 import { ITreeNode } from './playfab-treeprovider.api';
-import { GetLastPathPartFromUri, MapFromObject } from './helpers/PlayFabDataHelpers';
+import { GetLastPathPartFromUri, MapFromObject, EscapeValue, UnescapeValue } from './helpers/PlayFabDataHelpers';
 import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper';
 import { delay } from './helpers/PlayFabPromiseHelpers';
 import { PlayFabUriConstants } from './helpers/PlayFabUriConstants';
