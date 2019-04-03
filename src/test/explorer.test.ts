@@ -10,17 +10,21 @@ import { IPlayFabExplorerInputGatherer, PlayFabExplorer } from '../playfab-explo
 import { MapFromObject } from '../helpers/PlayFabDataHelpers'
 import { IHttpClient } from '../helpers/PlayFabHttpHelper'
 import { PlayFabUriConstants } from '../helpers/PlayFabUriConstants';
+import { GetEntityTokenRequest, GetEntityTokenResponse } from '../models/PlayFabAuthenticationModels';
 import {
-  CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse,
-  SetTitleDataRequest, SetTitleDataResponse, Title
-} from '../models/PlayFabTitleModels'
+  ListFunctionsRequest, ListFunctionsResponse, RegisterFunctionRequest,
+  RegisterFunctionResponse, UnregisterFunctionRequest, UnregisterFunctionResponse
+} from '../models/PlayFabCloudScriptModels'
+import { ErrorResponse } from '../models/PlayFabHttpModels';
 import {
   GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse, UpdateCloudScriptRequest,
   UpdateCloudScriptResponse
 } from '../models/PlayFabLegacyCloudScriptModels'
-import { ErrorResponse } from '../models/PlayFabHttpModels';
 import { Studio } from '../models/PlayFabStudioModels';
-
+import {
+  CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse,
+  SetTitleDataRequest, SetTitleDataResponse, Title
+} from '../models/PlayFabTitleModels'
 
 suite('Explorer Tests', function () {
 
@@ -65,6 +69,38 @@ suite('Explorer Tests', function () {
       let result: SetTitleDataRequest = {
         Key: "a",
         Value: "1"
+      };
+      return result;
+    });
+
+  let listFunctionsInputCount: number = 0;
+  inputGatherer.setup(x => x.getUserInputForListFunctions())
+    .returns(async () => {
+      listFunctionsInputCount++;
+      let result: ListFunctionsRequest = {
+        TriggerType: "Http",
+        InvocationSource: "Http"
+      };
+      return result;
+    });
+
+  let registerFunctionInputCount: number = 0;
+  inputGatherer.setup(x => x.getUserInputForRegisterFunction())
+    .returns(async () => {
+      registerFunctionInputCount++;
+      let result: RegisterFunctionRequest = {
+        FunctionName: "Fn1",
+        FunctionUrl: "https://some.func"
+      };
+      return result;
+    });
+
+  let unregisterFunctionInputCount: number = 0;
+  inputGatherer.setup(x => x.getUserInputForUnregisterFunction())
+    .returns(async () => {
+      unregisterFunctionInputCount++;
+      let result: UnregisterFunctionRequest = {
+        FunctionName: "Fn1",
       };
       return result;
     });
@@ -252,6 +288,115 @@ suite('Explorer Tests', function () {
         return;
       });
 
+  let getEntityTokenHttpCount: number = 0;
+  httpCli.setup(x => x.makeTitleApiCall(
+    Moq.It.isValue(PlayFabUriConstants.getEntityTokenPath),
+    Moq.It.isAnyString(),
+    Moq.It.is<GetEntityTokenRequest>(x => true),
+    Moq.It.isAnyString(),
+    Moq.It.isAny(),
+    Moq.It.isAny()))
+    .returns(
+      (path: string,
+        endpoint: string,
+        request: GetEntityTokenRequest,
+        secret: string,
+        successCallback: (response: GetEntityTokenResponse) => void,
+        errorCallback: (response: ErrorResponse) => void
+      ): Promise<void> => {
+        getEntityTokenHttpCount++;
+        let response: GetEntityTokenResponse = {
+          EntityToken: "abcd",
+          TokenExpiration: null
+        };
+        successCallback(response);
+        return;
+      });
+
+  let listFunctionsHttpCount: number = 0;
+  httpCli.setup(x => x.makeEntityApiCall(
+    Moq.It.isValue(PlayFabUriConstants.listFunctionsPath),
+    Moq.It.isAnyString(),
+    Moq.It.is<ListFunctionsRequest>(x => true),
+    Moq.It.isAnyString(),
+    Moq.It.isAny(),
+    Moq.It.isAny()))
+    .returns(
+      (path: string,
+        endpoint: string,
+        request: ListFunctionsRequest,
+        key: string,
+        successCallback: (response: ListFunctionsResponse) => void,
+        errorCallback: (response: ErrorResponse) => void
+      ): Promise<void> => {
+        listFunctionsHttpCount++;
+        let response: ListFunctionsResponse = {
+          Functions: [
+            {
+              FunctionName: "Fn1",
+              FunctionUrl: "https://some.func",
+              TriggerType: "Http",
+              InvocationSource: "Http"
+            },
+            {
+              FunctionName: "Fn2",
+              FunctionUrl: "https://someother.func",
+              TriggerType: "Http",
+              InvocationSource: "Http"
+            },
+          ]
+        };
+        successCallback(response);
+        return;
+      });
+
+
+  let registerFunctionHttpCount: number = 0;
+  httpCli.setup(x => x.makeEntityApiCall(
+    Moq.It.isValue(PlayFabUriConstants.registerFunctionPath),
+    Moq.It.isAnyString(),
+    Moq.It.is<RegisterFunctionRequest>(x => true),
+    Moq.It.isAnyString(),
+    Moq.It.isAny(),
+    Moq.It.isAny()))
+    .returns(
+      (path: string,
+        endpoint: string,
+        request: RegisterFunctionRequest,
+        key: string,
+        successCallback: (response: RegisterFunctionResponse) => void,
+        errorCallback: (response: ErrorResponse) => void
+      ): Promise<void> => {
+        registerFunctionHttpCount++;
+        let response: RegisterFunctionResponse = {
+        };
+        successCallback(response);
+        return;
+      });
+
+  let unregisterFunctionHttpCount: number = 0;
+  httpCli.setup(x => x.makeEntityApiCall(
+    Moq.It.isValue(PlayFabUriConstants.unregisterFunctionPath),
+    Moq.It.isAnyString(),
+    Moq.It.is<UnregisterFunctionRequest>(x => true),
+    Moq.It.isAnyString(),
+    Moq.It.isAny(),
+    Moq.It.isAny()))
+    .returns(
+      (path: string,
+        endpoint: string,
+        request: UnregisterFunctionRequest,
+        key: string,
+        successCallback: (response: UnregisterFunctionResponse) => void,
+        errorCallback: (response: ErrorResponse) => void
+      ): Promise<void> => {
+        unregisterFunctionHttpCount++;
+        let response: UnregisterFunctionResponse = {
+        };
+        successCallback(response);
+        return;
+      });
+
   let account: Moq.IMock<PlayFabAccount> = Moq.Mock.ofType<PlayFabAccount>();
   account.setup(x => x.getToken()).returns(() => { return "abc123" });
 
@@ -328,5 +473,41 @@ suite('Explorer Tests', function () {
 
     assert(setTitleDataInputCount === expectedInputCount, `Expected single input call for SetTitleInternalData, got ${setTitleDataInputCount - expectedInputCount + 1}`);
     assert(setTitleInternalDataHttpCount === expectedHttpCount, `Expected single HTTP call for SetTitleInternalData, got ${setTitleInternalDataHttpCount - expectedHttpCount + 1}`);
+  });
+
+  test('ListFunctions', async function () {
+    let expectedInputCount: number = listFunctionsInputCount + 1;
+    let expectedGetEntityTokenHttpCount: number = getEntityTokenHttpCount + 1;
+    let expectedListFunctionsHttpCount: number = listFunctionsHttpCount + 1;
+    let explorer: PlayFabExplorer = new PlayFabExplorer(account.object, inputGatherer.object, httpCli.object);
+    await explorer.listFunctions(title);
+
+    assert(listFunctionsInputCount === expectedInputCount, `Expected single input call for ListFunctions, got ${listFunctionsInputCount - expectedInputCount + 1}`);
+    assert(getEntityTokenHttpCount === expectedGetEntityTokenHttpCount, `Expected single HTTP call for GetEntityToken, got ${getEntityTokenHttpCount - expectedGetEntityTokenHttpCount + 1}`);
+    assert(listFunctionsHttpCount === expectedListFunctionsHttpCount, `Expected single HTTP call for ListFunctions, got ${listFunctionsHttpCount - expectedListFunctionsHttpCount + 1}`);
+  });
+
+  test('RegisterFunction', async function () {
+    let expectedInputCount: number = registerFunctionInputCount + 1;
+    let expectedGetEntityTokenHttpCount: number = getEntityTokenHttpCount + 1;
+    let expectedRegisterFunctionHttpCount: number = registerFunctionHttpCount + 1;
+    let explorer: PlayFabExplorer = new PlayFabExplorer(account.object, inputGatherer.object, httpCli.object);
+    await explorer.registerFunction(title);
+
+    assert(registerFunctionInputCount === expectedInputCount, `Expected single input call for RegisterFunction, got ${registerFunctionInputCount - expectedInputCount + 1}`);
+    assert(getEntityTokenHttpCount === expectedGetEntityTokenHttpCount, `Expected single HTTP call for GetEntityToken, got ${getEntityTokenHttpCount - expectedGetEntityTokenHttpCount + 1}`);
+    assert(registerFunctionHttpCount === expectedRegisterFunctionHttpCount, `Expected single HTTP call for RegisterFunction, got ${registerFunctionHttpCount - expectedRegisterFunctionHttpCount + 1}`);
+  });
+
+  test('UnregisterFunction', async function () {
+    let expectedInputCount: number = unregisterFunctionInputCount + 1;
+    let expectedGetEntityTokenHttpCount: number = getEntityTokenHttpCount + 1;
+    let expectedUnregisterFunctionHttpCount: number = unregisterFunctionHttpCount + 1;
+    let explorer: PlayFabExplorer = new PlayFabExplorer(account.object, inputGatherer.object, httpCli.object);
+    await explorer.unregisterFunction(title);
+
+    assert(unregisterFunctionInputCount === expectedInputCount, `Expected single input call for UnregisterFunction, got ${registerFunctionInputCount - expectedInputCount + 1}`);
+    assert(getEntityTokenHttpCount === expectedGetEntityTokenHttpCount, `Expected single HTTP call for GetEntityToken, got ${getEntityTokenHttpCount - expectedGetEntityTokenHttpCount + 1}`);
+    assert(unregisterFunctionHttpCount === expectedUnregisterFunctionHttpCount, `Expected single HTTP call for UnregisterFunction, got ${unregisterFunctionHttpCount - expectedUnregisterFunctionHttpCount + 1}`);
   });
 })

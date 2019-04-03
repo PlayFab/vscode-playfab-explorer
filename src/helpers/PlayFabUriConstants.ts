@@ -17,8 +17,9 @@ export class PlayFabUriConstants {
     public static setTitleDataPath: string = '/Admin/SetTitleData';
     public static getTitleInternalDataPath: string = '/Admin/GetTitleInternalData';
     public static setTitleInternalDataPath: string = '/Admin/SetTitleInternalData';
+    public static listFunctionsPath: string = '/CloudScript/ListFunctions';
     public static registerFunctionPath: string = '/CloudScript/RegisterFunction';
-    public static unregisterFunctionPath: string = '/CloudScript/UnregisterFunction';    
+    public static unregisterFunctionPath: string = '/CloudScript/UnregisterFunction';
     public static updateCloudScriptPath: string = '/Admin/UpdateCloudScript';
     public static getCloudScriptRevisionPath: string = '/Admin/GetCloudScriptRevision';
 
@@ -28,5 +29,5 @@ export class PlayFabUriConstants {
     public static loginPath: string = '/DeveloperTools/User/Login';
     public static logoutPath: string = '/DeveloperTools/User/Logout';
 
-    public static getEntityToken: string = '/Authentication/GetEntityToken';
+    public static getEntityTokenPath: string = '/Authentication/GetEntityToken';
 };
