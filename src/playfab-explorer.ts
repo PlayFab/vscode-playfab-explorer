@@ -15,8 +15,8 @@ import { delay } from './helpers/PlayFabPromiseHelpers';
 import { PlayFabUriConstants } from './helpers/PlayFabUriConstants';
 import { GetEntityTokenRequest, GetEntityTokenResponse } from './models/PlayFabAuthenticationModels';
 import {
-    RegisterFunctionRequest, RegisterFunctionResponse, UnregisterFunctionRequest,
-    UnregisterFunctionResponse
+    FunctionInfo, ListFunctionsRequest, ListFunctionsResponse, RegisterFunctionRequest,
+    RegisterFunctionResponse, UnregisterFunctionRequest, UnregisterFunctionResponse
 } from './models/PlayFabCloudScriptModels';
 import {
     CloudScriptFile, GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse,
@@ -30,7 +30,6 @@ import {
 } from './models/PlayFabTitleModels';
 import * as path from "path";
 import * as fs from "fs";
-
 
 const localize = loadMessageBundle();
 
@@ -52,6 +51,7 @@ export interface IPlayFabExplorerInputGatherer {
     getUserInputForCreateTitle(): Promise<CreateTitleRequest>;
     getUserInputForGetCloudScriptRevision(): Promise<GetCloudScriptRevisionRequest>;
     getUserInputForGetTitleData(): Promise<GetTitleDataRequest>;
+    getUserInputForListFunctions(): Promise<ListFunctionsRequest>;
     getUserInputForRegisterFunction(): Promise<RegisterFunctionRequest>;
     getUserInputForUnregisterFunction(): Promise<UnregisterFunctionRequest>;
     getUserInputForSetTitleData(): Promise<SetTitleDataRequest>;
@@ -141,7 +141,6 @@ export class PlayFabExplorer {
 
     async getCloudScriptRevision(title: Title): Promise<void> {
         let request: GetCloudScriptRevisionRequest = await this.getUserInputForGetCloudScriptRevision();
-
         let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
 
         await this._httpClient.makeTitleApiCall(
@@ -166,26 +165,32 @@ export class PlayFabExplorer {
             });
     }
 
-    async registerFunction(title: Title): Promise<void> {
-        let tokenRequest: GetEntityTokenRequest = {
-            Context: null
-        };
-
+    async listFunctions(title: Title): Promise<void> {
+        let entityToken: string = await this.getEntityToken(title);
+        let request: ListFunctionsRequest = await this.getUserInputForListFunctions();
         let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
-        let entityToken: string = null;
-        await this._httpClient.makeTitleApiCall(
-            PlayFabUriConstants.getEntityToken,
+
+        await this._httpClient.makeEntityApiCall(
+            PlayFabUriConstants.listFunctionsPath,
             baseUrl,
-            tokenRequest,
-            title.SecretKey,
-            (response: GetEntityTokenResponse) => {
-                entityToken = response.EntityToken;
+            request,
+            entityToken,
+            (response: ListFunctionsResponse) => {
+                workspace.openTextDocument({ language: 'markdown', content: this.getMarkDownForFunctionList(response.Functions) })
+                    .then((doc: TextDocument) => {
+                        window.showTextDocument(doc);
+                    });
             },
             (response: ErrorResponse) => {
                 this.showError(response);
             });
+    }
 
+    async registerFunction(title: Title): Promise<void> {
+        let entityToken: string = await this.getEntityToken(title);
         let request: RegisterFunctionRequest = await this.getUserInputForRegisterFunction();
+        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
+
         await this._httpClient.makeEntityApiCall(
             PlayFabUriConstants.registerFunctionPath,
             baseUrl,
@@ -200,7 +205,21 @@ export class PlayFabExplorer {
     }
 
     async unregisterFunction(title: Title): Promise<void> {
-        throw new Error("Method not implemented.");
+        let entityToken: string = await this.getEntityToken(title);
+        let request: UnregisterFunctionRequest = await this.getUserInputForUnregisterFunction();
+        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
+
+        await this._httpClient.makeEntityApiCall(
+            PlayFabUriConstants.unregisterFunctionPath,
+            baseUrl,
+            request,
+            entityToken,
+            (response: UnregisterFunctionResponse) => {
+                window.showInformationMessage(`Unregistered function ${request.FunctionName}`);
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
     }
 
     async updateCloudScript(title: Title): Promise<void> {
@@ -286,12 +305,53 @@ export class PlayFabExplorer {
         context.subscriptions.push(commands.registerCommand('playfabExplorer.setTitleInternalData', async (title) => await this.setTitleData(title.data, PlayFabUriConstants.setTitleInternalDataPath)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.getCloudScriptRevision', async (title) => await this.getCloudScriptRevision(title.data)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.updateCloudScript', async (title) => await this.updateCloudScript(title.data)));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.listFunctions', async (title) => await this.listFunctions(title.data)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.registerFunction', async (title) => await this.registerFunction(title.data)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.unregisterFunction', async (title) => await this.unregisterFunction(title.data)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.enableLocalDebugging', async () => await this.enableLocalDebugging()));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.disableLocalDebugging', async () => await this.disableLocalDebugging()));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.openGameManagerPageForTitle',
             (title) => commands.executeCommand('vscode.open', Uri.parse(`https://developer.playfab.com/en-US/${title.data.Id}/dashboard`))));
+    }
+
+    private async getEntityToken(title: Title): Promise<string> {
+        let tokenRequest: GetEntityTokenRequest = {
+            Context: null
+        };
+
+        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
+        let entityToken: string = null;
+        await this._httpClient.makeTitleApiCall(
+            PlayFabUriConstants.getEntityTokenPath,
+            baseUrl,
+            tokenRequest,
+            title.SecretKey,
+            (response: GetEntityTokenResponse) => {
+                entityToken = response.EntityToken;
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
+
+        return entityToken;
+    }
+
+    private getMarkDownForFunctionList(functions: FunctionInfo[]): string {
+
+        let newline: string = process.platform == 'win32' ? '\r\n' : '\n';
+        let result: string = "# List Of Functions";
+        result += newline;
+        result += "| Name | Url | Trigger | Invocation |";
+        result += newline;
+        result += "| --- | --- | --- | --- |";
+        result += newline;
+
+        functions.forEach((fnInfo: FunctionInfo) => {
+            result += `| ${fnInfo.FunctionName} | ${fnInfo.FunctionUrl} | ${fnInfo.TriggerType} | ${fnInfo.InvocationSource} |`;
+            result += newline;
+        });
+
+        return result;
     }
 
     private async getUserInputForCreateTitle(): Promise<CreateTitleRequest> {
@@ -304,6 +364,10 @@ export class PlayFabExplorer {
 
     private async getUserInputForGetTitleData(): Promise<GetTitleDataRequest> {
         return await this._inputGatherer.getUserInputForGetTitleData();
+    }
+
+    private async getUserInputForListFunctions(): Promise<ListFunctionsRequest> {
+        return await this._inputGatherer.getUserInputForListFunctions();
     }
 
     private async getUserInputForRegisterFunction(): Promise<RegisterFunctionRequest> {
@@ -415,6 +479,25 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
 
         let request = new GetTitleDataRequest();
         request.Keys = keys === "" ? null : keys.split(' ');
+        return request;
+    }
+
+    public async getUserInputForListFunctions(): Promise<ListFunctionsRequest> {
+        const triggerTypePrompt: string = localize('playfab-explorer.triggerTypePrompt', 'Please choose a trigger type.');
+        const invocationSourcePrompt: string = localize('playfab-explorer.invocationSourcePrompt', 'Please choose an invocation source.');
+
+        const triggerType: string = await window.showQuickPick(["All", "Http", "Azure Queue"], { placeHolder: triggerTypePrompt });
+        let invocationSource: string = "";
+
+        if (triggerType !== "http") {
+            invocationSource = await window.showQuickPick(["All", "PlayStream", "Segment", "Scheduled Task"], { placeHolder: invocationSourcePrompt });
+        }
+
+        let request: ListFunctionsRequest = {
+            TriggerType: triggerType,
+            InvocationSource: invocationSource
+        };
+
         return request;
     }
 

@@ -108,8 +108,13 @@ export class PlayFabHttpClient implements IHttpClient {
             responseCallback(response);
         }
         else {
-            let rawErrorRespone = JSON.parse(rawBody);
-            let errorResponse: ErrorResponse = rawErrorRespone;
+            let errorResponse: ErrorResponse = rawBody.length > 0 ? JSON.parse(rawBody) : {
+                code: null,
+                status: null,
+                error: httpResponse.message.statusCode,
+                errorCode: null,
+                errorMessage: httpResponse.message.statusMessage
+            };
 
             errorCallback(errorResponse);
         }
