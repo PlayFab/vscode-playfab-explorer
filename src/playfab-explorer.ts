@@ -69,6 +69,10 @@ export class PlayFabExplorer {
     }
 
     async createTitle(studio: Studio): Promise<void> {
+        if(!studio) {
+            let treeNode: ITreeNode = await this.getStudioTreeNodeFromUser();;
+            studio = treeNode.data as Studio;
+        }
         let request: CreateTitleRequest = await this.getUserInputForCreateTitle();
         request.StudioId = studio.Id;
         request.DeveloperClientToken = this._account.getToken();
@@ -278,7 +282,7 @@ export class PlayFabExplorer {
 
     public registerCommands(context: ExtensionContext): void {
         context.subscriptions.push(commands.registerCommand('playfabExplorer.refresh', () => this._treeDataProvider.refresh()));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.createTitle', async (studio) => await this.createTitle(studio.data)));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.createTitle', async (studio) => await this.createTitle(studio ? studio.data : null)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.getTitleData', async (title) => await this.getTitleData(title.data, PlayFabUriConstants.getTitleDataPath)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.setTitleData', async (title) => await this.setTitleData(title.data, PlayFabUriConstants.setTitleDataPath)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.getTitleInternalData', async (title) => await this.getTitleData(title.data, PlayFabUriConstants.getTitleInternalDataPath)));
@@ -332,6 +336,21 @@ export class PlayFabExplorer {
         });
 
         return result;
+    }
+
+    private async getStudioTreeNodeFromUser(): Promise<ITreeNode> {
+        return await this.getTreeNodeFromUser(null, "Please choose a Studio");
+    }
+
+    private async getTitleTreeNodeFromUser(studioTreeNode: ITreeNode): Promise<ITreeNode> {
+        return await this.getTreeNodeFromUser(studioTreeNode, "Please choose a Title");
+    }
+
+    private async getTreeNodeFromUser(rootTreeNode: ITreeNode, placeHolder: string) {
+        let nodes: ITreeNode[] = await this._treeDataProvider.getChildren(rootTreeNode);
+        let names: string[] = nodes.map((node) => node.name);
+        const name: string = await window.showQuickPick(names, { placeHolder: placeHolder });
+        return nodes.find((value: ITreeNode) => value.name === name);
     }
 
     private async getUserInputForCreateTitle(): Promise<CreateTitleRequest> {
