@@ -25,6 +25,7 @@ import {
   CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse,
   SetTitleDataRequest, SetTitleDataResponse, Title
 } from '../models/PlayFabTitleModels'
+import { workspace, TextDocument, window } from 'vscode';
 
 suite('Explorer Tests', function () {
 
@@ -430,6 +431,12 @@ suite('Explorer Tests', function () {
 
   test('UpdateCloudScript', async function () {
     let explorer: PlayFabExplorer = new PlayFabExplorer(account.object, inputGatherer.object, httpCli.object);
+
+    // Open a dummy Javascript document
+    let doc: TextDocument = await workspace.openTextDocument({ language: 'javascript', content: "" });
+    await window.showTextDocument(doc);
+
+    // Update
     await explorer.updateCloudScript(title);
 
     assert(updateCloudScriptHttpCount === 1, `Expected single HTTP call for updateCloudScript, got ${updateCloudScriptHttpCount}`);
