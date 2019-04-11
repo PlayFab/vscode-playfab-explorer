@@ -69,10 +69,6 @@ export class PlayFabExplorer {
     }
 
     async createTitle(studio: Studio): Promise<void> {
-        if(!studio) {
-            let treeNode: ITreeNode = await this.getStudioTreeNodeFromUser();;
-            studio = treeNode.data as Studio;
-        }
         let request: CreateTitleRequest = await this.getUserInputForCreateTitle();
         request.StudioId = studio.Id;
         request.DeveloperClientToken = this._account.getToken();
@@ -282,20 +278,41 @@ export class PlayFabExplorer {
 
     public registerCommands(context: ExtensionContext): void {
         context.subscriptions.push(commands.registerCommand('playfabExplorer.refresh', () => this._treeDataProvider.refresh()));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.createTitle', async (studio) => await this.createTitle(studio ? studio.data : null)));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.getTitleData', async (title) => await this.getTitleData(title.data, PlayFabUriConstants.getTitleDataPath)));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.setTitleData', async (title) => await this.setTitleData(title.data, PlayFabUriConstants.setTitleDataPath)));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.getTitleInternalData', async (title) => await this.getTitleData(title.data, PlayFabUriConstants.getTitleInternalDataPath)));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.setTitleInternalData', async (title) => await this.setTitleData(title.data, PlayFabUriConstants.setTitleInternalDataPath)));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.getCloudScriptRevision', async (title) => await this.getCloudScriptRevision(title.data)));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.updateCloudScript', async (title) => await this.updateCloudScript(title.data)));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.listFunctions', async (title) => await this.listFunctions(title.data)));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.registerFunction', async (title) => await this.registerFunction(title.data)));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.unregisterFunction', async (title) => await this.unregisterFunction(title.data)));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.createTitle', async (studioNode) => {
+            await this.createTitle((studioNode || await this.getStudioTreeNodeFromUser()).data);
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.getTitleData', async (title) => {
+         await this.getTitleData(title.data, PlayFabUriConstants.getTitleDataPath);
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.setTitleData', async (title) => {
+            await this.setTitleData(title.data, PlayFabUriConstants.setTitleDataPath);
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.getTitleInternalData', async (title) => {
+            await this.getTitleData(title.data, PlayFabUriConstants.getTitleInternalDataPath);
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.setTitleInternalData', async (title) => {
+            await this.setTitleData(title.data, PlayFabUriConstants.setTitleInternalDataPath);
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.getCloudScriptRevision', async (title) => {
+            await this.getCloudScriptRevision(title.data);
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.updateCloudScript', async (title) => { 
+            await this.updateCloudScript(title.data);
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.listFunctions', async (title) => { 
+            await this.listFunctions(title.data);
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.registerFunction', async (title) => {
+            await this.registerFunction(title.data);
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.unregisterFunction', async (title) => {
+            await this.unregisterFunction(title.data);
+        }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.enableLocalDebugging', async () => await this.enableLocalDebugging()));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.disableLocalDebugging', async () => await this.disableLocalDebugging()));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.openGameManagerPageForTitle',
-            (title) => commands.executeCommand('vscode.open', Uri.parse(`https://developer.playfab.com/en-US/${title.data.Id}/dashboard`))));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.openGameManagerPageForTitle', (title) => {
+            commands.executeCommand('vscode.open', Uri.parse(`https://developer.playfab.com/en-US/${title.data.Id}/dashboard`));
+        }));
     }
 
     private async getEntityToken(title: Title): Promise<string> {

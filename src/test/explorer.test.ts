@@ -3,12 +3,12 @@
 //  Licensed under the MIT License. See License.md in the project root for license information.
 //---------------------------------------------------------------------------------------------
 
-import * as assert from 'assert'
-import * as Moq from 'typemoq'
+import * as assert from 'assert';
+import * as Moq from 'typemoq';
 import { IPlayFabAccount } from '../playfab-account.api';
-import { IPlayFabExplorerInputGatherer, PlayFabExplorer } from '../playfab-explorer'
-import { MapFromObject } from '../helpers/PlayFabDataHelpers'
-import { IHttpClient } from '../helpers/PlayFabHttpHelper'
+import { IPlayFabExplorerInputGatherer, PlayFabExplorer } from '../playfab-explorer';
+import { MapFromObject } from '../helpers/PlayFabDataHelpers';
+import { IHttpClient } from '../helpers/PlayFabHttpHelper';
 import { PlayFabUriConstants } from '../helpers/PlayFabUriConstants';
 import { GetEntityTokenRequest, GetEntityTokenResponse } from '../models/PlayFabAuthenticationModels';
 import {
@@ -26,6 +26,7 @@ import {
   SetTitleDataRequest, SetTitleDataResponse, Title
 } from '../models/PlayFabTitleModels'
 import { workspace, TextDocument, window } from 'vscode';
+import { ITreeNode } from '../playfab-treeprovider.api';
 
 suite('Explorer Tests', function () {
 
