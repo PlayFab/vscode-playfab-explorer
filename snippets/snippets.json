@@ -1,30 +1,56 @@
 {
-    "Http-Azure-Function": {
-        "prefix": "pf!http",
+    "PlayFab Azure Function in new file (HTTP)": {
+        "prefix": "pf-http-new",
         "body": [
             "using System.Threading.Tasks;",
+            "using System.Net.Http;",
             "using Microsoft.AspNetCore.Http;",
             "using Microsoft.Azure.WebJobs;",
             "using Microsoft.Azure.WebJobs.Extensions.Http;",
-            "using Microsoft.Extensions.Logging;",
-            "using PlayFab.Json;\n",
+            "using Microsoft.Extensions.Logging;\n",
             "namespace ${1:${TM_DIRECTORY/^.+\\\\(.*)$/$1/}}",
             "{",
             "\tpublic static class ${2:$TM_FILENAME_BASE}",
             "\t{",
             "\t\t[FunctionName(\"${3:$TM_FILENAME_BASE}\")]",
             "\t\tpublic static async Task<${4:returnType}> ${3:$TM_FILENAME_BASE}(",
-            "\t\t\t[HttpTrigger(AuthorizationLevel.Function, \"post\", Route = ${5:null})] EntityRequest entityReq, HttpRequest httpReq,",
+            "\t\t\t[HttpTrigger(AuthorizationLevel.Function, \"post\", Route = ${5:null})] HttpRequestMessage req,",
             "\t\t\tILogger log)",
             "\t\t{",
-            "\t\t\t${6:var args = PlayFabSimpleJson.DeserializeObject<${7:dynamic}>(entityReq.FunctionParameter?.ToString());}\n",
-            "\t\t\t${8:$LINE_COMMENT Your function logic goes here}",
+            "\t\t\t$LINE_COMMENT Pre logic phase: Context extraction from request.",
+            "\t\t\tvar context = PlayFab.CloudScriptModels.FunctionExecutionContext.Create<${6:functionArgumentsType}>(req);",
+            "\t\t\tvar args = context.FunctionArgument;",
+            "\t\t\tvar apiSettings = context.ApiSettings;",
+            "\n\t\t\t$LINE_COMMENT Your function logic goes here. Use apiSettings for settings on API instances.",
+            "\t\t\t$7",
             "\n\t\t\treturn new ${4:returnType}",
             "\t\t\t{",
-            "\t\t\t",
+            "\t\t\t\t$8",
             "\t\t\t};",
             "\t\t}",
             "\t}",
+            "}"
+        ]
+    },
+
+    "PlayFab Azure Function in existing file (HTTP)": {
+        "prefix": "pf-http-existing",
+        "body": [
+            "[FunctionName(\"${3:FUNCTION_NAME}\")]",
+            "public static async Task<${4:returnType}> ${3:FUNCTION_NAME}(",
+            "\t[HttpTrigger(AuthorizationLevel.Function, \"post\", Route = ${5:null})] HttpRequestMessage req,",
+            "\tILogger log)",
+            "{",
+            "\t$LINE_COMMENT Pre logic phase: Context extraction from request.",
+            "\tvar context = PlayFab.CloudScriptModels.FunctionExecutionContext.Create<${6:functionArgumentsType}>(req);",
+            "\tvar args = context.FunctionArgument;",
+            "\tvar apiSettings = context.ApiSettings;",
+            "\n\t$LINE_COMMENT Your function logic goes here. Use apiSettings for settings on API instances.",
+            "\t$7",
+            "\n\treturn new ${4:returnType}",
+            "\t{",
+            "\t\t$8",
+            "\t};",
             "}"
         ]
     }
