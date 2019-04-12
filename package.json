@@ -155,6 +155,11 @@
                     "command": "playfabExplorer.refresh",
                     "when": "view == playfabExplorer",
                     "group": "navigation"
+                },
+                {
+                    "command": "playfabExplorer.newFunction",
+                    "when": "view == playfabExplorer",
+                    "group": "navigation"
                 }
             ],
             "view/item/context": [

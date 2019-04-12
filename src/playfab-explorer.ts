@@ -5,8 +5,7 @@
 
 import {
     commands, Command, Event, EventEmitter, ExtensionContext, TextDocument, TextEditor, TreeDataProvider,
-    TreeItem, TreeItemCollapsibleState, TreeView, window, Uri, workspace, WorkspaceConfiguration, WorkspaceFolder
-} from 'vscode';
+    TreeItem, TreeItemCollapsibleState, TreeView, window, Uri, workspace, WorkspaceConfiguration, WorkspaceFolder} from 'vscode';
 import { loadMessageBundle } from 'vscode-nls';
 import { PlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
 import { GetLastPathPartFromUri, MapFromObject, EscapeValue, UnescapeValue } from './helpers/PlayFabDataHelpers';
@@ -302,10 +301,8 @@ export class PlayFabExplorer {
             prompt: 'Please enter the new CloudScript Function name'
         });
 
-
         let workspaceFolders : WorkspaceFolder[] | undefined = workspace.workspaceFolders;
         if (workspaceFolders !== undefined) {
-            window.showInformationMessage('Workspace found');
             let rootFolder : WorkspaceFolder | undefined = workspaceFolders[0];
 
             if (rootFolder === undefined)
@@ -315,16 +312,16 @@ export class PlayFabExplorer {
             }
 
             let functionPath : string = path.join(rootFolder.uri.fsPath, functionName + '.cs');
-            if (!fs.existsSync(functionPath)) {
-                fs.appendFileSync(functionPath, '', {
-                    encoding: 'utf8'
-                });
+
+            if (fs.existsSync(functionPath)) {
+                window.showErrorMessage(`A function called ${functionName} already exists in your root workspace directory.`);
+                return;
             }
-            else {
-                fs.writeFileSync(functionPath, '', {
-                    encoding: 'utf8',
-                });
-            }
+
+            // Create the new function file
+            fs.appendFileSync(functionPath, '', {
+                encoding: 'utf8'
+            });
             
             let functionUriPath : Uri = Uri.file(functionPath);
             let doc: TextDocument = await workspace.openTextDocument(functionUriPath);
@@ -347,6 +344,7 @@ export class PlayFabExplorer {
                     break;
                 }
             }
+            await workspace.saveAll(false);
         }
         else {
             window.showWarningMessage('Please open a folder or workspace before attempting to create a function');
