@@ -25,7 +25,7 @@
             "\t\t\t$7",
             "\n\t\t\treturn new ${4:returnType}",
             "\t\t\t{",
-            "\t\t\t\t$8",
+            "\t\t\t\t",
             "\t\t\t};",
             "\t\t}",
             "\t}",
@@ -49,7 +49,7 @@
             "\t$7",
             "\n\treturn new ${4:returnType}",
             "\t{",
-            "\t\t$8",
+            "\t\t",
             "\t};",
             "}"
         ]
