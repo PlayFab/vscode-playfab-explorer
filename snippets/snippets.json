@@ -12,7 +12,7 @@
             "\tusing Microsoft.Extensions.Logging;\n",
             "\tpublic static class ${2:$TM_FILENAME_BASE}",
             "\t{",
-            "\t\t[FunctionName(\"${3:$TM_FILENAME_BASE}\")]",
+            "\t\t[FunctionName(\"${2:$TM_FILENAME_BASE}\")]",
             "\t\tpublic static async Task<${4:returnType}> ${3:$TM_FILENAME_BASE}(",
             "\t\t\t[HttpTrigger(AuthorizationLevel.Function, \"post\", Route = ${5:null})] HttpRequestMessage req,",
             "\t\t\tILogger log)",
