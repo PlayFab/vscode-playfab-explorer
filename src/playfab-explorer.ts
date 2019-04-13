@@ -148,16 +148,12 @@ export class PlayFabExplorer {
             baseUrl,
             request,
             title.SecretKey,
-            (response: GetCloudScriptRevisionResponse) => {
+            async (response: GetCloudScriptRevisionResponse) => {
                 if (response.Files.length > 0) {
                     let file: CloudScriptFile = response.Files[0];
-                    workspace.openTextDocument({ language: 'javascript', content: file.FileContents })
-                        .then((doc: TextDocument) => {
-                            window.showTextDocument(doc);
-                        })
-                        .then(() => {
-                            window.showInformationMessage(`Downloaded CloudScript revision ${response.Revision} for ${title.Name}`);
-                        });
+                    let doc: TextDocument = await workspace.openTextDocument({ language: 'javascript', content: file.FileContents });
+                    await window.showTextDocument(doc);
+                    await window.showInformationMessage(`Downloaded CloudScript revision ${response.Revision} for ${title.Name}`);
                 }
             },
             (response: ErrorResponse) => {
@@ -175,11 +171,9 @@ export class PlayFabExplorer {
             baseUrl,
             request,
             entityToken,
-            (response: ListFunctionsResponse) => {
-                workspace.openTextDocument({ language: 'markdown', content: this.getMarkDownForFunctionList(response.Functions) })
-                    .then((doc: TextDocument) => {
-                        window.showTextDocument(doc);
-                    });
+            async (response: ListFunctionsResponse) => {
+                let doc: TextDocument = await workspace.openTextDocument({ language: 'markdown', content: this.getMarkDownForFunctionList(response.Functions) });
+                await window.showTextDocument(doc);
             },
             (response: ErrorResponse) => {
                 this.showError(response);
@@ -196,8 +190,8 @@ export class PlayFabExplorer {
             baseUrl,
             request,
             entityToken,
-            (response: RegisterFunctionResponse) => {
-                window.showInformationMessage(`Registered function ${request.FunctionName} at ${request.FunctionUrl}`);
+            async (response: RegisterFunctionResponse) => {
+                await window.showInformationMessage(`Registered function ${request.FunctionName} at ${request.FunctionUrl}`);
             },
             (response: ErrorResponse) => {
                 this.showError(response);
@@ -214,8 +208,8 @@ export class PlayFabExplorer {
             baseUrl,
             request,
             entityToken,
-            (response: UnregisterFunctionResponse) => {
-                window.showInformationMessage(`Unregistered function ${request.FunctionName}`);
+            async (response: UnregisterFunctionResponse) => {
+                await window.showInformationMessage(`Unregistered function ${request.FunctionName}`);
             },
             (response: ErrorResponse) => {
                 this.showError(response);
@@ -237,9 +231,9 @@ export class PlayFabExplorer {
             baseUrl,
             request,
             title.SecretKey,
-            (response: UpdateCloudScriptResponse) => {
+            async (response: UpdateCloudScriptResponse) => {
                 const msg: string = localize('playfab-explorer.cloudscriptUpdated', 'CloudScript updated to revision {0}', response.Revision);
-                window.showInformationMessage(msg)
+                await window.showInformationMessage(msg)
             },
             (response: ErrorResponse) => {
                 this.showError(response);
@@ -256,7 +250,7 @@ export class PlayFabExplorer {
             baseUrl,
             request,
             title.SecretKey,
-            (response: GetTitleDataResponse) => {
+            async (response: GetTitleDataResponse) => {
                 let map: Map<string, string> = MapFromObject(response.Data);
                 if (map.size > 0) {
 
@@ -269,14 +263,12 @@ export class PlayFabExplorer {
                     const playfabConfig: WorkspaceConfiguration = workspace.getConfiguration('playfab');
                     let spaces: number = playfabConfig.get<number>('titleDataSpaces');
 
-                    workspace.openTextDocument({ language: 'json', content: JSON.stringify(titleData, null, spaces) })
-                        .then((doc: TextDocument) => {
-                            window.showTextDocument(doc);
-                        })
+                    let doc: TextDocument = await workspace.openTextDocument({ language: 'json', content: JSON.stringify(titleData, null, spaces) });
+                    await window.showTextDocument(doc);
                 }
                 else {
                     const msg: string = localize('playfab-explorer.noTitleData', 'No title data found with specified key(s)');
-                    window.showInformationMessage(msg);
+                    await window.showInformationMessage(msg);
                 }
             },
             (response: ErrorResponse) => {
@@ -399,12 +391,12 @@ export class PlayFabExplorer {
                 }
 
                 const msg: string = localize('playfab-explorer.titleDataUpdated', 'Title data updated');
-                window.showInformationMessage(msg);
+                await window.showInformationMessage(msg);
             }
         }
         catch (SyntaxException) {
             const msg: string = localize('playfab-explorer.titleDataParseFailure', 'Title data could not be parsed.');
-            window.showErrorMessage(msg);
+            await window.showErrorMessage(msg);
         }
     }
 
@@ -421,10 +413,10 @@ export class PlayFabExplorer {
             baseUrl,
             request,
             title.SecretKey,
-            (response: SetTitleDataResponse) => {
+            async (response: SetTitleDataResponse) => {
                 if (showSuccessMessages) {
                     const msg: string = localize('playfab-explorer.titleDataUpdated', 'Title data updated.');
-                    window.showInformationMessage(msg);
+                    await window.showInformationMessage(msg);
                 }
             },
             (response: ErrorResponse) => {
