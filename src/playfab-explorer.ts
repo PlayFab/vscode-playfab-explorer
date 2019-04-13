@@ -32,6 +32,7 @@ import {
 } from './models/PlayFabTitleModels';
 import * as path from "path";
 import * as fs from "fs";
+import { throws } from 'assert';
 
 const localize = loadMessageBundle();
 
@@ -281,37 +282,47 @@ export class PlayFabExplorer {
         context.subscriptions.push(commands.registerCommand('playfabExplorer.createTitle', async (studioNode) => {
             await this.createTitle((studioNode || await this.getStudioTreeNodeFromUser()).data);
         }));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.getTitleData', async (title) => {
-         await this.getTitleData(title.data, PlayFabUriConstants.getTitleDataPath);
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.getTitleData', async (titleNode) => {
+            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
+            await this.getTitleData(title, PlayFabUriConstants.getTitleDataPath);
         }));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.setTitleData', async (title) => {
-            await this.setTitleData(title.data, PlayFabUriConstants.setTitleDataPath);
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.setTitleData', async (titleNode) => {
+            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
+            await this.setTitleData(title, PlayFabUriConstants.setTitleDataPath);
         }));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.getTitleInternalData', async (title) => {
-            await this.getTitleData(title.data, PlayFabUriConstants.getTitleInternalDataPath);
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.getTitleInternalData', async (titleNode) => {
+            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
+            await this.getTitleData(title, PlayFabUriConstants.getTitleInternalDataPath);
         }));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.setTitleInternalData', async (title) => {
-            await this.setTitleData(title.data, PlayFabUriConstants.setTitleInternalDataPath);
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.setTitleInternalData', async (titleNode) => {
+            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
+            await this.setTitleData(title, PlayFabUriConstants.setTitleInternalDataPath);
         }));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.getCloudScriptRevision', async (title) => {
-            await this.getCloudScriptRevision(title.data);
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.getCloudScriptRevision', async (titleNode) => {
+            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
+            await this.getCloudScriptRevision(title);
         }));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.updateCloudScript', async (title) => { 
-            await this.updateCloudScript(title.data);
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.updateCloudScript', async (titleNode) => { 
+            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
+            await this.updateCloudScript(title);
         }));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.listFunctions', async (title) => { 
-            await this.listFunctions(title.data);
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.listFunctions', async (titleNode) => { 
+            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
+            await this.listFunctions(title);
         }));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.registerFunction', async (title) => {
-            await this.registerFunction(title.data);
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.registerFunction', async (titleNode) => {
+            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
+            await this.registerFunction(title);
         }));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.unregisterFunction', async (title) => {
-            await this.unregisterFunction(title.data);
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.unregisterFunction', async (titleNode) => {
+            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
+            await this.unregisterFunction(title);
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.enableLocalDebugging', async () => await this.enableLocalDebugging()));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.disableLocalDebugging', async () => await this.disableLocalDebugging()));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.openGameManagerPageForTitle', (title) => {
-            commands.executeCommand('vscode.open', Uri.parse(`https://developer.playfab.com/en-US/${title.data.Id}/dashboard`));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.openGameManagerPageForTitle', async (titleNode) => {
+            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
+            commands.executeCommand('vscode.open', Uri.parse(`https://developer.playfab.com/en-US/${title.Id}/dashboard`));
         }));
     }
 
