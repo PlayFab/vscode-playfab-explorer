@@ -4,7 +4,7 @@
 //---------------------------------------------------------------------------------------------
 
 import {
-    commands, ExtensionContext, TextDocument, TextEditor, 
+    commands, ExtensionContext, TextDocument, TextEditor,
     TreeView, window, Uri, workspace, WorkspaceConfiguration
 } from 'vscode';
 import { loadMessageBundle } from 'vscode-nls';
@@ -32,7 +32,6 @@ import {
 } from './models/PlayFabTitleModels';
 import * as path from "path";
 import * as fs from "fs";
-import { throws } from 'assert';
 
 const localize = loadMessageBundle();
 
@@ -280,48 +279,39 @@ export class PlayFabExplorer {
     public registerCommands(context: ExtensionContext): void {
         context.subscriptions.push(commands.registerCommand('playfabExplorer.refresh', () => this._treeDataProvider.refresh()));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.createTitle', async (studioNode) => {
-            await this.createTitle((studioNode || await this.getStudioTreeNodeFromUser()).data);
+            await this.createTitle(await this.getStudioFromTreeNode(studioNode));
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.getTitleData', async (titleNode) => {
-            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
-            await this.getTitleData(title, PlayFabUriConstants.getTitleDataPath);
+            await this.getTitleData(await this.getTitleFromTreeNode(titleNode), PlayFabUriConstants.getTitleDataPath);
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.setTitleData', async (titleNode) => {
-            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
-            await this.setTitleData(title, PlayFabUriConstants.setTitleDataPath);
+            await this.setTitleData(await this.getTitleFromTreeNode(titleNode), PlayFabUriConstants.setTitleDataPath);
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.getTitleInternalData', async (titleNode) => {
-            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
-            await this.getTitleData(title, PlayFabUriConstants.getTitleInternalDataPath);
+            await this.getTitleData(await this.getTitleFromTreeNode(titleNode), PlayFabUriConstants.getTitleInternalDataPath);
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.setTitleInternalData', async (titleNode) => {
-            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
-            await this.setTitleData(title, PlayFabUriConstants.setTitleInternalDataPath);
+            await this.setTitleData(await this.getTitleFromTreeNode(titleNode), PlayFabUriConstants.setTitleInternalDataPath);
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.getCloudScriptRevision', async (titleNode) => {
-            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
-            await this.getCloudScriptRevision(title);
+            await this.getCloudScriptRevision(await this.getTitleFromTreeNode(titleNode));
         }));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.updateCloudScript', async (titleNode) => { 
-            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
-            await this.updateCloudScript(title);
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.updateCloudScript', async (titleNode) => {
+            await this.updateCloudScript(await this.getTitleFromTreeNode(titleNode));
         }));
-        context.subscriptions.push(commands.registerCommand('playfabExplorer.listFunctions', async (titleNode) => { 
-            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
-            await this.listFunctions(title);
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.listFunctions', async (titleNode) => {
+            await this.listFunctions(await this.getTitleFromTreeNode(titleNode));
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.registerFunction', async (titleNode) => {
-            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
-            await this.registerFunction(title);
+            await this.registerFunction(await this.getTitleFromTreeNode(titleNode));
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.unregisterFunction', async (titleNode) => {
-            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
-            await this.unregisterFunction(title);
+            await this.unregisterFunction(await this.getTitleFromTreeNode(titleNode));
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.enableLocalDebugging', async () => await this.enableLocalDebugging()));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.disableLocalDebugging', async () => await this.disableLocalDebugging()));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.openGameManagerPageForTitle', async (titleNode) => {
-            let title: Title = (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
+            let title: Title = await this.getTitleFromTreeNode(titleNode);
             commands.executeCommand('vscode.open', Uri.parse(`https://developer.playfab.com/en-US/${title.Id}/dashboard`));
         }));
     }
@@ -368,6 +358,14 @@ export class PlayFabExplorer {
 
     private async getStudioTreeNodeFromUser(): Promise<ITreeNode> {
         return await this.getTreeNodeFromUser(null, "Please choose a Studio");
+    }
+
+    private async getStudioFromTreeNode(studioNode: ITreeNode): Promise<Studio> {
+        return (studioNode || await await this.getStudioTreeNodeFromUser()).data as Studio;
+    }
+
+    private async getTitleFromTreeNode(titleNode: ITreeNode): Promise<Title> {
+        return (titleNode || await this.getTitleTreeNodeFromUser(await this.getStudioTreeNodeFromUser())).data as Title;
     }
 
     private async getTitleTreeNodeFromUser(studioTreeNode: ITreeNode): Promise<ITreeNode> {
