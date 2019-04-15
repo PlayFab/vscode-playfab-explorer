@@ -5,8 +5,7 @@
 
 import {
     commands, Command, Event, EventEmitter, ExtensionContext, TextDocument, TextEditor, TreeDataProvider,
-    TreeItem, TreeItemCollapsibleState, TreeView, window, Uri, workspace, WorkspaceConfiguration
-} from 'vscode';
+    TreeItem, TreeItemCollapsibleState, TreeView, window, Uri, workspace, WorkspaceConfiguration, WorkspaceFolder} from 'vscode';
 import { loadMessageBundle } from 'vscode-nls';
 import { PlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
 import { GetLastPathPartFromUri, MapFromObject, EscapeValue, UnescapeValue } from './helpers/PlayFabDataHelpers';
@@ -288,6 +287,62 @@ export class PlayFabExplorer {
         }
     }
 
+    async createNewFunction(): Promise<void> {
+        const functionType = await window.showQuickPick([ "Http Trigger", "PlayStream Trigger", "Timer Trigger" ]);
+        const functionName = await window.showInputBox({
+            prompt: 'Please enter the new CloudScript Function name'
+        });
+
+        let workspaceFolders : WorkspaceFolder[] | undefined = workspace.workspaceFolders;
+        if (workspaceFolders !== undefined) {
+            let rootFolder : WorkspaceFolder | undefined = workspaceFolders[0];
+
+            if (rootFolder === undefined)
+            {
+                window.showErrorMessage('Workspace root folder not found.');
+                return;
+            }
+
+            let functionPath : string = path.join(rootFolder.uri.fsPath, functionName + '.cs');
+
+            if (fs.existsSync(functionPath)) {
+                window.showErrorMessage(`A function called ${functionName} already exists in your root workspace directory.`);
+                return;
+            }
+
+            // Create the new function file
+            fs.appendFileSync(functionPath, '', {
+                encoding: 'utf8'
+            });
+            
+            let functionUriPath : Uri = Uri.file(functionPath);
+            let doc: TextDocument = await workspace.openTextDocument(functionUriPath);
+            await window.showTextDocument(doc);
+            switch (functionType)
+            {
+                case 'Http Trigger':
+                {
+                    commands.executeCommand('editor.action.insertSnippet', {
+                        'name': 'pf-af-http-new'
+                    });
+                    break;
+                }
+                case 'PlayStream Trigger':
+                {
+                    break;
+                }
+                case 'Timer Trigger':
+                {
+                    break;
+                }
+            }
+            await workspace.saveAll(false);
+        }
+        else {
+            window.showWarningMessage('Please open a folder or workspace before attempting to create a function');
+        }
+    }
+
     public registerCommands(context: ExtensionContext): void {
         context.subscriptions.push(commands.registerCommand('playfabExplorer.refresh', () => this._treeDataProvider.refresh()));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.createTitle', async (studio) => await this.createTitle(studio.data)));
@@ -297,6 +352,7 @@ export class PlayFabExplorer {
         context.subscriptions.push(commands.registerCommand('playfabExplorer.setTitleInternalData', async (title) => await this.setTitleData(title.data, PlayFabUriConstants.setTitleInternalDataPath)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.getCloudScriptRevision', async (title) => await this.getCloudScriptRevision(title.data)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.updateCloudScript', async (title) => await this.updateCloudScript(title.data)));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.newFunction', async () => await this.createNewFunction()));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.listFunctions', async (title) => await this.listFunctions(title.data)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.registerFunction', async (title) => await this.registerFunction(title.data)));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.unregisterFunction', async (title) => await this.unregisterFunction(title.data)));

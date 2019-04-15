@@ -28,6 +28,15 @@
     ],
     "main": "./out/extension",
     "contributes": {
+        "keybindings":[
+            
+        ],
+        "snippets": [
+            {
+                "language": "csharp",
+                "path": "./snippets/snippets.json"
+            }
+        ],
         "viewsContainers": {
             "activitybar": [
                 {
@@ -133,12 +142,22 @@
                 "command": "playfabExplorer.updateCloudScript",
                 "title": "%playfab-explorer.commands.updateCloudScript%",
                 "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.newFunction",
+                "title": "%playfab-explorer.commands.createFunction%",
+                "category": "%playfab-explorer.commands.playfab%"
             }
         ],
         "menus": {
             "view/title": [
                 {
                     "command": "playfabExplorer.refresh",
+                    "when": "view == playfabExplorer",
+                    "group": "navigation"
+                },
+                {
+                    "command": "playfabExplorer.newFunction",
                     "when": "view == playfabExplorer",
                     "group": "navigation"
                 }
@@ -175,29 +194,34 @@
                     "group": "2@4"
                 },
                 {
-                    "command": "playfabExplorer.listFunctions",
+                    "command": "playfabExplorer.newFunction",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "3@1"
                 },
                 {
-                    "command": "playfabExplorer.registerFunction",
+                    "command": "playfabExplorer.listFunctions",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "3@2"
                 },
                 {
-                    "command": "playfabExplorer.unregisterFunction",
+                    "command": "playfabExplorer.registerFunction",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "3@3"
                 },
                 {
-                    "command": "playfabExplorer.enableLocalDebugging",
+                    "command": "playfabExplorer.unregisterFunction",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "3@4"
                 },
                 {
-                    "command": "playfabExplorer.disableLocalDebugging",
+                    "command": "playfabExplorer.enableLocalDebugging",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "3@5"
+                },
+                {
+                    "command": "playfabExplorer.disableLocalDebugging",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "3@6"
                 },
                 {
                     "command": "playfabExplorer.getCloudScriptRevision",
