@@ -6,7 +6,7 @@
 import { ExtensionContext, StatusBarItem, window, workspace } from 'vscode';
 import { loadMessageBundle } from 'vscode-nls';
 import { PlayFabLoginManager } from './playfab-account';
-import { PlayFabAccount } from './playfab-account.api';
+import { IPlayFabAccount } from './playfab-account.api';
 import { PlayFabExplorer } from './playfab-explorer';
 
 const localize = loadMessageBundle();
@@ -42,7 +42,7 @@ export function deactivate(): void {
     // NOOP
 }
 
-function createStatusBarItem(context: ExtensionContext, api: PlayFabAccount): StatusBarItem {
+function createStatusBarItem(context: ExtensionContext, api: IPlayFabAccount): StatusBarItem {
     const statusBarItem: StatusBarItem = window.createStatusBarItem();
 
     function updateStatusBar() {

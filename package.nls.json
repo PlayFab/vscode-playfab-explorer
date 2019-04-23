@@ -37,7 +37,6 @@
     "playfab-explorer.commands.getCloudScriptRevision": "Get CloudScript revision",
     "playfab-explorer.commands.updateCloudScript": "Update CloudScript",
     "playfab-explorer.commands.createFunctionApp": "Create Function App",
-    "playfab-explorer.commands.addFunction": "Add Function",
     "playfab-explorer.commands.openGameManagerPageForTitle": "Open in Game Manager",
     "playfab-explorer.cloudscriptUpdated": "CloudScript updated to revision {0}.",
     "playfab-explorer.noTitleData": "No title data found with specified key(s).",
