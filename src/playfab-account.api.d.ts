@@ -7,21 +7,21 @@ import { Event } from 'vscode';
 
 export type PlayFabLoginStatus = 'Initializing' | 'LoggingIn' | 'LoggedIn' | 'LoggedOut';
 
-export interface PlayFabAccount {
+export interface IPlayFabAccount {
     readonly status: PlayFabLoginStatus;
     readonly onStatusChanged: Event<PlayFabLoginStatus>;
     readonly waitForLogin: () => Promise<boolean>;
-    readonly sessions: PlayFabSession[];
+    readonly sessions: IPlayFabSession[];
     readonly onSessionsChanged: Event<void>;
     readonly getToken: () => string;
 }
 
-export interface PlayFabSession {
+export interface IPlayFabSession {
     readonly cloud: string;
     readonly userId: string;
-    readonly credentials: PlayFabCredentials;
+    readonly credentials: IPlayFabCredentials;
 }
 
-export interface PlayFabCredentials {
+export interface IPlayFabCredentials {
     readonly token: string;
 }
