@@ -343,13 +343,13 @@ export class PlayFabExplorer {
         let newline: string = process.platform == 'win32' ? '\r\n' : '\n';
         let result: string = "# List Of Functions";
         result += newline;
-        result += "| Name | Url | Trigger | Invocation |";
+        result += "| Name | Url |";
         result += newline;
-        result += "| --- | --- | --- | --- |";
+        result += "| --- | --- |";
         result += newline;
 
         functions.forEach((fnInfo: FunctionInfo) => {
-            result += `| ${fnInfo.FunctionName} | ${fnInfo.FunctionUrl} | ${fnInfo.TriggerType} | ${fnInfo.InvocationSource} |`;
+            result += `| ${fnInfo.FunctionName} | ${fnInfo.FunctionUrl} |`;
             result += newline;
         });
 
@@ -508,19 +508,7 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
     }
 
     public async getUserInputForListFunctions(): Promise<ListFunctionsRequest> {
-        const triggerTypePrompt: string = localize('playfab-explorer.triggerTypePrompt', 'Please choose a trigger type.');
-        const invocationSourcePrompt: string = localize('playfab-explorer.invocationSourcePrompt', 'Please choose an invocation source.');
-
-        const triggerType: string = await window.showQuickPick(["All", "Http", "Azure Queue"], { placeHolder: triggerTypePrompt });
-        let invocationSource: string = "";
-
-        if (triggerType !== "http") {
-            invocationSource = await window.showQuickPick(["All", "PlayStream", "Segment", "Scheduled Task"], { placeHolder: invocationSourcePrompt });
-        }
-
         let request: ListFunctionsRequest = {
-            TriggerType: triggerType,
-            InvocationSource: invocationSource
         };
 
         return request;
