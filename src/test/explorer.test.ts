@@ -80,8 +80,6 @@ suite('Explorer Tests', function () {
     .returns(async () => {
       listFunctionsInputCount++;
       let result: ListFunctionsRequest = {
-        TriggerType: "Http",
-        InvocationSource: "Http"
       };
       return result;
     });
@@ -336,15 +334,11 @@ suite('Explorer Tests', function () {
           Functions: [
             {
               FunctionName: "Fn1",
-              FunctionUrl: "https://some.func",
-              TriggerType: "Http",
-              InvocationSource: "Http"
+              FunctionUrl: "https://some.func"
             },
             {
               FunctionName: "Fn2",
-              FunctionUrl: "https://someother.func",
-              TriggerType: "Http",
-              InvocationSource: "Http"
+              FunctionUrl: "https://someother.func"
             },
           ]
         };

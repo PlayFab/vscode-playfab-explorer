@@ -6,13 +6,9 @@
 export class FunctionInfo {
     FunctionName: string;
     FunctionUrl: string;
-    TriggerType: string;
-    InvocationSource: string;
 }
 
 export class ListFunctionsRequest {
-    TriggerType: string;
-    InvocationSource: string;
 }
 
 export class ListFunctionsResponse {
@@ -25,7 +21,6 @@ export class RegisterFunctionRequest {
 }
 
 export class RegisterFunctionResponse {
-
 }
 
 export class UnregisterFunctionRequest {
@@ -33,5 +28,4 @@ export class UnregisterFunctionRequest {
 }
 
 export class UnregisterFunctionResponse {
-    
 }
