@@ -20,6 +20,7 @@ import {
     FunctionInfo, ListFunctionsRequest, ListFunctionsResponse, RegisterHttpFunctionRequest,
     RegisterFunctionResponse, UnregisterFunctionRequest, UnregisterFunctionResponse
 } from './models/PlayFabCloudScriptModels';
+import { GetEntityProfileRequest, GetEntityProfileResponse } from './models/PlayFabEntityDescriptorModels';
 import {
     CloudScriptFile, GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse,
     UpdateCloudScriptRequest, UpdateCloudScriptResponse
@@ -32,12 +33,14 @@ import {
 } from './models/PlayFabTitleModels';
 import * as path from "path";
 import * as fs from "fs";
+import { EntityKey } from './models/PlayFabEntityModels';
 
 const localize = loadMessageBundle();
 
 export interface IPlayFabExplorerInputGatherer {
     getUserInputForCreateTitle(): Promise<CreateTitleRequest>;
     getUserInputForGetCloudScriptRevision(): Promise<GetCloudScriptRevisionRequest>;
+    getUserInputForGetEntityProfile(): Promise<GetEntityProfileRequest>;
     getUserInputForGetTitleData(): Promise<GetTitleDataRequest>;
     getUserInputForListFunctions(): Promise<ListFunctionsRequest>;
     getUserInputForRegisterFunction(): Promise<RegisterHttpFunctionRequest>;
@@ -228,6 +231,28 @@ export class PlayFabExplorer {
             });
     }
 
+    async getEntityProfile(title: Title): Promise<void> {
+        let entityToken: string = await this.getEntityToken(title);
+        let request: GetEntityProfileRequest = await this.getUserInputForGetEntityProfile();
+        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
+
+        await this._httpClient.makeEntityApiCall(
+            PlayFabUriConstants.getProfilePath,
+            baseUrl,
+            request,
+            entityToken,
+            async (response: GetEntityProfileResponse) => {
+                const playfabConfig: WorkspaceConfiguration = workspace.getConfiguration('playfab');
+                let spaces: number = playfabConfig.get<number>('jsonSpaces');
+
+                let doc: TextDocument = await workspace.openTextDocument({ language: 'json', content: JSON.stringify(response.Profile, null, spaces) });
+                await window.showTextDocument(doc);
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
+    }
+
     async getTitleData(title: Title, path: string): Promise<void> {
         let request: GetTitleDataRequest = await this.getUserInputForGetTitleData();
 
@@ -249,7 +274,7 @@ export class PlayFabExplorer {
                     });
 
                     const playfabConfig: WorkspaceConfiguration = workspace.getConfiguration('playfab');
-                    let spaces: number = playfabConfig.get<number>('titleDataSpaces');
+                    let spaces: number = playfabConfig.get<number>('jsonSpaces');
 
                     let doc: TextDocument = await workspace.openTextDocument({ language: 'json', content: JSON.stringify(titleData, null, spaces) });
                     await window.showTextDocument(doc);
@@ -292,6 +317,9 @@ export class PlayFabExplorer {
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.setTitleInternalData', async (titleNode) => {
             await this.setTitleData(await this.getTitleFromTreeNode(titleNode), PlayFabUriConstants.setTitleInternalDataPath);
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.getEntityProfile', async (titleNode) => {
+            await this.getEntityProfile(await this.getTitleFromTreeNode(titleNode));
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.getCloudScriptRevision', async (titleNode) => {
             await this.getCloudScriptRevision(await this.getTitleFromTreeNode(titleNode));
@@ -385,6 +413,10 @@ export class PlayFabExplorer {
 
     private async getUserInputForGetCloudScriptRevision(): Promise<GetCloudScriptRevisionRequest> {
         return await this._inputGatherer.getUserInputForGetCloudScriptRevision();
+    }
+
+    private async getUserInputForGetEntityProfile(): Promise<GetEntityProfileRequest> {
+        return await this._inputGatherer.getUserInputForGetEntityProfile();
     }
 
     private async getUserInputForGetTitleData(): Promise<GetTitleDataRequest> {
@@ -492,6 +524,26 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
         let request = new GetCloudScriptRevisionRequest();
         request.Version = null;
         request.Revision = revision;
+        return request;
+    }
+
+    public async getUserInputForGetEntityProfile(): Promise<GetEntityProfileRequest> {
+        const entityTypePrompt: string = localize('playfab-explorer.entityTypePrompt', 'Please choose an entity type.');
+        const entityIdPrompt: string = localize('playfab-explorer.entityIdPrompt', 'Please enter an entity id.');
+
+        const entityType: string = await window.showQuickPick(
+            ["namespace", "title", "master_player_account", "title_player_account", "character", "group", "service", "cloud_root"],
+            { placeHolder: entityTypePrompt });
+
+        const entityId: string = await window.showInputBox({
+            prompt: entityIdPrompt
+        });
+
+        let request = new GetEntityProfileRequest();
+        request.Entity = new EntityKey();
+        request.Entity.Id = entityId;
+        request.Entity.Type = entityType;
+        request.DataAsObject = true;
         return request;
     }
 

@@ -4,7 +4,7 @@
 //---------------------------------------------------------------------------------------------
 
 import { ApiContextRequest } from './PlayFabApiContextModels';
-import { EntityKey } from './PlayFabEntityModels';
+import { EntityKey, EntityProfileBody } from './PlayFabEntityModels';
 
 export class EntityDescriptorRequiredApiContext extends ApiContextRequest {
     Entity: EntityKey;
@@ -16,4 +16,12 @@ export class EntityDescriptorApiResponse {
 
 export class EntityDescriptorApiContext extends ApiContextRequest {
     Entity?: EntityKey;
+}
+
+export class GetEntityProfileRequest extends EntityDescriptorApiContext {
+    DataAsObject?: boolean;
+}
+
+export class GetEntityProfileResponse {
+    Profile: any; // EntityProfileBody
 }

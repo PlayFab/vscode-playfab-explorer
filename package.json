@@ -106,6 +106,11 @@
                 "category": "%playfab-explorer.commands.playfab%"
             },
             {
+                "command": "playfabExplorer.getEntityProfile",
+                "title": "%playfab-explorer.commands.getEntityProfile%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
                 "command": "playfabExplorer.listFunctions",
                 "title": "%playfab-explorer.commands.listFunctions%",
                 "category": "%playfab-explorer.commands.playfab%"
@@ -181,6 +186,11 @@
                     "group": "2@4"
                 },
                 {
+                    "command": "playfabExplorer.getEntityProfile",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "2@5"
+                },
+                {
                     "command": "playfabExplorer.listFunctions",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "3@1"
@@ -242,10 +252,10 @@
                         "default": "user@company.com",
                         "description": "%playfab-account.configuration.loginId.description%"
                     },
-                    "playfab.titleDataSpaces": {
+                    "playfab.jsonSpaces": {
                         "type": "integer",
                         "default": 2,
-                        "description": "%playfab-account.configuration.titleDataSpaces.description%"
+                        "description": "%playfab-account.configuration.jsonSpaces.description%"
                     }
                 }
             }
