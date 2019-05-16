@@ -12,7 +12,7 @@ import { IHttpClient } from '../helpers/PlayFabHttpHelper';
 import { PlayFabUriConstants } from '../helpers/PlayFabUriConstants';
 import { GetEntityTokenRequest, GetEntityTokenResponse } from '../models/PlayFabAuthenticationModels';
 import {
-  ListFunctionsRequest, ListFunctionsResponse, RegisterFunctionRequest,
+  ListFunctionsRequest, ListFunctionsResponse, RegisterHttpFunctionRequest,
   RegisterFunctionResponse, UnregisterFunctionRequest, UnregisterFunctionResponse
 } from '../models/PlayFabCloudScriptModels'
 import { ErrorResponse } from '../models/PlayFabHttpModels';
@@ -88,7 +88,7 @@ suite('Explorer Tests', function () {
   inputGatherer.setup(x => x.getUserInputForRegisterFunction())
     .returns(async () => {
       registerFunctionInputCount++;
-      let result: RegisterFunctionRequest = {
+      let result: RegisterHttpFunctionRequest = {
         FunctionName: "Fn1",
         FunctionUrl: "https://some.func"
       };
@@ -349,16 +349,16 @@ suite('Explorer Tests', function () {
 
   let registerFunctionHttpCount: number = 0;
   httpCli.setup(x => x.makeEntityApiCall(
-    Moq.It.isValue(PlayFabUriConstants.registerFunctionPath),
+    Moq.It.isValue(PlayFabUriConstants.registerHttpFunctionPath),
     Moq.It.isAnyString(),
-    Moq.It.is<RegisterFunctionRequest>(x => true),
+    Moq.It.is<RegisterHttpFunctionRequest>(x => true),
     Moq.It.isAnyString(),
     Moq.It.isAny(),
     Moq.It.isAny()))
     .returns(
       (path: string,
         endpoint: string,
-        request: RegisterFunctionRequest,
+        request: RegisterHttpFunctionRequest,
         key: string,
         successCallback: (response: RegisterFunctionResponse) => void,
         errorCallback: (response: ErrorResponse) => void

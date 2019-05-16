@@ -17,7 +17,7 @@ import { delay } from './helpers/PlayFabPromiseHelpers';
 import { PlayFabUriConstants } from './helpers/PlayFabUriConstants';
 import { GetEntityTokenRequest, GetEntityTokenResponse } from './models/PlayFabAuthenticationModels';
 import {
-    FunctionInfo, ListFunctionsRequest, ListFunctionsResponse, RegisterFunctionRequest,
+    FunctionInfo, ListFunctionsRequest, ListFunctionsResponse, RegisterHttpFunctionRequest,
     RegisterFunctionResponse, UnregisterFunctionRequest, UnregisterFunctionResponse
 } from './models/PlayFabCloudScriptModels';
 import {
@@ -40,7 +40,7 @@ export interface IPlayFabExplorerInputGatherer {
     getUserInputForGetCloudScriptRevision(): Promise<GetCloudScriptRevisionRequest>;
     getUserInputForGetTitleData(): Promise<GetTitleDataRequest>;
     getUserInputForListFunctions(): Promise<ListFunctionsRequest>;
-    getUserInputForRegisterFunction(): Promise<RegisterFunctionRequest>;
+    getUserInputForRegisterFunction(): Promise<RegisterHttpFunctionRequest>;
     getUserInputForUnregisterFunction(): Promise<UnregisterFunctionRequest>;
     getUserInputForSetTitleData(): Promise<SetTitleDataRequest>;
     getUserInputForUnregisterFunction(): Promise<UnregisterFunctionRequest>;
@@ -170,11 +170,11 @@ export class PlayFabExplorer {
 
     async registerFunction(title: Title): Promise<void> {
         let entityToken: string = await this.getEntityToken(title);
-        let request: RegisterFunctionRequest = await this.getUserInputForRegisterFunction();
+        let request: RegisterHttpFunctionRequest = await this.getUserInputForRegisterFunction();
         let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
 
         await this._httpClient.makeEntityApiCall(
-            PlayFabUriConstants.registerFunctionPath,
+            PlayFabUriConstants.registerHttpFunctionPath,
             baseUrl,
             request,
             entityToken,
@@ -395,7 +395,7 @@ export class PlayFabExplorer {
         return await this._inputGatherer.getUserInputForListFunctions();
     }
 
-    private async getUserInputForRegisterFunction(): Promise<RegisterFunctionRequest> {
+    private async getUserInputForRegisterFunction(): Promise<RegisterHttpFunctionRequest> {
         return await this._inputGatherer.getUserInputForRegisterFunction();
     }
 
@@ -514,7 +514,7 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
         return request;
     }
 
-    public async getUserInputForRegisterFunction(): Promise<RegisterFunctionRequest> {
+    public async getUserInputForRegisterFunction(): Promise<RegisterHttpFunctionRequest> {
         const functionUriValue: string = localize('playfab-explorer.functionUriValue', 'Function Uri');
         const functionUriPrompt: string = localize('playfab-explorer.functionUriPrompt', 'Please enter the function uri');
 
@@ -533,7 +533,7 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
             prompt: functionNamePrompt
         });
 
-        let request: RegisterFunctionRequest = {
+        let request: RegisterHttpFunctionRequest = {
             FunctionName: functionName,
             FunctionUrl: functionUri
         };
