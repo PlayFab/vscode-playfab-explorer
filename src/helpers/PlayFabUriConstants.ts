@@ -30,4 +30,6 @@ export class PlayFabUriConstants {
     public static logoutPath: string = '/DeveloperTools/User/Logout';
 
     public static getEntityTokenPath: string = '/Authentication/GetEntityToken';
+
+    public static getProfilePath: string = '/Profile/GetProfile';
 };

@@ -27,3 +27,18 @@ export interface IClaimant {
     EntityKey: EntityKey;
     EntityChain: EntityChainDetails;
 }
+
+export class EntityProfileBody {
+        Entity: EntityKey;
+        EntityChain: string;
+        VersionNumber: number; // int
+        DisplayName: string;
+        //Permissions: EntityPermissionStatement[];
+        //Objects: Dictionary<string, EntityDataObject>;
+        //Files: Dictionary<string, EntityProfileFileMetadata>;
+        //Statistics: Dictionary<string, EntityStatisticValue>;
+        Language: string;
+        //Lineage: EntityLineage;
+        Created: Date;
+        AvatarUrl: string ;
+}
