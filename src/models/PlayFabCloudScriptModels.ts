@@ -15,7 +15,7 @@ export class ListFunctionsResponse {
     Functions: FunctionInfo[];
 }
 
-export class RegisterFunctionRequest {
+export class RegisterHttpFunctionRequest {
     FunctionName: string;
     FunctionUrl: string;
 }

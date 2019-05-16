@@ -18,7 +18,7 @@ export class PlayFabUriConstants {
     public static getTitleInternalDataPath: string = '/Admin/GetTitleInternalData';
     public static setTitleInternalDataPath: string = '/Admin/SetTitleInternalData';
     public static listFunctionsPath: string = '/CloudScript/ListFunctions';
-    public static registerFunctionPath: string = '/CloudScript/RegisterFunction';
+    public static registerHttpFunctionPath: string = '/CloudScript/RegisterHttpFunction';
     public static unregisterFunctionPath: string = '/CloudScript/UnregisterFunction';
     public static updateCloudScriptPath: string = '/Admin/UpdateCloudScript';
     public static getCloudScriptRevisionPath: string = '/Admin/GetCloudScriptRevision';
