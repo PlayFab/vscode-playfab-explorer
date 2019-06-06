@@ -43,7 +43,8 @@ export function activate(context: ExtensionContext): void {
         PlayFabUriHelpers.cloud = cloud;
     }
     
-    workspace.onDidChangeConfiguration(updateCloud)
+    workspace.onDidChangeConfiguration(updateCloud);
+    updateCloud();
 }
 
 // this method is called when your extension is deactivated

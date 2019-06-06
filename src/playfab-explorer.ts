@@ -340,7 +340,7 @@ export class PlayFabExplorer {
         context.subscriptions.push(commands.registerCommand('playfabExplorer.disableLocalDebugging', async () => await this.disableLocalDebugging()));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.openGameManagerPageForTitle', async (titleNode) => {
             let title: Title = await this.getTitleFromTreeNode(titleNode);
-            commands.executeCommand('vscode.open', Uri.parse(`https://developer.playfab.com/en-US/${title.Id}/dashboard`));
+            commands.executeCommand('vscode.open', Uri.parse(PlayFabUriHelpers.GetGameManagerUrl(title.Id)));
         }));
     }
 

@@ -12,28 +12,27 @@ export class PlayFabUriHelpers {
 
     private static editorBaseUrlForPrivateCloud: string = 'https://editor.{cloud}.playfabapi.com';
 
+    private static gameManagerBaseUrl = "https://developer.playfab.com/en-US/{titleId}/dashboard";
+
+    private static gameManagerBaseUrlForPrivateCloud = "https://developer.{cloud}.playfab.com/en-US/{titleId}/dashboard";
+
     public static cloud: string;
 
     public static GetPlayFabBaseUrl(titleId: string): string {
-        let baseUrl: string = this.playfabBaseUrl;
-
-        if(PlayFabUriHelpers.cloud != null)
-        {
-            baseUrl = PlayFabUriHelpers.playfabBaseUrlForPrivateCloud.replace('{cloud}', PlayFabUriHelpers.cloud);
-        }
-
+        const baseUrl: string = PlayFabUriHelpers.cloud == null ? this.playfabBaseUrl :
+            PlayFabUriHelpers.playfabBaseUrlForPrivateCloud.replace('{cloud}', PlayFabUriHelpers.cloud);
         return baseUrl.replace('{titleId}', titleId);
     }
 
     public static GetPlayFabEditorBaseUrl(): string {
-        let baseUrl: string = this.editorBaseUrl;
+        return PlayFabUriHelpers.cloud == null ? this.editorBaseUrl : 
+            PlayFabUriHelpers.editorBaseUrlForPrivateCloud.replace('{cloud}', PlayFabUriHelpers.cloud);
+    }
 
-        if(PlayFabUriHelpers.cloud != null)
-        {
-            baseUrl = PlayFabUriHelpers.editorBaseUrlForPrivateCloud.replace('{cloud}', PlayFabUriHelpers.cloud);
-        }
-
-        return baseUrl;
+    public static GetGameManagerUrl(titleId: string): string {
+        const url = PlayFabUriHelpers.cloud == null ? this.gameManagerBaseUrl :
+            PlayFabUriHelpers.gameManagerBaseUrlForPrivateCloud.replace('{cloud}', PlayFabUriHelpers.cloud);
+        return url.replace('{titleId}', titleId);
     }
 
     public static createTitlePath: string = '/DeveloperTools/User/CreateTitle';
