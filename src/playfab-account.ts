@@ -9,7 +9,7 @@ import { ExtensionInfo } from './extension';
 import { IPlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
 import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper';
 import { waitForOnline } from './helpers/PlayFabNetworkHelpers';
-import { PlayFabUriConstants } from './helpers/PlayFabUriConstants';
+import { PlayFabUriHelpers } from './helpers/PlayFabUriHelpers';
 import {
     CreateAccountRequest, CreateAccountResponse, LoginRequest, LoginResponse,
     LogoutRequest, LogoutResponse
@@ -60,8 +60,8 @@ export class PlayFabLoginManager {
         let request: CreateAccountRequest = await this.getUserInputForCreateAccount();
 
         await this._httpCli.makeApiCall(
-            PlayFabUriConstants.createAccountPath,
-            PlayFabUriConstants.editorBaseUrl,
+            PlayFabUriHelpers.createAccountPath,
+            PlayFabUriHelpers.GetPlayFabEditorBaseUrl(),
             request,
             (response: CreateAccountResponse): void => {
                 this.api.sessions.splice(0, this.api.sessions.length, {
@@ -92,8 +92,8 @@ export class PlayFabLoginManager {
         let needTwoFa: boolean = false;
 
         await this._httpCli.makeApiCall(
-            PlayFabUriConstants.loginPath,
-            PlayFabUriConstants.editorBaseUrl,
+            PlayFabUriHelpers.loginPath,
+            PlayFabUriHelpers.GetPlayFabEditorBaseUrl(),
             request,
             (response: LoginResponse): void => {
                 this.api.sessions.splice(0, this.api.sessions.length, {
@@ -118,8 +118,8 @@ export class PlayFabLoginManager {
             request = await this.getUserInputForTwoFA(request);
 
             await this._httpCli.makeApiCall(
-                PlayFabUriConstants.loginPath,
-                PlayFabUriConstants.editorBaseUrl,
+                PlayFabUriHelpers.loginPath,
+                PlayFabUriHelpers.GetPlayFabEditorBaseUrl(),
                 request,
                 (response: LoginResponse): void => {
                     this.api.sessions.splice(0, this.api.sessions.length, {
@@ -148,8 +148,8 @@ export class PlayFabLoginManager {
         request.DeveloperClientToken = this.api.getToken();
 
         await this._httpCli.makeApiCall(
-            PlayFabUriConstants.logoutPath,
-            PlayFabUriConstants.editorBaseUrl,
+            PlayFabUriHelpers.logoutPath,
+            PlayFabUriHelpers.GetPlayFabEditorBaseUrl(),
             request,
             (response: LogoutResponse): void => {
             },

@@ -7,7 +7,7 @@ import * as assert from 'assert'
 import * as Moq from 'typemoq'
 import { PlayFabLoginManager, IPlayFabLoginInputGatherer } from '../playfab-account';
 import { IHttpClient } from '../helpers/PlayFabHttpHelper'
-import { PlayFabUriConstants } from '../helpers/PlayFabUriConstants'
+import { PlayFabUriHelpers } from '../helpers/PlayFabUriHelpers'
 import {
   CreateAccountRequest, CreateAccountResponse, LoginResponse, LoginRequest,
   LogoutRequest, LogoutResponse
@@ -79,7 +79,7 @@ suite('Account Tests', function () {
 
   let httpCli: Moq.IMock<IHttpClient> = Moq.Mock.ofType<IHttpClient>();
   httpCli.setup(x => x.makeApiCall(
-    Moq.It.isValue(PlayFabUriConstants.loginPath),
+    Moq.It.isValue(PlayFabUriHelpers.loginPath),
     Moq.It.isAnyString(),
     Moq.It.is<LoginRequest>(x => true),
     Moq.It.isAny(),
@@ -99,7 +99,7 @@ suite('Account Tests', function () {
       });
 
   httpCli.setup(x => x.makeApiCall(
-    Moq.It.isValue(PlayFabUriConstants.logoutPath),
+    Moq.It.isValue(PlayFabUriHelpers.logoutPath),
     Moq.It.isAnyString(),
     Moq.It.is<LoginRequest>(x => true),
     Moq.It.isAny(),
@@ -118,7 +118,7 @@ suite('Account Tests', function () {
       });
 
   httpCli.setup(x => x.makeApiCall(
-    Moq.It.isValue(PlayFabUriConstants.createAccountPath),
+    Moq.It.isValue(PlayFabUriHelpers.createAccountPath),
     Moq.It.isAnyString(),
     Moq.It.is<CreateAccountRequest>(x => true),
     Moq.It.isAny(),
@@ -182,7 +182,7 @@ suite('Account Tests', function () {
     let httpCli2FA: Moq.IMock<IHttpClient> = Moq.Mock.ofType<IHttpClient>();
     let callCount: number = 0;
     httpCli2FA.setup(x => x.makeApiCall(
-      Moq.It.isValue(PlayFabUriConstants.loginPath),
+      Moq.It.isValue(PlayFabUriHelpers.loginPath),
       Moq.It.isAnyString(),
       Moq.It.is<LoginRequest>(x => true),
       Moq.It.isAny(),

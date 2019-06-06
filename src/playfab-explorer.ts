@@ -14,7 +14,7 @@ import { ITreeNode } from './playfab-treeprovider.api';
 import { GetLastPathPartFromUri, MapFromObject, EscapeValue, UnescapeValue } from './helpers/PlayFabDataHelpers';
 import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper';
 import { delay } from './helpers/PlayFabPromiseHelpers';
-import { PlayFabUriConstants } from './helpers/PlayFabUriConstants';
+import { PlayFabUriHelpers } from './helpers/PlayFabUriHelpers';
 import { GetEntityTokenRequest, GetEntityTokenResponse } from './models/PlayFabAuthenticationModels';
 import {
     FunctionInfo, ListFunctionsRequest, ListFunctionsResponse, RegisterHttpFunctionRequest,
@@ -77,8 +77,8 @@ export class PlayFabExplorer {
         request.DeveloperClientToken = this._account.getToken();
 
         await this._httpClient.makeApiCall(
-            PlayFabUriConstants.createTitlePath,
-            PlayFabUriConstants.editorBaseUrl,
+            PlayFabUriHelpers.createTitlePath,
+            PlayFabUriHelpers.GetPlayFabEditorBaseUrl(),
             request,
             (response: CreateTitleResponse) => {
                 // NOOP
@@ -132,10 +132,10 @@ export class PlayFabExplorer {
 
     async getCloudScriptRevision(title: Title): Promise<void> {
         let request: GetCloudScriptRevisionRequest = await this.getUserInputForGetCloudScriptRevision();
-        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
+        let baseUrl: string = PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id);
 
         await this._httpClient.makeTitleApiCall(
-            PlayFabUriConstants.getCloudScriptRevisionPath,
+            PlayFabUriHelpers.getCloudScriptRevisionPath,
             baseUrl,
             request,
             title.SecretKey,
@@ -155,10 +155,10 @@ export class PlayFabExplorer {
     async listFunctions(title: Title): Promise<void> {
         let entityToken: string = await this.getEntityToken(title);
         let request: ListFunctionsRequest = await this.getUserInputForListFunctions();
-        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
+        let baseUrl: string = PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id);
 
         await this._httpClient.makeEntityApiCall(
-            PlayFabUriConstants.listFunctionsPath,
+            PlayFabUriHelpers.listFunctionsPath,
             baseUrl,
             request,
             entityToken,
@@ -174,10 +174,10 @@ export class PlayFabExplorer {
     async registerFunction(title: Title): Promise<void> {
         let entityToken: string = await this.getEntityToken(title);
         let request: RegisterHttpFunctionRequest = await this.getUserInputForRegisterFunction();
-        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
+        let baseUrl: string = PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id);
 
         await this._httpClient.makeEntityApiCall(
-            PlayFabUriConstants.registerHttpFunctionPath,
+            PlayFabUriHelpers.registerHttpFunctionPath,
             baseUrl,
             request,
             entityToken,
@@ -192,10 +192,10 @@ export class PlayFabExplorer {
     async unregisterFunction(title: Title): Promise<void> {
         let entityToken: string = await this.getEntityToken(title);
         let request: UnregisterFunctionRequest = await this.getUserInputForUnregisterFunction();
-        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
+        let baseUrl: string = PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id);
 
         await this._httpClient.makeEntityApiCall(
-            PlayFabUriConstants.unregisterFunctionPath,
+            PlayFabUriHelpers.unregisterFunctionPath,
             baseUrl,
             request,
             entityToken,
@@ -215,10 +215,10 @@ export class PlayFabExplorer {
         file.FileContents = window.activeTextEditor.document.getText();
         request.Files = [file];
 
-        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
+        let baseUrl: string = PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id);
 
         await this._httpClient.makeTitleApiCall(
-            PlayFabUriConstants.updateCloudScriptPath,
+            PlayFabUriHelpers.updateCloudScriptPath,
             baseUrl,
             request,
             title.SecretKey,
@@ -234,10 +234,10 @@ export class PlayFabExplorer {
     async getEntityProfile(title: Title): Promise<void> {
         let entityToken: string = await this.getEntityToken(title);
         let request: GetEntityProfileRequest = await this.getUserInputForGetEntityProfile();
-        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
+        let baseUrl: string = PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id);
 
         await this._httpClient.makeEntityApiCall(
-            PlayFabUriConstants.getProfilePath,
+            PlayFabUriHelpers.getProfilePath,
             baseUrl,
             request,
             entityToken,
@@ -256,7 +256,7 @@ export class PlayFabExplorer {
     async getTitleData(title: Title, path: string): Promise<void> {
         let request: GetTitleDataRequest = await this.getUserInputForGetTitleData();
 
-        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
+        let baseUrl: string = PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id);
 
         await this._httpClient.makeTitleApiCall(
             path,
@@ -307,16 +307,16 @@ export class PlayFabExplorer {
             await this.createTitle(await this.getStudioFromTreeNode(studioNode));
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.getTitleData', async (titleNode) => {
-            await this.getTitleData(await this.getTitleFromTreeNode(titleNode), PlayFabUriConstants.getTitleDataPath);
+            await this.getTitleData(await this.getTitleFromTreeNode(titleNode), PlayFabUriHelpers.getTitleDataPath);
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.setTitleData', async (titleNode) => {
-            await this.setTitleData(await this.getTitleFromTreeNode(titleNode), PlayFabUriConstants.setTitleDataPath);
+            await this.setTitleData(await this.getTitleFromTreeNode(titleNode), PlayFabUriHelpers.setTitleDataPath);
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.getTitleInternalData', async (titleNode) => {
-            await this.getTitleData(await this.getTitleFromTreeNode(titleNode), PlayFabUriConstants.getTitleInternalDataPath);
+            await this.getTitleData(await this.getTitleFromTreeNode(titleNode), PlayFabUriHelpers.getTitleInternalDataPath);
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.setTitleInternalData', async (titleNode) => {
-            await this.setTitleData(await this.getTitleFromTreeNode(titleNode), PlayFabUriConstants.setTitleInternalDataPath);
+            await this.setTitleData(await this.getTitleFromTreeNode(titleNode), PlayFabUriHelpers.setTitleInternalDataPath);
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.getEntityProfile', async (titleNode) => {
             await this.getEntityProfile(await this.getTitleFromTreeNode(titleNode));
@@ -349,10 +349,10 @@ export class PlayFabExplorer {
             Context: null
         };
 
-        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
+        let baseUrl: string = PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id);
         let entityToken: string = null;
         await this._httpClient.makeTitleApiCall(
-            PlayFabUriConstants.getEntityTokenPath,
+            PlayFabUriHelpers.getEntityTokenPath,
             baseUrl,
             tokenRequest,
             title.SecretKey,
@@ -471,7 +471,7 @@ export class PlayFabExplorer {
     }
 
     private async makeSetTitleDataApiCall(title: Title, path: string, request: SetTitleDataRequest, showSuccessMessages: boolean = false): Promise<void> {
-        let baseUrl: string = PlayFabUriConstants.GetPlayFabBaseUrl(title.Id);
+        let baseUrl: string = PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id);
 
         await this._httpClient.makeTitleApiCall(
             path,

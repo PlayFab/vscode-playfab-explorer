@@ -256,6 +256,11 @@
                         "type": "integer",
                         "default": 2,
                         "description": "%playfab-account.configuration.jsonSpaces.description%"
+                    },
+                    "playfab.cloudName": {
+                        "type": "string",
+                        "default": "",
+                        "description": "%playfab-account.configuration.cloudName.description%"
                     }
                 }
             }

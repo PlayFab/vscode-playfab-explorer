@@ -29,6 +29,9 @@ The PlayFab Explorer extension provides a single PlayFab sign-in experience and 
 | playfab.showSignedInEmail | Whether to show the email address (e.g., in the status bar) of the signed in account. | true
 | playfab.sortStudiosAlphabetically | Whether to sort studios alphabetically in the tree view. | true
 | playfab.sortTitlesAlphabetically | Whether to sort titles alphabetically in the tree view. | true
+| playfab.loginId | Account e-mail address | user@company.com
+| playfab.jsonSpaces | Number of spaces to use when formatting JSON | 2
+| playfab.cloudName | Private cloud name | 
 
 ## Contributing
 

@@ -3,13 +3,37 @@
 //  Licensed under the MIT License. See License.md in the project root for license information.
 //---------------------------------------------------------------------------------------------
 
-export class PlayFabUriConstants {
+export class PlayFabUriHelpers {
     private static playfabBaseUrl: string = 'https://{titleId}.playfabapi.com'
 
-    public static editorBaseUrl: string = 'https://editor.playfabapi.com';
+    private static playfabBaseUrlForPrivateCloud: string = 'https://{titleId}.{cloud}.playfabapi.com'
+
+    private static editorBaseUrl: string = 'https://editor.playfabapi.com';
+
+    private static editorBaseUrlForPrivateCloud: string = 'https://editor.{cloud}.playfabapi.com';
+
+    public static cloud: string;
 
     public static GetPlayFabBaseUrl(titleId: string): string {
-        return PlayFabUriConstants.playfabBaseUrl.replace('{titleId}', titleId);
+        let baseUrl: string = this.playfabBaseUrl;
+
+        if(PlayFabUriHelpers.cloud != null)
+        {
+            baseUrl = PlayFabUriHelpers.playfabBaseUrlForPrivateCloud.replace('{cloud}', PlayFabUriHelpers.cloud);
+        }
+
+        return baseUrl.replace('{titleId}', titleId);
+    }
+
+    public static GetPlayFabEditorBaseUrl(): string {
+        let baseUrl: string = this.editorBaseUrl;
+
+        if(PlayFabUriHelpers.cloud != null)
+        {
+            baseUrl = PlayFabUriHelpers.editorBaseUrlForPrivateCloud.replace('{cloud}', PlayFabUriHelpers.cloud);
+        }
+
+        return baseUrl;
     }
 
     public static createTitlePath: string = '/DeveloperTools/User/CreateTitle';

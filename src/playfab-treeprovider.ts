@@ -11,7 +11,7 @@ import { loadMessageBundle } from 'vscode-nls';
 import { IPlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
 import { ITreeNode, NodeType, IPlayFabStudioTree } from './playfab-treeprovider.api';
 import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper';
-import { PlayFabUriConstants } from './helpers/PlayFabUriConstants';
+import { PlayFabUriHelpers } from './helpers/PlayFabUriHelpers';
 import { ErrorResponse } from "./models/PlayFabHttpModels";
 import { Studio, GetStudiosRequest, GetStudiosResponse } from './models/PlayFabStudioModels';
 import { Title } from './models/PlayFabTitleModels';
@@ -164,8 +164,8 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<ITreeNode> {
         request.DeveloperClientToken = this._account.getToken();
 
         await this._httpClient.makeApiCall(
-            PlayFabUriConstants.getStudiosPath,
-            PlayFabUriConstants.editorBaseUrl,
+            PlayFabUriHelpers.getStudiosPath,
+            PlayFabUriHelpers.GetPlayFabEditorBaseUrl(),
             request,
             (response: GetStudiosResponse) => {
                 this._rootData = response.Studios;
