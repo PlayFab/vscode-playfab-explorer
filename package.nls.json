@@ -23,6 +23,7 @@
     "playfab-account.configuration.sortTitlesAlphabetically.description": "Whether to sort titles alphabetically in the tree.",
     "playfab-account.configuration.loginId.description": "PlayFab Login Id.",
     "playfab-account.configuration.jsonSpaces.description": "Number of spaces to use when displaying JSON data.",
+    "playfab-account.configuration.cloudName.description": "Name of a private cloud.",
     "playfab-explorer.commands.playfab": "PlayFab Explorer",
     "playfab-explorer.commands.createTitle": "Create a title",
     "playfab-explorer.commands.getTitleData": "Get title data",

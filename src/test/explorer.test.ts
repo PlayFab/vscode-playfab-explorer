@@ -9,7 +9,7 @@ import { IPlayFabAccount } from '../playfab-account.api';
 import { IPlayFabExplorerInputGatherer, PlayFabExplorer } from '../playfab-explorer';
 import { MapFromObject } from '../helpers/PlayFabDataHelpers';
 import { IHttpClient } from '../helpers/PlayFabHttpHelper';
-import { PlayFabUriConstants } from '../helpers/PlayFabUriConstants';
+import { PlayFabUriHelpers } from '../helpers/PlayFabUriHelpers';
 import { GetEntityTokenRequest, GetEntityTokenResponse } from '../models/PlayFabAuthenticationModels';
 import {
   ListFunctionsRequest, ListFunctionsResponse, RegisterHttpFunctionRequest,
@@ -121,7 +121,7 @@ suite('Explorer Tests', function () {
   let httpCli: Moq.IMock<IHttpClient> = Moq.Mock.ofType<IHttpClient>();
   let createTitleHttpCount: number = 0;
   httpCli.setup(x => x.makeApiCall(
-    Moq.It.isValue(PlayFabUriConstants.createTitlePath),
+    Moq.It.isValue(PlayFabUriHelpers.createTitlePath),
     Moq.It.isAnyString(),
     Moq.It.is<CreateTitleRequest>(x => true),
     Moq.It.isAny(),
@@ -143,7 +143,7 @@ suite('Explorer Tests', function () {
 
   let getCloudScriptRevisionHttpCount: number = 0;
   httpCli.setup(x => x.makeTitleApiCall(
-    Moq.It.isValue(PlayFabUriConstants.getCloudScriptRevisionPath),
+    Moq.It.isValue(PlayFabUriHelpers.getCloudScriptRevisionPath),
     Moq.It.isAnyString(),
     Moq.It.is<GetCloudScriptRevisionRequest>(x => true),
     Moq.It.isAnyString(),
@@ -171,7 +171,7 @@ suite('Explorer Tests', function () {
 
   let updateCloudScriptHttpCount: number = 0;
   httpCli.setup(x => x.makeTitleApiCall(
-    Moq.It.isValue(PlayFabUriConstants.updateCloudScriptPath),
+    Moq.It.isValue(PlayFabUriHelpers.updateCloudScriptPath),
     Moq.It.isAnyString(),
     Moq.It.is<UpdateCloudScriptRequest>(x => true),
     Moq.It.isAnyString(),
@@ -196,7 +196,7 @@ suite('Explorer Tests', function () {
 
   let getTitleDataHttpCount: number = 0;
   httpCli.setup(x => x.makeTitleApiCall(
-    Moq.It.isValue(PlayFabUriConstants.getTitleDataPath),
+    Moq.It.isValue(PlayFabUriHelpers.getTitleDataPath),
     Moq.It.isAnyString(),
     Moq.It.is<GetTitleDataRequest>(x => true),
     Moq.It.isAnyString(),
@@ -220,7 +220,7 @@ suite('Explorer Tests', function () {
 
   let getTitleInternalDataHttpCount: number = 0;
   httpCli.setup(x => x.makeTitleApiCall(
-    Moq.It.isValue(PlayFabUriConstants.getTitleInternalDataPath),
+    Moq.It.isValue(PlayFabUriHelpers.getTitleInternalDataPath),
     Moq.It.isAnyString(),
     Moq.It.is<GetTitleDataRequest>(x => true),
     Moq.It.isAnyString(),
@@ -244,7 +244,7 @@ suite('Explorer Tests', function () {
 
   let setTitleDataHttpCount: number = 0;
   httpCli.setup(x => x.makeTitleApiCall(
-    Moq.It.isValue(PlayFabUriConstants.setTitleDataPath),
+    Moq.It.isValue(PlayFabUriHelpers.setTitleDataPath),
     Moq.It.isAnyString(),
     Moq.It.is<SetTitleDataRequest>(x => true),
     Moq.It.isAnyString(),
@@ -267,7 +267,7 @@ suite('Explorer Tests', function () {
 
   let setTitleInternalDataHttpCount: number = 0;
   httpCli.setup(x => x.makeTitleApiCall(
-    Moq.It.isValue(PlayFabUriConstants.setTitleInternalDataPath),
+    Moq.It.isValue(PlayFabUriHelpers.setTitleInternalDataPath),
     Moq.It.isAnyString(),
     Moq.It.is<SetTitleDataRequest>(x => true),
     Moq.It.isAnyString(),
@@ -290,7 +290,7 @@ suite('Explorer Tests', function () {
 
   let getEntityTokenHttpCount: number = 0;
   httpCli.setup(x => x.makeTitleApiCall(
-    Moq.It.isValue(PlayFabUriConstants.getEntityTokenPath),
+    Moq.It.isValue(PlayFabUriHelpers.getEntityTokenPath),
     Moq.It.isAnyString(),
     Moq.It.is<GetEntityTokenRequest>(x => true),
     Moq.It.isAnyString(),
@@ -315,7 +315,7 @@ suite('Explorer Tests', function () {
 
   let listFunctionsHttpCount: number = 0;
   httpCli.setup(x => x.makeEntityApiCall(
-    Moq.It.isValue(PlayFabUriConstants.listFunctionsPath),
+    Moq.It.isValue(PlayFabUriHelpers.listFunctionsPath),
     Moq.It.isAnyString(),
     Moq.It.is<ListFunctionsRequest>(x => true),
     Moq.It.isAnyString(),
@@ -349,7 +349,7 @@ suite('Explorer Tests', function () {
 
   let registerFunctionHttpCount: number = 0;
   httpCli.setup(x => x.makeEntityApiCall(
-    Moq.It.isValue(PlayFabUriConstants.registerHttpFunctionPath),
+    Moq.It.isValue(PlayFabUriHelpers.registerHttpFunctionPath),
     Moq.It.isAnyString(),
     Moq.It.is<RegisterHttpFunctionRequest>(x => true),
     Moq.It.isAnyString(),
@@ -372,7 +372,7 @@ suite('Explorer Tests', function () {
 
   let unregisterFunctionHttpCount: number = 0;
   httpCli.setup(x => x.makeEntityApiCall(
-    Moq.It.isValue(PlayFabUriConstants.unregisterFunctionPath),
+    Moq.It.isValue(PlayFabUriHelpers.unregisterFunctionPath),
     Moq.It.isAnyString(),
     Moq.It.is<UnregisterFunctionRequest>(x => true),
     Moq.It.isAnyString(),
@@ -441,7 +441,7 @@ suite('Explorer Tests', function () {
     let expectedInputCount: number = getTitleDataInputCount + 1;
     let expectedHttpCount: number = getTitleDataHttpCount + 1;
     let explorer: PlayFabExplorer = new PlayFabExplorer(account.object, inputGatherer.object, httpCli.object);
-    await explorer.getTitleData(title, PlayFabUriConstants.getTitleDataPath);
+    await explorer.getTitleData(title, PlayFabUriHelpers.getTitleDataPath);
 
     assert(getTitleDataInputCount === expectedInputCount, `Expected single input call for GetTitleData, got ${getTitleDataInputCount - expectedInputCount + 1}`);
     assert(getTitleDataHttpCount === expectedHttpCount, `Expected single HTTP call for GetTitleData, got ${getTitleDataHttpCount - expectedHttpCount + 1}`);
@@ -451,7 +451,7 @@ suite('Explorer Tests', function () {
     let expectedInputCount: number = setTitleDataInputCount + 1;
     let expectedHttpCount: number = setTitleDataHttpCount + 1;
     let explorer: PlayFabExplorer = new PlayFabExplorer(account.object, inputGatherer.object, httpCli.object);
-    await explorer.setTitleData(title, PlayFabUriConstants.setTitleDataPath);
+    await explorer.setTitleData(title, PlayFabUriHelpers.setTitleDataPath);
 
     assert(setTitleDataInputCount === expectedInputCount, `Expected single input call for SetTitleData, got ${setTitleDataInputCount - expectedInputCount + 1}`);
     assert(setTitleDataHttpCount === expectedHttpCount, `Expected single HTTP call for SetTitleData, got ${setTitleDataHttpCount - expectedHttpCount + 1}`);
@@ -461,7 +461,7 @@ suite('Explorer Tests', function () {
     let expectedInputCount: number = getTitleDataInputCount + 1;
     let expectedHttpCount: number = getTitleInternalDataHttpCount + 1;
     let explorer: PlayFabExplorer = new PlayFabExplorer(account.object, inputGatherer.object, httpCli.object);
-    await explorer.getTitleData(title, PlayFabUriConstants.getTitleInternalDataPath);
+    await explorer.getTitleData(title, PlayFabUriHelpers.getTitleInternalDataPath);
 
     assert(getTitleDataInputCount === expectedInputCount, `Expected single input call for GetTitleInternalData, got ${getTitleDataInputCount - expectedInputCount + 1}`);
     assert(getTitleInternalDataHttpCount === expectedHttpCount, `Expected single HTTP call for GetTitleInternalData, got ${getTitleInternalDataHttpCount - expectedHttpCount + 1}`);
@@ -471,7 +471,7 @@ suite('Explorer Tests', function () {
     let expectedInputCount: number = setTitleDataInputCount + 1;
     let expectedHttpCount: number = setTitleInternalDataHttpCount + 1;
     let explorer: PlayFabExplorer = new PlayFabExplorer(account.object, inputGatherer.object, httpCli.object);
-    await explorer.setTitleData(title, PlayFabUriConstants.setTitleInternalDataPath);
+    await explorer.setTitleData(title, PlayFabUriHelpers.setTitleInternalDataPath);
 
     assert(setTitleDataInputCount === expectedInputCount, `Expected single input call for SetTitleInternalData, got ${setTitleDataInputCount - expectedInputCount + 1}`);
     assert(setTitleInternalDataHttpCount === expectedHttpCount, `Expected single HTTP call for SetTitleInternalData, got ${setTitleInternalDataHttpCount - expectedHttpCount + 1}`);

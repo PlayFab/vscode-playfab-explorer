@@ -8,6 +8,7 @@ import { loadMessageBundle } from 'vscode-nls';
 import { PlayFabLoginManager } from './playfab-account';
 import { IPlayFabAccount } from './playfab-account.api';
 import { PlayFabExplorer } from './playfab-explorer';
+import { PlayFabUriHelpers } from './helpers/PlayFabUriHelpers';
 
 const localize = loadMessageBundle();
 
@@ -35,6 +36,15 @@ export function activate(context: ExtensionContext): void {
 
     const explorer = new PlayFabExplorer(loginManager.api);
     explorer.registerCommands(context);
+
+    function updateCloud() {
+        const playfabConfig = workspace.getConfiguration('playfab');
+        const cloud = playfabConfig.get<string>('cloudName');
+        PlayFabUriHelpers.cloud = cloud;
+    }
+    
+    workspace.onDidChangeConfiguration(updateCloud);
+    updateCloud();
 }
 
 // this method is called when your extension is deactivated

@@ -3,13 +3,36 @@
 //  Licensed under the MIT License. See License.md in the project root for license information.
 //---------------------------------------------------------------------------------------------
 
-export class PlayFabUriConstants {
+export class PlayFabUriHelpers {
     private static playfabBaseUrl: string = 'https://{titleId}.playfabapi.com'
 
-    public static editorBaseUrl: string = 'https://editor.playfabapi.com';
+    private static playfabBaseUrlForPrivateCloud: string = 'https://{titleId}.{cloud}.playfabapi.com'
+
+    private static editorBaseUrl: string = 'https://editor.playfabapi.com';
+
+    private static editorBaseUrlForPrivateCloud: string = 'https://editor.{cloud}.playfabapi.com';
+
+    private static gameManagerBaseUrl = "https://developer.playfab.com/en-US/{titleId}/dashboard";
+
+    private static gameManagerBaseUrlForPrivateCloud = "https://developer.{cloud}.playfab.com/en-US/{titleId}/dashboard";
+
+    public static cloud: string;
 
     public static GetPlayFabBaseUrl(titleId: string): string {
-        return PlayFabUriConstants.playfabBaseUrl.replace('{titleId}', titleId);
+        const baseUrl: string = PlayFabUriHelpers.cloud == null ? this.playfabBaseUrl :
+            PlayFabUriHelpers.playfabBaseUrlForPrivateCloud.replace('{cloud}', PlayFabUriHelpers.cloud);
+        return baseUrl.replace('{titleId}', titleId);
+    }
+
+    public static GetPlayFabEditorBaseUrl(): string {
+        return PlayFabUriHelpers.cloud == null ? this.editorBaseUrl : 
+            PlayFabUriHelpers.editorBaseUrlForPrivateCloud.replace('{cloud}', PlayFabUriHelpers.cloud);
+    }
+
+    public static GetGameManagerUrl(titleId: string): string {
+        const url = PlayFabUriHelpers.cloud == null ? this.gameManagerBaseUrl :
+            PlayFabUriHelpers.gameManagerBaseUrlForPrivateCloud.replace('{cloud}', PlayFabUriHelpers.cloud);
+        return url.replace('{titleId}', titleId);
     }
 
     public static createTitlePath: string = '/DeveloperTools/User/CreateTitle';
