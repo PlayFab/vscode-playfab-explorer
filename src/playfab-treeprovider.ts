@@ -188,9 +188,11 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<ITreeNode> {
             titles = studio.Titles.sort(PlayFabStudioTreeProvider.sortTitlesByName);
         }
 
+        let showTitleIds: boolean = this.getConfigValue('showTitleIds');
+
         return titles.map((title: Title) => {
             let result = new TreeNode();
-            result.name = title.Name;
+            result.name = showTitleIds ? `${title.Name} (${title.Id})` : title.Name;
             result.type = 'Title';
             result.data = title;
             return result;
