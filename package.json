@@ -261,6 +261,11 @@
                         "type": "string",
                         "default": "",
                         "description": "%playfab-account.configuration.cloudName.description%"
+                    },
+                    "playfab.showTitleIds": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "%playfab-account.configuration.showTitleIds.description%"
                     }
                 }
             }
