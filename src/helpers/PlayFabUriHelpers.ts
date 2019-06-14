@@ -18,23 +18,6 @@ export class PlayFabUriHelpers {
 
     public static cloud: string;
 
-    public static GetPlayFabBaseUrl(titleId: string): string {
-        const baseUrl: string = PlayFabUriHelpers.cloud == null ? this.playfabBaseUrl :
-            PlayFabUriHelpers.playfabBaseUrlForPrivateCloud.replace('{cloud}', PlayFabUriHelpers.cloud);
-        return baseUrl.replace('{titleId}', titleId);
-    }
-
-    public static GetPlayFabEditorBaseUrl(): string {
-        return PlayFabUriHelpers.cloud == null ? this.editorBaseUrl : 
-            PlayFabUriHelpers.editorBaseUrlForPrivateCloud.replace('{cloud}', PlayFabUriHelpers.cloud);
-    }
-
-    public static GetGameManagerUrl(titleId: string): string {
-        const url = PlayFabUriHelpers.cloud == null ? this.gameManagerBaseUrl :
-            PlayFabUriHelpers.gameManagerBaseUrlForPrivateCloud.replace('{cloud}', PlayFabUriHelpers.cloud);
-        return url.replace('{titleId}', titleId);
-    }
-
     public static createTitlePath: string = '/DeveloperTools/User/CreateTitle';
     public static getTitleDataPath: string = '/Admin/GetTitleData';
     public static setTitleDataPath: string = '/Admin/SetTitleData';
@@ -55,4 +38,25 @@ export class PlayFabUriHelpers {
     public static getEntityTokenPath: string = '/Authentication/GetEntityToken';
 
     public static getProfilePath: string = '/Profile/GetProfile';
+
+    public static GetPlayFabBaseUrl(titleId: string): string {
+        const baseUrl: string = !PlayFabUriHelpers.IsPrivateCloud() ? this.playfabBaseUrl :
+            PlayFabUriHelpers.playfabBaseUrlForPrivateCloud.replace('{cloud}', PlayFabUriHelpers.cloud);
+        return baseUrl.replace('{titleId}', titleId);
+    }
+
+    public static GetPlayFabEditorBaseUrl(): string {
+        return !PlayFabUriHelpers.IsPrivateCloud() ? this.editorBaseUrl :
+            PlayFabUriHelpers.editorBaseUrlForPrivateCloud.replace('{cloud}', PlayFabUriHelpers.cloud);
+    }
+
+    public static GetGameManagerUrl(titleId: string): string {
+        const url = !PlayFabUriHelpers.IsPrivateCloud() ? this.gameManagerBaseUrl :
+            PlayFabUriHelpers.gameManagerBaseUrlForPrivateCloud.replace('{cloud}', PlayFabUriHelpers.cloud);
+        return url.replace('{titleId}', titleId);
+    }
+
+    private static IsPrivateCloud(): boolean {
+        return !(PlayFabUriHelpers.cloud == null || PlayFabUriHelpers.cloud === '' || PlayFabUriHelpers.cloud.trim() === '');
+    }
 };
