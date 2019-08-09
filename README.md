@@ -14,8 +14,9 @@ The PlayFab Explorer extension provides a single PlayFab sign-in experience and 
 | `PlayFab: Get internal title data` | Get internal data for a title.
 | `PlayFab: Set internal title data` | Set or update internal data for a title.
 | `PlayFab: List Functions` | List CloudScript Azure Functions for a title.
-| `PlayFab: Register Functions` | Register a CloudScript Azure Function for a title.
-| `PlayFab: Unregister Functions` | Unregister a CloudScript Azure Function from a title.
+| `PlayFab: Register HTTP Function` | Register an HTTP Triggered CloudScript Azure Function for a title.
+| `PlayFab: Register Queued Function` | Register a Queued Triggered CloudScript Azure Function for a title.
+| `PlayFab: Unregister Function` | Unregister a CloudScript Azure Function from a title.
 | `PlayFab: Enable local debugging` | Enable local debugging of CloudScript Azure Functions.
 | `PlayFab: Disable local debugging` | Disable local debugging of CloudScript Azure Functions.
 | `PlayFab: Get CloudScript revision` | Get a revision for classic CloudScript for a title.
