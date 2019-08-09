@@ -116,8 +116,13 @@
                 "category": "%playfab-explorer.commands.playfab%"
             },
             {
-                "command": "playfabExplorer.registerFunction",
-                "title": "%playfab-explorer.commands.registerFunction%",
+                "command": "playfabExplorer.registerHttpFunction",
+                "title": "%playfab-explorer.commands.registerHttpFunction%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.registerQueuedFunction",
+                "title": "%playfab-explorer.commands.registerQueuedFunction%",
                 "category": "%playfab-explorer.commands.playfab%"
             },
             {
@@ -196,7 +201,12 @@
                     "group": "3@1"
                 },
                 {
-                    "command": "playfabExplorer.registerFunction",
+                    "command": "playfabExplorer.registerHttpFunction",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "3@2"
+                },
+                {
+                    "command": "playfabExplorer.registerQueuedFunction",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "3@2"
                 },
