@@ -398,7 +398,7 @@ export class PlayFabExplorer {
         result += newline;
 
         functions.forEach((fnInfo: FunctionInfo) => {
-            result += `| ${fnInfo.FunctionName} | ${fnInfo.FunctionUrl} |`;
+            result += `| ${fnInfo.FunctionName} | ${fnInfo.FunctionAddress} |`;
             result += newline;
         });
 

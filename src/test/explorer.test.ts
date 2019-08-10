@@ -346,11 +346,11 @@ suite('Explorer Tests', function () {
           Functions: [
             {
               FunctionName: "Fn1",
-              FunctionUrl: "https://some.func"
+              FunctionAddress: "https://some.func"
             },
             {
               FunctionName: "Fn2",
-              FunctionUrl: "https://someother.func"
+              FunctionAddress: "somequeue"
             },
           ]
         };
