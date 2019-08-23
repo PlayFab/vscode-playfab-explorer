@@ -12,9 +12,9 @@ export class PlayFabUriHelpers {
 
     private static editorBaseUrlForPrivateCloud: string = 'https://editor.{cloud}.playfabapi.com';
 
-    private static gameManagerBaseUrl = "https://developer.playfab.com/en-US/{titleId}/dashboard";
+    private static gameManagerBaseUrl = 'https://developer.playfab.com/en-US/{titleId}/dashboard';
 
-    private static gameManagerBaseUrlForPrivateCloud = "https://developer.{cloud}.playfab.com/en-US/{titleId}/dashboard";
+    private static gameManagerBaseUrlForPrivateCloud = 'https://developer.{cloud}.playfab.com/en-US/{titleId}/dashboard';
 
     public static cloud: string;
 
@@ -41,6 +41,14 @@ export class PlayFabUriHelpers {
     public static getEntityTokenPath: string = '/Authentication/GetEntityToken';
 
     public static getProfilePath: string = '/Profile/GetProfile';
+
+    public static getTreatmentAssignment: string = '/Experimentation/GetTreatmentAssignment';
+    public static getExperiments: string = '/Experimentation/GetExperiments';
+    public static createExperiment: string = '/Experimentation/CreateExperiment';
+    public static updateExperiment: string = '/Experimentation/UpdateExperiment';
+    public static startExperiment: string = '/Experimentation/StartExperiment';
+    public static stopExperiment: string = '/Experimentation/StopExperiment';
+    public static deleteExperiment: string = '/Experimentation/DeleteExperiment';
 
     public static GetPlayFabBaseUrl(titleId: string): string {
         const baseUrl: string = !PlayFabUriHelpers.IsPrivateCloud() ? this.playfabBaseUrl :
