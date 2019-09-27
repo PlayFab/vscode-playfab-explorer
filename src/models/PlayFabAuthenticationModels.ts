@@ -10,9 +10,7 @@ export class GetEntityTokenRequest extends EntityDescriptorApiContext {
 
 export class EntityTokenResponse extends EntityDescriptorApiResponse {
     EntityToken: string;
-
     TokenExpiration: Date; // string?
-
 }
 
 export class GetEntityTokenResponse extends EntityTokenResponse {
