@@ -3,7 +3,7 @@
 //  Licensed under the MIT License. See License.md in the project root for license information.
 //---------------------------------------------------------------------------------------------
 
-import { ExtensionContext, StatusBarItem, window, workspace } from 'vscode';
+import { ExtensionContext, StatusBarItem, window, workspace, commands } from 'vscode';
 import { loadMessageBundle } from 'vscode-nls';
 import { PlayFabLoginManager } from './playfab-account';
 import { IPlayFabAccount } from './playfab-account.api';
@@ -37,13 +37,20 @@ export function activate(context: ExtensionContext): void {
     const explorer = new PlayFabExplorer(loginManager.api);
     explorer.registerCommands(context);
 
-    function updateCloud() {
+    async function updateCloud() {
         const playfabConfig = workspace.getConfiguration('playfab');
         const cloud = playfabConfig.get<string>('cloudName');
-        PlayFabUriHelpers.cloud = cloud;
+
+        if (PlayFabUriHelpers.cloud != cloud) {
+            if (loginManager.api.sessions.length > 0) {
+                await commands.executeCommand('playfab-account.logout');
+            }
+
+            PlayFabUriHelpers.cloud = cloud;
+        }
     }
-    
-    workspace.onDidChangeConfiguration(updateCloud);
+
+    context.subscriptions.push(workspace.onDidChangeConfiguration(updateCloud));
     updateCloud();
 }
 
