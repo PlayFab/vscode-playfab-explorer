@@ -65,7 +65,6 @@ export class PlayFabLoginManager {
             request,
             (response: CreateAccountResponse): void => {
                 this.api.sessions.splice(0, this.api.sessions.length, {
-                    cloud: 'global',
                     credentials: {
                         token: response.DeveloperClientToken
                     },
@@ -97,7 +96,6 @@ export class PlayFabLoginManager {
             request,
             (response: LoginResponse): void => {
                 this.api.sessions.splice(0, this.api.sessions.length, {
-                    cloud: 'global',
                     credentials: {
                         token: response.DeveloperClientToken
                     },
@@ -123,7 +121,6 @@ export class PlayFabLoginManager {
                 request,
                 (response: LoginResponse): void => {
                     this.api.sessions.splice(0, this.api.sessions.length, {
-                        cloud: 'global',
                         credentials: {
                             token: response.DeveloperClientToken
                         },

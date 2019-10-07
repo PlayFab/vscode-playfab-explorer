@@ -59,7 +59,6 @@ export class ApiContextRequest implements IApiContextRequest {
 
 export class SDKDetails {
     SDK: string;
-
     Version: string;
 }
 

@@ -20,6 +20,12 @@ export class RegisterHttpFunctionRequest {
     FunctionUrl: string;
 }
 
+export class RegisterQueuedFunctionRequest {
+    FunctionName: string;
+    QueueName: string;
+    ConnectionString: string;
+}
+
 export class RegisterFunctionResponse {
 }
 

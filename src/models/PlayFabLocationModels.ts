@@ -7,7 +7,7 @@ export class IPLocationInfo
     {
         IP: string;
         ContinentCode: ContinentCode;
-         CountryCode: CountryCode;
+        CountryCode: CountryCode;
         City: string;
         Latitude?: number;
         Longitude?: number;
