@@ -17,7 +17,6 @@ export interface IPlayFabAccount {
 }
 
 export interface IPlayFabSession {
-    readonly cloud: string;
     readonly userId: string;
     readonly credentials: IPlayFabCredentials;
 }
