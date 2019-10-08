@@ -6,8 +6,12 @@
 import * as http from 'typed-rest-client/HttpClient';
 import { ExtensionInfo } from '../extension';
 import { ErrorResponse } from "../models/PlayFabHttpModels"
+import { asyncOr, timeout } from './PlayFabPromiseHelpers';
 
 export interface IHttpClient {
+    
+    timeoutMilliseconds: number;
+
     makeApiCall<TRequest, TResponse>(
         path: string,
         endpoint: string,
@@ -42,13 +46,17 @@ class TitleSecret {
 
 export class PlayFabHttpClient implements IHttpClient {
 
+    public timeoutMilliseconds: number = 5000;
+
     public async makeApiCall<TRequest, TResponse>(
         path: string,
         endpoint: string,
         request: TRequest,
         responseCallback: (response: TResponse) => void,
         errorCallback: (response: ErrorResponse) => void): Promise<void> {
-        await this.makeApiCallInternal(path, endpoint, request, null, responseCallback, errorCallback);
+        await asyncOr(
+            this.makeApiCallInternal(path, endpoint, request, null, responseCallback, errorCallback),
+            timeout(this.timeoutMilliseconds));
     }
 
     public async makeEntityApiCall<TRequest, TResponse>(
@@ -58,7 +66,9 @@ export class PlayFabHttpClient implements IHttpClient {
         entityToken: string,
         responseCallback: (response: TResponse) => void,
         errorCallback: (response: ErrorResponse) => void): Promise<void> {
-        await this.makeApiCallInternal(path, endpoint, request, { token: entityToken }, responseCallback, errorCallback);
+        await asyncOr(
+            this.makeApiCallInternal(path, endpoint, request, { token: entityToken }, responseCallback, errorCallback),
+            timeout(this.timeoutMilliseconds));
     }
 
     public async makeTitleApiCall<TRequest, TResponse>(
@@ -68,7 +78,9 @@ export class PlayFabHttpClient implements IHttpClient {
         titleSecret: string,
         responseCallback: (response: TResponse) => void,
         errorCallback: (response: ErrorResponse) => void): Promise<void> {
-        await this.makeApiCallInternal(path, endpoint, request, { secret: titleSecret }, responseCallback, errorCallback);
+        await asyncOr(
+            this.makeApiCallInternal(path, endpoint, request, { secret: titleSecret }, responseCallback, errorCallback),
+            timeout(this.timeoutMilliseconds));
     }
 
     private async makeApiCallInternal<TRequest, TResponse>(

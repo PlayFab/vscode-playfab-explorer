@@ -431,7 +431,6 @@ suite('Explorer Tests', function () {
   let account: Moq.IMock<IPlayFabAccount> = Moq.Mock.ofType<IPlayFabAccount>();
   account.setup(x => x.getToken()).returns(() => { return "abc123" });
 
-  // Defines a Mocha unit test
   test('CreateTitle', async function () {
 
     let studio: Studio = {
