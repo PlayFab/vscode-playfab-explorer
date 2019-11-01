@@ -3,7 +3,7 @@
     "displayName": "PlayFab Explorer",
     "description": "%playfab-explorer.description%",
     "license": "SEE LICENSE IN LICENSE.md",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "publisher": "Playfab",
     "icon": "resources/playfab.png",
     "repository": {
