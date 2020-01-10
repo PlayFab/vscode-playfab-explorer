@@ -392,7 +392,7 @@ export class PlayFabExplorer {
         let newline: string = process.platform == 'win32' ? '\r\n' : '\n';
         let result: string = "# List Of Functions";
         result += newline;
-        result += "| Name | Url |";
+        result += "| Name | Address |";
         result += newline;
         result += "| --- | --- |";
         result += newline;
