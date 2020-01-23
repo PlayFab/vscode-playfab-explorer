@@ -14,10 +14,12 @@ import { resolve } from 'dns';
 import { promisify } from 'util';
 import { asyncOr, delay } from './PlayFabPromiseHelpers'
 
+const intervalMilliseconds: number = 2000;
+
 export async function waitForOnline(cancelTitle: string, checkNetworkMessage: string, cancelCallback: () => void): Promise<void> {
     const cancelSource = new CancellationTokenSource();
-    const online = becomeOnline(2000, cancelSource.token);
-    const timer = delay(2000, true);
+    const online = becomeOnline(intervalMilliseconds, cancelSource.token);
+    const timer = delay(intervalMilliseconds, true);
 
     if (await Promise.race([online, timer])) {
         const cancel = { title: cancelTitle };
