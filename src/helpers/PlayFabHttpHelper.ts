@@ -6,8 +6,12 @@
 import * as http from 'typed-rest-client/HttpClient';
 import { ExtensionInfo } from '../extension';
 import { ErrorResponse } from "../models/PlayFabHttpModels"
+import { asyncOr, timeout } from './PlayFabPromiseHelpers';
 
 export interface IHttpClient {
+
+    timeoutMilliseconds: number;
+
     makeApiCall<TRequest, TResponse>(
         path: string,
         endpoint: string,
@@ -41,6 +45,8 @@ class TitleSecret {
 }
 
 export class PlayFabHttpClient implements IHttpClient {
+
+    public timeoutMilliseconds: number = 5000;
 
     public async makeApiCall<TRequest, TResponse>(
         path: string,
@@ -97,26 +103,36 @@ export class PlayFabHttpClient implements IHttpClient {
         }
 
         let httpCli = new http.HttpClient(ExtensionInfo.getExtensionName());
-        var httpResponse: http.HttpClientResponse = await httpCli.post(url, requestBody, headers);
 
-        let rawBody: string = await httpResponse.readBody();
+        try {
+            let httpResponse: http.HttpClientResponse = await asyncOr(
+                httpCli.post(url, requestBody, headers),
+                timeout(this.timeoutMilliseconds));
 
-        if (this.isSuccessCode(httpResponse.message.statusCode)) {
-            let rawResponse = JSON.parse(rawBody);
-            let response: TResponse = rawResponse.data;
+            let rawBody: string = await asyncOr(
+                httpResponse.readBody(),
+                timeout(this.timeoutMilliseconds));
 
-            responseCallback(response);
+            if (this.isSuccessCode(httpResponse.message.statusCode)) {
+                let rawResponse = JSON.parse(rawBody);
+                let response: TResponse = rawResponse.data;
+
+                responseCallback(response);
+            }
+            else {
+                let errorResponse: ErrorResponse = rawBody.length > 0 ? JSON.parse(rawBody) : {
+                    code: null,
+                    status: null,
+                    error: httpResponse.message.statusCode,
+                    errorCode: null,
+                    errorMessage: httpResponse.message.statusMessage
+                };
+
+                errorCallback(errorResponse);
+            }
         }
-        else {
-            let errorResponse: ErrorResponse = rawBody.length > 0 ? JSON.parse(rawBody) : {
-                code: null,
-                status: null,
-                error: httpResponse.message.statusCode,
-                errorCode: null,
-                errorMessage: httpResponse.message.statusMessage
-            };
-
-            errorCallback(errorResponse);
+        catch (err) {
+            console.log("Error in makeApiCallInternal: " + err);
         }
     }
 
@@ -124,5 +140,3 @@ export class PlayFabHttpClient implements IHttpClient {
         return code >= 200 && code <= 299;
     }
 }
-
-

@@ -346,11 +346,11 @@ suite('Explorer Tests', function () {
           Functions: [
             {
               FunctionName: "Fn1",
-              FunctionUrl: "https://some.func"
+              FunctionAddress: "https://some.func"
             },
             {
               FunctionName: "Fn2",
-              FunctionUrl: "https://someother.func"
+              FunctionAddress: "somequeue"
             },
           ]
         };
@@ -431,7 +431,6 @@ suite('Explorer Tests', function () {
   let account: Moq.IMock<IPlayFabAccount> = Moq.Mock.ofType<IPlayFabAccount>();
   account.setup(x => x.getToken()).returns(() => { return "abc123" });
 
-  // Defines a Mocha unit test
   test('CreateTitle', async function () {
 
     let studio: Studio = {

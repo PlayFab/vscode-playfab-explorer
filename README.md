@@ -21,6 +21,7 @@ The PlayFab Explorer extension provides a single PlayFab sign-in experience and 
 | `PlayFab: Disable local debugging` | Disable local debugging of CloudScript Azure Functions.
 | `PlayFab: Get CloudScript revision` | Get a revision for classic CloudScript for a title.
 | `PlayFab: Update CloudScript` | Update classic CloudScript for a title.
+| `PlayFab: Get entity profile` | Get profile for an entity
 | `PlayFab: Open in Game Manager` | Open the PlayFab GameManager dashboard for a title.
 
 ## Settings

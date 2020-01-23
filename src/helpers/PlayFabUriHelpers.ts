@@ -24,6 +24,8 @@ export class PlayFabUriHelpers {
     public static getTitleInternalDataPath: string = '/Admin/GetTitleInternalData';
     public static setTitleInternalDataPath: string = '/Admin/SetTitleInternalData';
     public static listFunctionsPath: string = '/CloudScript/ListFunctions';
+    public static listHttpFunctionsPath: string = '/CloudScript/ListHttpFunctions';
+    public static listQueuedFunctionsPath: string = '/CloudScript/ListQueuedFunctions';
     public static registerHttpFunctionPath: string = '/CloudScript/RegisterHttpFunction';
     public static registerQueuedFunctionPath: string = '/CloudScript/RegisterQueuedFunction';
     public static unregisterFunctionPath: string = '/CloudScript/UnregisterFunction';

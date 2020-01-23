@@ -13,6 +13,7 @@ import {
   LogoutRequest, LogoutResponse
 } from '../models/PlayFabAccountModels';
 import { ErrorResponse } from '../models/PlayFabHttpModels';
+import { delay } from '../helpers/PlayFabPromiseHelpers';
 
 suite('Account Tests', function () {
 
@@ -137,7 +138,24 @@ suite('Account Tests', function () {
         return;
       });
 
-  // Defines a Mocha unit test
+  let httpCliTimeout: Moq.IMock<IHttpClient> = Moq.Mock.ofType<IHttpClient>();
+  httpCliTimeout.setup(x => x.timeoutMilliseconds).returns(() => 100);
+  httpCliTimeout.setup(x => x.makeApiCall(
+    Moq.It.isValue(PlayFabUriHelpers.loginPath),
+    Moq.It.isAnyString(),
+    Moq.It.is<LoginRequest>(x => true),
+    Moq.It.isAny(),
+    Moq.It.isAny()))
+    .returns(
+      (path: string,
+        endpoint: string,
+        request: LoginRequest,
+        successCallback: (response: LoginResponse) => void,
+        errorCallback: (response: ErrorResponse) => void
+      ): Promise<void> => {
+        return delay(httpCliTimeout.object.timeoutMilliseconds + 100);
+      });
+
   test('CreateAccountWhenLoggedOut', async function () {
     user = user1;
     let loginManager: PlayFabLoginManager = new PlayFabLoginManager(null, httpCli.object, inputGatherer.object);
@@ -174,6 +192,15 @@ suite('Account Tests', function () {
     assert(loginManager.api.status === "LoggedIn", "Status is not LoggedIn");
     let apiToken: string = loginManager.api.getToken();
     assert(apiToken === user1.token, "Token does not match");
+  });
+
+  test('LoginWhenLoggedOutTimeout', async function () {
+    user = user1;
+    let loginManager: PlayFabLoginManager = new PlayFabLoginManager(null, httpCliTimeout.object, inputGatherer.object);
+    assert(loginManager.api.status === "Initializing", "Status is not Initializing");
+    await loginManager.login();
+
+    assert(loginManager.api.status === "LoggedOut", "Status is not LoggedOut");
   });
 
   test('LoginWhenLoggedOutNeed2FA', async function () {
@@ -281,7 +308,4 @@ suite('Account Tests', function () {
     await loginManager.logout();
     assert(loginManager.api.status === "LoggedOut", "Status is not LoggedOut");
   });
-
-
-
 })

@@ -5,7 +5,18 @@
 
 export class FunctionInfo {
     FunctionName: string;
+    FunctionAddress: string;
+}
+
+export class HttpFunctionInfo {
+    FunctionName: string;
     FunctionUrl: string;
+}
+
+export class QueuedFunctionInfo {
+    FunctionName: string;
+    QueueName: string;
+    ConnectionString: string;
 }
 
 export class ListFunctionsRequest {
@@ -13,6 +24,14 @@ export class ListFunctionsRequest {
 
 export class ListFunctionsResponse {
     Functions: FunctionInfo[];
+}
+
+export class ListHttpFunctionsResponse {
+    Functions: HttpFunctionInfo[];
+}
+
+export class ListQueuedFunctionsResponse {
+    Functions: QueuedFunctionInfo[];
 }
 
 export class RegisterHttpFunctionRequest {

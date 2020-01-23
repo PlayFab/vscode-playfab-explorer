@@ -144,7 +144,7 @@ export class PlayFabExplorer {
                     let file: CloudScriptFile = response.Files[0];
                     let doc: TextDocument = await workspace.openTextDocument({ language: 'javascript', content: file.FileContents });
                     await window.showTextDocument(doc);
-                    await window.showInformationMessage(`Downloaded CloudScript revision ${response.Revision} for ${title.Name}`);
+                    await window.showInformationMessage(localize('playfab-explorer.downloadedCloudScriptMessage', 'Downloaded CloudScript revision {0} for {1}', response.Revision, title.Name));
                 }
             },
             (response: ErrorResponse) => {
@@ -182,7 +182,7 @@ export class PlayFabExplorer {
             request,
             entityToken,
             async (response: RegisterFunctionResponse) => {
-                await window.showInformationMessage(`Registered function ${request.FunctionName} at ${request.FunctionUrl}`);
+                await window.showInformationMessage(localize('playfab-explorer.registeredFunctionMessage', 'Registered function {0} at {1}', request.FunctionName, request.FunctionUrl));
             },
             (response: ErrorResponse) => {
                 this.showError(response);
@@ -200,7 +200,7 @@ export class PlayFabExplorer {
             request,
             entityToken,
             async (response: RegisterFunctionResponse) => {
-                await window.showInformationMessage(`Registered function ${request.FunctionName} at ${request.QueueName}`);
+                await window.showInformationMessage(localize('playfab-explorer.registeredFunctionMessage', 'Registered function {0} at {1}', request.FunctionName, request.QueueName));
             },
             (response: ErrorResponse) => {
                 this.showError(response);
@@ -218,7 +218,7 @@ export class PlayFabExplorer {
             request,
             entityToken,
             async (response: UnregisterFunctionResponse) => {
-                await window.showInformationMessage(`Unregistered function ${request.FunctionName}`);
+                await window.showInformationMessage(localize('playfab-explorer.unRegisteredFunctionMessage', 'Unregistered function {0}', request.FunctionName));
             },
             (response: ErrorResponse) => {
                 this.showError(response);
@@ -390,15 +390,20 @@ export class PlayFabExplorer {
     private getMarkDownForFunctionList(functions: FunctionInfo[]): string {
 
         let newline: string = process.platform == 'win32' ? '\r\n' : '\n';
-        let result: string = "# List Of Functions";
+        let result: string = '# ';
+        result += localize('playfab-explorer.functionListHeader', 'List Of Functions');
         result += newline;
-        result += "| Name | Url |";
+        result += '| ';
+        result += localize('playfab-explorer.functionListNameColumn', 'Name');
+        result += ' | ';
+        result += localize('playfab-explorer.functionListAddressColumn', 'Address');
+        result += ' |';
         result += newline;
         result += "| --- | --- |";
         result += newline;
 
         functions.forEach((fnInfo: FunctionInfo) => {
-            result += `| ${fnInfo.FunctionName} | ${fnInfo.FunctionUrl} |`;
+            result += `| ${fnInfo.FunctionName} | ${fnInfo.FunctionAddress} |`;
             result += newline;
         });
 
@@ -406,7 +411,7 @@ export class PlayFabExplorer {
     }
 
     private async getStudioTreeNodeFromUser(): Promise<ITreeNode> {
-        return await this.getTreeNodeFromUser(null, "Please choose a Studio");
+        return await this.getTreeNodeFromUser(null, localize('playfab-explorer.chooseStudio', 'Please choose a Studio'));
     }
 
     private async getStudioFromTreeNode(studioNode: ITreeNode): Promise<Studio> {
@@ -418,7 +423,7 @@ export class PlayFabExplorer {
     }
 
     private async getTitleTreeNodeFromUser(studioTreeNode: ITreeNode): Promise<ITreeNode> {
-        return await this.getTreeNodeFromUser(studioTreeNode, "Please choose a Title");
+        return await this.getTreeNodeFromUser(studioTreeNode, localize('playfab-explorer.chooseStudio', 'Please choose a Title'));
     }
 
     private async getTreeNodeFromUser(rootTreeNode: ITreeNode, placeHolder: string) {
