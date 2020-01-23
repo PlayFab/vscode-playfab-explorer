@@ -8,5 +8,5 @@ export class ErrorResponse {
     status: string;
     error: string;
     errorCode: number;
-    errorMessage: string;    
+    errorMessage: string;
 };

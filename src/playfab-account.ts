@@ -238,7 +238,7 @@ export class PlayFabLoginManager {
                 });
             default:
                 const status: never = this.api.status;
-                throw new Error(`Unexpected status '${status}'`);
+                throw new Error(localize('playfab-account.unexpectedStatus', 'Unexpected status: {0}', status));
         }
     }
 

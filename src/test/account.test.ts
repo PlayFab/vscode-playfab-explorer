@@ -152,7 +152,7 @@ suite('Account Tests', function () {
         request: LoginRequest,
         successCallback: (response: LoginResponse) => void,
         errorCallback: (response: ErrorResponse) => void
-      ): Promise<void> => {      
+      ): Promise<void> => {
         return delay(httpCliTimeout.object.timeoutMilliseconds + 100);
       });
 
