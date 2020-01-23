@@ -9,7 +9,7 @@ import { ErrorResponse } from "../models/PlayFabHttpModels"
 import { asyncOr, timeout } from './PlayFabPromiseHelpers';
 
 export interface IHttpClient {
-    
+
     timeoutMilliseconds: number;
 
     makeApiCall<TRequest, TResponse>(
@@ -54,9 +54,7 @@ export class PlayFabHttpClient implements IHttpClient {
         request: TRequest,
         responseCallback: (response: TResponse) => void,
         errorCallback: (response: ErrorResponse) => void): Promise<void> {
-        await asyncOr(
-            this.makeApiCallInternal(path, endpoint, request, null, responseCallback, errorCallback),
-            timeout(this.timeoutMilliseconds));
+        await this.makeApiCallInternal(path, endpoint, request, null, responseCallback, errorCallback);
     }
 
     public async makeEntityApiCall<TRequest, TResponse>(
@@ -66,9 +64,7 @@ export class PlayFabHttpClient implements IHttpClient {
         entityToken: string,
         responseCallback: (response: TResponse) => void,
         errorCallback: (response: ErrorResponse) => void): Promise<void> {
-        await asyncOr(
-            this.makeApiCallInternal(path, endpoint, request, { token: entityToken }, responseCallback, errorCallback),
-            timeout(this.timeoutMilliseconds));
+        await this.makeApiCallInternal(path, endpoint, request, { token: entityToken }, responseCallback, errorCallback);
     }
 
     public async makeTitleApiCall<TRequest, TResponse>(
@@ -78,9 +74,7 @@ export class PlayFabHttpClient implements IHttpClient {
         titleSecret: string,
         responseCallback: (response: TResponse) => void,
         errorCallback: (response: ErrorResponse) => void): Promise<void> {
-        await asyncOr(
-            this.makeApiCallInternal(path, endpoint, request, { secret: titleSecret }, responseCallback, errorCallback),
-            timeout(this.timeoutMilliseconds));
+        await this.makeApiCallInternal(path, endpoint, request, { secret: titleSecret }, responseCallback, errorCallback);
     }
 
     private async makeApiCallInternal<TRequest, TResponse>(
@@ -109,26 +103,36 @@ export class PlayFabHttpClient implements IHttpClient {
         }
 
         let httpCli = new http.HttpClient(ExtensionInfo.getExtensionName());
-        var httpResponse: http.HttpClientResponse = await httpCli.post(url, requestBody, headers);
 
-        let rawBody: string = await httpResponse.readBody();
+        try {
+            let httpResponse: http.HttpClientResponse = await asyncOr(
+                httpCli.post(url, requestBody, headers),
+                timeout(this.timeoutMilliseconds));
 
-        if (this.isSuccessCode(httpResponse.message.statusCode)) {
-            let rawResponse = JSON.parse(rawBody);
-            let response: TResponse = rawResponse.data;
+            let rawBody: string = await asyncOr(
+                httpResponse.readBody(),
+                timeout(this.timeoutMilliseconds));
 
-            responseCallback(response);
+            if (this.isSuccessCode(httpResponse.message.statusCode)) {
+                let rawResponse = JSON.parse(rawBody);
+                let response: TResponse = rawResponse.data;
+
+                responseCallback(response);
+            }
+            else {
+                let errorResponse: ErrorResponse = rawBody.length > 0 ? JSON.parse(rawBody) : {
+                    code: null,
+                    status: null,
+                    error: httpResponse.message.statusCode,
+                    errorCode: null,
+                    errorMessage: httpResponse.message.statusMessage
+                };
+
+                errorCallback(errorResponse);
+            }
         }
-        else {
-            let errorResponse: ErrorResponse = rawBody.length > 0 ? JSON.parse(rawBody) : {
-                code: null,
-                status: null,
-                error: httpResponse.message.statusCode,
-                errorCode: null,
-                errorMessage: httpResponse.message.statusMessage
-            };
-
-            errorCallback(errorResponse);
+        catch (err) {
+            console.log("Error in makeApiCallInternal: " + err);
         }
     }
 
@@ -136,5 +140,3 @@ export class PlayFabHttpClient implements IHttpClient {
         return code >= 200 && code <= 299;
     }
 }
-
-
