@@ -52,7 +52,8 @@ export interface IPlayFabExplorerInputGatherer {
 export class PlayFabExplorer {
 
     private _playFabLocalSettingsFileName: string = "playfab.local.settings.json";
-    private _playFabLocalSettingsFilePath: string = path.join(process.env.Temp, this._playFabLocalSettingsFileName);
+    private _tmpdir: string = process.env.Temp || process.env.TMPDIR
+    private _playFabLocalSettingsFilePath: string = path.join(this._tmpdir, this._playFabLocalSettingsFileName);
     private _explorer: TreeView<ITreeNode>;
     private _account: IPlayFabAccount;
     private _httpClient: IHttpClient;
