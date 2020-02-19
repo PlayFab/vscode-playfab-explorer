@@ -1,9 +1,9 @@
 {
     "name": "playfab-explorer",
     "displayName": "PlayFab Explorer",
-    "description": "%playfab-explorer.description%",
+    "description": "A common PlayFab Explorer extension for VS Code.",
     "license": "SEE LICENSE IN LICENSE.md",
-    "version": "0.1.6",
+    "version": "0.1.7",
     "publisher": "Playfab",
     "icon": "resources/playfab.png",
     "repository": {
