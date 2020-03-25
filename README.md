@@ -37,6 +37,22 @@ The PlayFab Explorer extension provides a single PlayFab sign-in experience and 
 | playfab.jsonSpaces | Number of spaces to use when formatting JSON | 2
 | playfab.cloudName | Private cloud name | 
 
+## Sign-in
+
+If you are not signed in to PlayFab, you will see a "Sign In to PlayFab..." link. Alternatively, you can select "View->Command Palette" in the VS Code menu, and search for "PlayFab: Sign In".
+
+![Sign In to PlayFab](resources/SignIn.png)
+
+If you don't have an PlayFab Account, you can sign up for one today for free by selecting "Create a PlayFab Account..." or selecting "View->Command Palette" and searching for "PlayFab: Create an Account".
+
+You may sign out of PlayFab by selecting "View->Command Palette" and searching for "PlayFab: Sign Out".
+
+## Running commands
+
+Once you are signed in you can run a command via "View->Command Palette" in the VS Code manu and searching for "PlayFab". Alternatively, you can select a command by right-clicking on a studio or title in the extension tree view;
+
+![Run Commands](resources/CommandTreeView.png)
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
