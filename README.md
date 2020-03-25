@@ -1,3 +1,5 @@
+[![Version](https://vsmarketplacebadge.apphb.com/version/playfab.playfab-explorer.svg)](https://marketplace.visualstudio.com/items?itemName=PlayFab.playfab-explorer) [![Installs](https://vsmarketplacebadge.apphb.com/installs-short/PlayFab.playfab-explorer.svg)](https://marketplace.visualstudio.com/items?itemName=PlayFab.playfab-explorer)
+
 # PlayFab Explorer
 The PlayFab Explorer extension provides a single PlayFab sign-in experience and tree view for all other PlayFab extensions, as well as some base functionality around titles and CloudScript.
 
