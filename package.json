@@ -3,7 +3,7 @@
     "displayName": "PlayFab Explorer",
     "description": "A common PlayFab Explorer extension for VS Code.",
     "license": "SEE LICENSE IN LICENSE.md",
-    "version": "0.1.7",
+    "version": "0.1.8",
     "publisher": "Playfab",
     "icon": "resources/playfab.png",
     "repository": {
@@ -299,7 +299,7 @@
         "typescript": "^2.6.1",
         "underscore": "^1.9.2",
         "vscode": "^1.1.36",
-        "webpack": "^4.41.5",
+        "webpack": "^4.42.1",
         "webpack-cli": "^3.3.10"
     },
     "dependencies": {
