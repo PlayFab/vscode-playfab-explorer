@@ -1,6 +1,8 @@
 .vscode
 node_modules
 out/
+resources/CommandTreeView.png
+resources/SignIn.png
 src/
 tsconfig.json
 webpack.config.js
