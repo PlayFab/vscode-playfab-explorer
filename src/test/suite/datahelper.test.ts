@@ -4,8 +4,9 @@
 //---------------------------------------------------------------------------------------------
 
 import * as assert from 'assert';
+import { suite, test } from 'mocha'
 import * as _ from 'underscore';
-import { EscapeValue, GetLastPathPartFromUri, MapFromObject, UnescapeValue } from '../helpers/PlayFabDataHelpers';
+import { EscapeValue, GetLastPathPartFromUri, MapFromObject, UnescapeValue } from '../../helpers/PlayFabDataHelpers';
 
 suite('DataHelper Tests', function () {
 
