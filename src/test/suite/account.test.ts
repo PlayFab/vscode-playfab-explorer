@@ -4,16 +4,17 @@
 //---------------------------------------------------------------------------------------------
 
 import * as assert from 'assert'
+import { suite, test } from 'mocha'
 import * as Moq from 'typemoq'
-import { PlayFabLoginManager, IPlayFabLoginInputGatherer } from '../playfab-account';
-import { IHttpClient } from '../helpers/PlayFabHttpHelper'
-import { PlayFabUriHelpers } from '../helpers/PlayFabUriHelpers'
+import { PlayFabLoginManager, IPlayFabLoginInputGatherer } from '../../playfab-account';
+import { IHttpClient } from '../../helpers/PlayFabHttpHelper'
+import { PlayFabUriHelpers } from '../../helpers/PlayFabUriHelpers'
 import {
   CreateAccountRequest, CreateAccountResponse, LoginResponse, LoginRequest,
   LogoutRequest, LogoutResponse
-} from '../models/PlayFabAccountModels';
-import { ErrorResponse } from '../models/PlayFabHttpModels';
-import { delay } from '../helpers/PlayFabPromiseHelpers';
+} from '../../models/PlayFabAccountModels';
+import { ErrorResponse } from '../../models/PlayFabHttpModels';
+import { delay } from '../../helpers/PlayFabPromiseHelpers';
 
 suite('Account Tests', function () {
 
