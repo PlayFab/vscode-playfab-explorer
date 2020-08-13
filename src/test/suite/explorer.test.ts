@@ -4,29 +4,30 @@
 //---------------------------------------------------------------------------------------------
 
 import * as assert from 'assert';
+import { suite, test } from 'mocha'
 import * as Moq from 'typemoq';
-import { IPlayFabAccount } from '../playfab-account.api';
-import { IPlayFabExplorerInputGatherer, PlayFabExplorer } from '../playfab-explorer';
-import { MapFromObject } from '../helpers/PlayFabDataHelpers';
-import { IHttpClient } from '../helpers/PlayFabHttpHelper';
-import { PlayFabUriHelpers } from '../helpers/PlayFabUriHelpers';
-import { GetEntityTokenRequest, GetEntityTokenResponse } from '../models/PlayFabAuthenticationModels';
+import { IPlayFabAccount } from '../../playfab-account.api';
+import { IPlayFabExplorerInputGatherer, PlayFabExplorer } from '../../playfab-explorer';
+import { MapFromObject } from '../../helpers/PlayFabDataHelpers';
+import { IHttpClient } from '../../helpers/PlayFabHttpHelper';
+import { PlayFabUriHelpers } from '../../helpers/PlayFabUriHelpers';
+import { GetEntityTokenRequest, GetEntityTokenResponse } from '../../models/PlayFabAuthenticationModels';
 import {
   ListFunctionsRequest, ListFunctionsResponse, RegisterHttpFunctionRequest,
   RegisterQueuedFunctionRequest, RegisterFunctionResponse, UnregisterFunctionRequest, UnregisterFunctionResponse
-} from '../models/PlayFabCloudScriptModels'
-import { ErrorResponse } from '../models/PlayFabHttpModels';
+} from '../../models/PlayFabCloudScriptModels'
+import { ErrorResponse } from '../../models/PlayFabHttpModels';
 import {
   GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse, UpdateCloudScriptRequest,
   UpdateCloudScriptResponse
-} from '../models/PlayFabLegacyCloudScriptModels'
-import { Studio } from '../models/PlayFabStudioModels';
+} from '../../models/PlayFabLegacyCloudScriptModels'
+import { Studio } from '../../models/PlayFabStudioModels';
 import {
   CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse,
   SetTitleDataRequest, SetTitleDataResponse, Title
-} from '../models/PlayFabTitleModels'
+} from '../../models/PlayFabTitleModels'
 import { workspace, TextDocument, window } from 'vscode';
-import { ITreeNode } from '../playfab-treeprovider.api';
+//import { ITreeNode } from '../../playfab-treeprovider.api';
 
 suite('Explorer Tests', function () {
 
