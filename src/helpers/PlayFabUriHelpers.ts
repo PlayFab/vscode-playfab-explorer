@@ -18,37 +18,44 @@ export class PlayFabUriHelpers {
 
     public static cloud: string;
 
-    public static createTitlePath: string = '/DeveloperTools/User/CreateTitle';
+    // Admin
+    public static getCloudScriptRevisionPath: string = '/Admin/GetCloudScriptRevision';
     public static getTitleDataPath: string = '/Admin/GetTitleData';
-    public static setTitleDataPath: string = '/Admin/SetTitleData';
     public static getTitleInternalDataPath: string = '/Admin/GetTitleInternalData';
+    public static setTitleDataPath: string = '/Admin/SetTitleData';
     public static setTitleInternalDataPath: string = '/Admin/SetTitleInternalData';
+    public static updateCloudScriptPath: string = '/Admin/UpdateCloudScript';
+    
+    // Authentication
+    public static getEntityTokenPath: string = '/Authentication/GetEntityToken';
+
+    // CloudScript
     public static listFunctionsPath: string = '/CloudScript/ListFunctions';
     public static listHttpFunctionsPath: string = '/CloudScript/ListHttpFunctions';
     public static listQueuedFunctionsPath: string = '/CloudScript/ListQueuedFunctions';
     public static registerHttpFunctionPath: string = '/CloudScript/RegisterHttpFunction';
     public static registerQueuedFunctionPath: string = '/CloudScript/RegisterQueuedFunction';
     public static unregisterFunctionPath: string = '/CloudScript/UnregisterFunction';
-    public static updateCloudScriptPath: string = '/Admin/UpdateCloudScript';
-    public static getCloudScriptRevisionPath: string = '/Admin/GetCloudScriptRevision';
-
+    
+    // DeveloperTools
+    public static createTitlePath: string = '/DeveloperTools/User/CreateTitle';    
     public static getStudiosPath: string = '/DeveloperTools/User/GetStudios';
-
-    public static createAccountPath: string = '/DeveloperTools/User/RegisterAccount';
     public static loginPath: string = '/DeveloperTools/User/Login';
     public static logoutPath: string = '/DeveloperTools/User/Logout';
-
-    public static getEntityTokenPath: string = '/Authentication/GetEntityToken';
-
-    public static getProfilePath: string = '/Profile/GetProfile';
-
-    public static getTreatmentAssignment: string = '/Experimentation/GetTreatmentAssignment';
-    public static getExperiments: string = '/Experimentation/GetExperiments';
+    public static createAccountPath: string = '/DeveloperTools/User/RegisterAccount';    
+    
+    // Experimentation
     public static createExperiment: string = '/Experimentation/CreateExperiment';
-    public static updateExperiment: string = '/Experimentation/UpdateExperiment';
+    public static deleteExperiment: string = '/Experimentation/DeleteExperiment';
+    public static getExperiments: string = '/Experimentation/GetExperiments';
+    public static getLastestScorecard: string = '/Experimentation/GetLatestScorecard';
+    public static getTreatmentAssignment: string = '/Experimentation/GetTreatmentAssignment';
     public static startExperiment: string = '/Experimentation/StartExperiment';
     public static stopExperiment: string = '/Experimentation/StopExperiment';
-    public static deleteExperiment: string = '/Experimentation/DeleteExperiment';
+    public static updateExperiment: string = '/Experimentation/UpdateExperiment';
+    
+    // Profile    
+    public static getProfilePath: string = '/Profile/GetProfile';
 
     public static GetPlayFabBaseUrl(titleId: string): string {
         const baseUrl: string = !PlayFabUriHelpers.IsPrivateCloud() ? this.playfabBaseUrl :

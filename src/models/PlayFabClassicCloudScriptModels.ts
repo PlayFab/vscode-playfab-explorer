@@ -3,6 +3,8 @@
 //  Licensed under the MIT License. See License.md in the project root for license information.
 //---------------------------------------------------------------------------------------------
 
+// Models for calls to the CloudScript controller for Classic CloudScript APIs
+
 export class CloudScriptFile {
     Filename: string;
     FileContents: string;

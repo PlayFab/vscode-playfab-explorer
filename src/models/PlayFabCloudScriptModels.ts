@@ -3,6 +3,9 @@
 //  Licensed under the MIT License. See License.md in the project root for license information.
 //---------------------------------------------------------------------------------------------
 
+// Models for calls to the CloudScript controller for Azure Function CloudScript
+// APIs
+
 export class FunctionInfo {
     FunctionName: string;
     FunctionAddress: string;

@@ -21,11 +21,11 @@ import {
     ListQueuedFunctionsResponse, QueuedFunctionInfo, RegisterHttpFunctionRequest, RegisterQueuedFunctionRequest,
     RegisterFunctionResponse, UnregisterFunctionRequest, UnregisterFunctionResponse
 } from './models/PlayFabCloudScriptModels';
-import { GetEntityProfileRequest, GetEntityProfileResponse } from './models/PlayFabEntityDescriptorModels';
+import { GetEntityProfileRequest, GetEntityProfileResponse } from './models/PlayFabProfileModels';
 import {
     CloudScriptFile, GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse,
     UpdateCloudScriptRequest, UpdateCloudScriptResponse
-} from './models/PlayFabLegacyCloudScriptModels';
+} from './models/PlayFabClassicCloudScriptModels';
 import { ErrorResponse } from "./models/PlayFabHttpModels";
 import { Studio } from './models/PlayFabStudioModels';
 import {
@@ -413,7 +413,8 @@ export class PlayFabExplorer {
 
     private async getEntityToken(title: Title): Promise<string> {
         let tokenRequest: GetEntityTokenRequest = {
-            Context: null
+            Context: null,
+            CustomTags: null
         };
 
         let baseUrl: string = PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id);
