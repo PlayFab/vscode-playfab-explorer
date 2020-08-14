@@ -26,23 +26,22 @@ import { PlayFabUriHelpers } from './helpers/PlayFabUriHelpers';
 // Model imports
 import { GetEntityTokenRequest, GetEntityTokenResponse } from './models/PlayFabAuthenticationModels';
 import {
+    CloudScriptFile, GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse,
+    UpdateCloudScriptRequest, UpdateCloudScriptResponse
+} from './models/PlayFabClassicCloudScriptModels';
+import {
     FunctionInfo, HttpFunctionInfo, ListFunctionsRequest, ListFunctionsResponse, ListHttpFunctionsResponse,
     ListQueuedFunctionsResponse, QueuedFunctionInfo, RegisterHttpFunctionRequest, RegisterQueuedFunctionRequest,
     RegisterFunctionResponse, UnregisterFunctionRequest, UnregisterFunctionResponse
 } from './models/PlayFabCloudScriptModels';
-import { GetEntityProfileRequest, GetEntityProfileResponse } from './models/PlayFabEntityDescriptorModels';
 import { EntityKey } from './models/PlayFabEntityModels';
 import { ErrorResponse } from "./models/PlayFabHttpModels";
-import {
-    CloudScriptFile, GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse,
-    UpdateCloudScriptRequest, UpdateCloudScriptResponse
-} from './models/PlayFabLegacyCloudScriptModels';
+import { GetEntityProfileRequest, GetEntityProfileResponse } from './models/PlayFabProfileModels';
 import { Studio } from './models/PlayFabStudioModels';
 import {
     Title, CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse,
     SetTitleDataRequest, SetTitleDataResponse
 } from './models/PlayFabTitleModels';
-
 
 const localize = loadMessageBundle();
 
@@ -426,7 +425,8 @@ export class PlayFabExplorer {
 
     private async getEntityToken(title: Title): Promise<string> {
         let tokenRequest: GetEntityTokenRequest = {
-            Context: null
+            Context: null,
+            CustomTags: null
         };
 
         let baseUrl: string = PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id);

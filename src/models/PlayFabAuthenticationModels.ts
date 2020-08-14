@@ -3,7 +3,9 @@
 //  Licensed under the MIT License. See License.md in the project root for license information.
 //---------------------------------------------------------------------------------------------
 
-import { EntityDescriptorApiContext, EntityDescriptorApiResponse } from './PlayFabEntityDescriptorModels';
+import { EntityDescriptorApiContext, EntityDescriptorApiResponse } from './PlayFabEntityApiContextModels';
+
+// Models for calls to the Authentication controller
 
 export class GetEntityTokenRequest extends EntityDescriptorApiContext {
 }

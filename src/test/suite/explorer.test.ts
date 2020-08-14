@@ -20,7 +20,7 @@ import { ErrorResponse } from '../../models/PlayFabHttpModels';
 import {
   GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse, UpdateCloudScriptRequest,
   UpdateCloudScriptResponse
-} from '../../models/PlayFabLegacyCloudScriptModels'
+} from '../../models/PlayFabClassicCloudScriptModels'
 import { Studio } from '../../models/PlayFabStudioModels';
 import {
   CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse,
