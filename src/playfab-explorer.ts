@@ -35,6 +35,11 @@ import {
     RegisterFunctionResponse, UnregisterFunctionRequest, UnregisterFunctionResponse
 } from './models/PlayFabCloudScriptModels';
 import { EntityKey } from './models/PlayFabEntityModels';
+import {
+    CreateExperimentRequest, CreateExperimentResponse, DeleteExperimentRequest, 
+    GetExperimentsRequest, GetExperimentsResponse, GetLatestScoreCardRequest, GetLatestScoreCardResponse, 
+    GetTreatmentAssignmentRequest, GetTreatmentAssignmentResponse, StartExperimentRequest, StopExperimentRequest
+} from './models/PlayFabExperimentationModels'
 import { ErrorResponse } from "./models/PlayFabHttpModels";
 import { GetEntityProfileRequest, GetEntityProfileResponse } from './models/PlayFabProfileModels';
 import { Studio } from './models/PlayFabStudioModels';
@@ -46,15 +51,22 @@ import {
 const localize = loadMessageBundle();
 
 export interface IPlayFabExplorerInputGatherer {
+    getUserInputForCreateExperiment(): Promise<CreateExperimentRequest>;
     getUserInputForCreateTitle(): Promise<CreateTitleRequest>;
+    getUserInputForDeleteExperiment(): Promise<DeleteExperimentRequest>;
     getUserInputForGetCloudScriptRevision(): Promise<GetCloudScriptRevisionRequest>;
     getUserInputForGetEntityProfile(): Promise<GetEntityProfileRequest>;
+    getUserInputForGetExperiments(): Promise<GetExperimentsRequest>;
+    getUserInputForGetLatestScoreCard(): Promise<GetLatestScoreCardRequest>;
     getUserInputForGetTitleData(): Promise<GetTitleDataRequest>;
+    getUserInputForGetTreatmentAssignment(): Promise<GetTreatmentAssignmentRequest>;
     getUserInputForListFunctions(): Promise<ListFunctionsRequest>;
     getUserInputForRegisterHttpFunction(): Promise<RegisterHttpFunctionRequest>;
     getUserInputForRegisterQueuedFunction(): Promise<RegisterQueuedFunctionRequest>;
-    getUserInputForUnregisterFunction(): Promise<UnregisterFunctionRequest>;
     getUserInputForSetTitleData(): Promise<SetTitleDataRequest>;
+    getUserInputForStartExperiment(): Promise<StartExperimentRequest>;
+    getUserInputForStopExperiment(): Promise<StopExperimentRequest>;
+    getUserInputForUnregisterFunction(): Promise<UnregisterFunctionRequest>;
 }
 
 export class PlayFabExplorer {
@@ -421,6 +433,9 @@ export class PlayFabExplorer {
             let title: Title = await this.getTitleFromTreeNode(titleNode);
             commands.executeCommand('vscode.open', Uri.parse(PlayFabUriHelpers.GetGameManagerUrl(title.Id)));
         }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.createExperiment', async (titleNode) => {
+            await this.createExperiment(await this.getTitleFromTreeNode(titleNode));
+        }));
     }
 
     private async getEntityToken(title: Title): Promise<string> {
@@ -679,6 +694,22 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
         return request;
     }
 
+    public async getUserInputForCreateExperiment(): Promise<CreateExperimentRequest> {
+        // TODO: Get user input
+
+        let request = new CreateExperimentRequest();
+
+        return request;
+    }
+
+    public async getUserInputForDeleteExperiment(): Promise<DeleteExperimentRequest> {
+        // TODO: Get user input
+
+        let request = new DeleteExperimentRequest();
+
+        return request;
+    }
+
     public async getUserInputForGetCloudScriptRevision(): Promise<GetCloudScriptRevisionRequest> {
         const revisionValue: string = null;
         const revisionPrompt: string = localize('playfab-explorer.revisionPrompt', 'Optionally enter a CloudScript revision');
@@ -713,6 +744,30 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
         request.Entity.Id = entityId;
         request.Entity.Type = entityType;
         request.DataAsObject = true;
+        return request;
+    }
+
+    public async getUserInputForGetExperiments(): Promise<GetExperimentsRequest> {
+        // TODO: Get user input
+
+        let request = new GetExperimentsRequest();
+
+        return request;
+    }
+
+    public async getUserInputForGetLatestScoreCard(): Promise<GetLatestScoreCardRequest> {
+        // TODO: Get user input
+
+        let request = new GetLatestScoreCardRequest();
+
+        return request;
+    }
+
+    public async getUserInputForGetTreatmentAssignment(): Promise<GetTreatmentAssignmentRequest> {
+        // TODO: Get user input
+
+        let request = new GetTreatmentAssignmentRequest();
+
         return request;
     }
 
@@ -816,6 +871,22 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
         let request = new SetTitleDataRequest();
         request.Key = key;
         request.Value = value;
+        return request;
+    }
+
+    public async getUserInputForStartExperiment(): Promise<StartExperimentRequest> {
+        // TODO: Get user input
+
+        let request = new StartExperimentRequest();
+
+        return request;
+    }
+
+    public async getUserInputForStopExperiment(): Promise<StopExperimentRequest> {
+        // TODO: Get user input
+
+        let request = new StopExperimentRequest();
+
         return request;
     }
 
