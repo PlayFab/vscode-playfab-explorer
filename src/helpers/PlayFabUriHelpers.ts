@@ -45,14 +45,14 @@ export class PlayFabUriHelpers {
     public static createAccountPath: string = '/DeveloperTools/User/RegisterAccount';    
     
     // Experimentation
-    public static createExperiment: string = '/Experimentation/CreateExperiment';
-    public static deleteExperiment: string = '/Experimentation/DeleteExperiment';
-    public static getExperiments: string = '/Experimentation/GetExperiments';
-    public static getLastestScorecard: string = '/Experimentation/GetLatestScorecard';
-    public static getTreatmentAssignment: string = '/Experimentation/GetTreatmentAssignment';
-    public static startExperiment: string = '/Experimentation/StartExperiment';
-    public static stopExperiment: string = '/Experimentation/StopExperiment';
-    public static updateExperiment: string = '/Experimentation/UpdateExperiment';
+    public static createExperimentPath: string = '/Experimentation/CreateExperiment';
+    public static deleteExperimentPath: string = '/Experimentation/DeleteExperiment';
+    public static getExperimentsPath: string = '/Experimentation/GetExperiments';
+    public static getLastestScorecardPath: string = '/Experimentation/GetLatestScorecard';
+    public static getTreatmentAssignmentPath: string = '/Experimentation/GetTreatmentAssignment';
+    public static startExperimentPath: string = '/Experimentation/StartExperiment';
+    public static stopExperimentPath: string = '/Experimentation/StopExperiment';
+    public static updateExperimentPath: string = '/Experimentation/UpdateExperiment';
     
     // Profile    
     public static getProfilePath: string = '/Profile/GetProfile';

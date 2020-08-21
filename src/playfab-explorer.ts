@@ -38,7 +38,8 @@ import { EntityKey } from './models/PlayFabEntityModels';
 import {
     CreateExperimentRequest, CreateExperimentResponse, DeleteExperimentRequest, 
     GetExperimentsRequest, GetExperimentsResponse, GetLatestScoreCardRequest, GetLatestScoreCardResponse, 
-    GetTreatmentAssignmentRequest, GetTreatmentAssignmentResponse, StartExperimentRequest, StopExperimentRequest
+    GetTreatmentAssignmentRequest, GetTreatmentAssignmentResponse, StartExperimentRequest, StopExperimentRequest,
+    UpdateExperimentRequest
 } from './models/PlayFabExperimentationModels'
 import { ErrorResponse } from "./models/PlayFabHttpModels";
 import { GetEntityProfileRequest, GetEntityProfileResponse } from './models/PlayFabProfileModels';
@@ -66,6 +67,7 @@ export interface IPlayFabExplorerInputGatherer {
     getUserInputForSetTitleData(): Promise<SetTitleDataRequest>;
     getUserInputForStartExperiment(): Promise<StartExperimentRequest>;
     getUserInputForStopExperiment(): Promise<StopExperimentRequest>;
+    getUserInputForUpdateExperiment(): Promise<UpdateExperimentRequest>;
     getUserInputForUnregisterFunction(): Promise<UnregisterFunctionRequest>;
 }
 
@@ -94,6 +96,21 @@ export class PlayFabExplorer {
         this._explorer = window.createTreeView('playfabExplorer', { treeDataProvider });
     }
 
+    async createExperiment(title: Title): Promise<void> {
+        let request: CreateExperimentRequest = await this.getUserInputForCreateExperiment();
+
+        await this._httpClient.makeApiCall(
+            PlayFabUriHelpers.createExperimentPath,
+            PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id),
+            request,
+            (response: CreateExperimentResponse) => {
+                // TODO
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
+    }
+
     async createTitle(studio: Studio): Promise<void> {
         let request: CreateTitleRequest = await this.getUserInputForCreateTitle();
         request.StudioId = studio.Id;
@@ -111,6 +128,111 @@ export class PlayFabExplorer {
             });
 
         this._treeDataProvider.refresh();
+    }
+
+    async deleteExperiment(title: Title): Promise<void> {
+        let request: DeleteExperimentRequest = await this.getUserInputForDeleteExperiment();
+
+        await this._httpClient.makeApiCall(
+            PlayFabUriHelpers.deleteExperimentPath,
+            PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id),
+            request,
+            (response: CreateExperimentResponse) => {
+                // TODO
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
+    }
+
+    async getExperiments(title: Title): Promise<void> {
+        let request: GetExperimentsRequest = await this.getUserInputForGetExperiments();
+
+        await this._httpClient.makeApiCall(
+            PlayFabUriHelpers.getExperimentsPath,
+            PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id),
+            request,
+            (response: GetExperimentsResponse) => {
+                // TODO
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
+    }
+
+    async getLatestScoreCard(title: Title): Promise<void> {
+        let request: GetLatestScoreCardRequest = await this.getUserInputForGetLatestScoreCard();
+
+        await this._httpClient.makeApiCall(
+            PlayFabUriHelpers.getLastestScorecardPath,
+            PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id),
+            request,
+            (response: GetLatestScoreCardResponse) => {
+                // TODO
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
+    }
+
+    async getTreatmentAssignment(title: Title): Promise<void> {
+        let request: GetTreatmentAssignmentRequest = await this.getUserInputForGetTreatmentAssignment();
+
+        await this._httpClient.makeApiCall(
+            PlayFabUriHelpers.getTreatmentAssignmentPath,
+            PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id),
+            request,
+            (response: GetTreatmentAssignmentResponse) => {
+                // TODO
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
+    }
+
+    async startExperiment(title: Title): Promise<void> {
+        let request: StartExperimentRequest = await this.getUserInputForStartExperiment();
+
+        await this._httpClient.makeApiCall(
+            PlayFabUriHelpers.startExperimentPath,
+            PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id),
+            request,
+            () => {
+                // TODO
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
+    }
+
+    async stopExperiment(title: Title): Promise<void> {
+        let request: StartExperimentRequest = await this.getUserInputForStopExperiment();
+
+        await this._httpClient.makeApiCall(
+            PlayFabUriHelpers.stopExperimentPath,
+            PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id),
+            request,
+            () => {
+                // TODO
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
+    }
+
+    async updateExperiment(title: Title): Promise<void> {
+        let request: UpdateExperimentRequest = await this.getUserInputForUpdateExperiment();
+
+        await this._httpClient.makeApiCall(
+            PlayFabUriHelpers.updateExperimentPath,
+            PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id),
+            request,
+            () => {
+                // TODO
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
     }
 
     async disableLocalDebugging(): Promise<void> {
@@ -436,6 +558,27 @@ export class PlayFabExplorer {
         context.subscriptions.push(commands.registerCommand('playfabExplorer.createExperiment', async (titleNode) => {
             await this.createExperiment(await this.getTitleFromTreeNode(titleNode));
         }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.deleteExperiment', async (titleNode) => {
+            await this.deleteExperiment(await this.getTitleFromTreeNode(titleNode));
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.getExperiments', async (titleNode) => {
+            await this.getExperiments(await this.getTitleFromTreeNode(titleNode));
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.getLatestScoreCard', async (titleNode) => {
+            await this.getLatestScoreCard(await this.getTitleFromTreeNode(titleNode));
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.getTreatmentAssignment', async (titleNode) => {
+            await this.getTreatmentAssignment(await this.getTitleFromTreeNode(titleNode));
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.startExperiment', async (titleNode) => {
+            await this.startExperiment(await this.getTitleFromTreeNode(titleNode));
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.stopExperiment', async (titleNode) => {
+            await this.stopExperiment(await this.getTitleFromTreeNode(titleNode));
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.updateExperiment', async (titleNode) => {
+            await this.updateExperiment(await this.getTitleFromTreeNode(titleNode));
+        }));
     }
 
     private async getEntityToken(title: Title): Promise<string> {
@@ -587,6 +730,10 @@ export class PlayFabExplorer {
         return nodes.find((value: ITreeNode) => value.name === name);
     }
 
+    private async getUserInputForCreateExperiment(): Promise<CreateExperimentRequest> {
+        return await this._inputGatherer.getUserInputForCreateExperiment();
+    }
+
     private async getUserInputForCreateTitle(): Promise<CreateTitleRequest> {
         return await this._inputGatherer.getUserInputForCreateTitle();
     }
@@ -595,12 +742,28 @@ export class PlayFabExplorer {
         return await this._inputGatherer.getUserInputForGetCloudScriptRevision();
     }
 
+    private async getUserInputForDeleteExperiment(): Promise<DeleteExperimentRequest> {
+        return await this._inputGatherer.getUserInputForDeleteExperiment();
+    }
+
     private async getUserInputForGetEntityProfile(): Promise<GetEntityProfileRequest> {
         return await this._inputGatherer.getUserInputForGetEntityProfile();
     }
 
+    private async getUserInputForGetExperiments(): Promise<GetExperimentsRequest> {
+        return await this._inputGatherer.getUserInputForGetExperiments();
+    }
+
+    private async getUserInputForGetLatestScoreCard(): Promise<GetLatestScoreCardRequest> {
+        return await this._inputGatherer.getUserInputForGetLatestScoreCard();
+    }    
+
     private async getUserInputForGetTitleData(): Promise<GetTitleDataRequest> {
         return await this._inputGatherer.getUserInputForGetTitleData();
+    }
+
+    private async getUserInputForGetTreatmentAssignment(): Promise<GetTreatmentAssignmentRequest> {
+        return await this._inputGatherer.getUserInputForGetTreatmentAssignment();
     }
 
     private async getUserInputForListFunctions(): Promise<ListFunctionsRequest> {
@@ -619,8 +782,20 @@ export class PlayFabExplorer {
         return await this._inputGatherer.getUserInputForSetTitleData();
     }
 
+    private async getUserInputForStartExperiment(): Promise<StartExperimentRequest> {
+        return await this._inputGatherer.getUserInputForStartExperiment();
+    }
+
+    private async getUserInputForStopExperiment(): Promise<StopExperimentRequest> {
+        return await this._inputGatherer.getUserInputForStopExperiment();
+    }
+
     private async getUserInputForUnregisterFunction(): Promise<UnregisterFunctionRequest> {
         return await this._inputGatherer.getUserInputForUnregisterFunction();
+    }
+
+    private async getUserInputForUpdateExperiment(): Promise<UpdateExperimentRequest> {
+        return await this._inputGatherer.getUserInputForUpdateExperiment();
     }
 
     private async setTitleDataFromJsonFile(title: Title, path: string, documentContent: string): Promise<void> {
@@ -695,9 +870,40 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
     }
 
     public async getUserInputForCreateExperiment(): Promise<CreateExperimentRequest> {
-        // TODO: Get user input
+        const experimentNameValue: string = localize('playfab-explorer.experimentNameValue', 'Experiment Name');
+        const experimentNamePrompt: string = localize('playfab-explorer.experimentNamePrompt', 'Please enter the name of your experiment');
+
+        const experimentName = await window.showInputBox({
+            value: experimentNameValue,
+            prompt: experimentNamePrompt
+        });
+
+        const experimentDescriptionValue: string = localize('playfab-explorer.experimentDescriptionValue', 'Experiment Description');
+        const experimentDescriptionPrompt: string = localize('playfab-explorer.experimentDescriptionPrompt', 'Please enter a description for your experiment');
+
+        const experimentDescription = await window.showInputBox({
+            value: experimentDescriptionValue,
+            prompt: experimentDescriptionPrompt
+        });
+
+        const experimentDurationValue: string = localize('playfab-explorer.experimentDurationValue', '7');
+        const experimentDurationPrompt: string = localize('playfab-explorer.experimentDurationPrompt', 'Please enter a duration for your experiment, in days, between 1 and 21');
+
+        const experimentDurationStr = await window.showInputBox({
+            value: experimentDurationValue,
+            prompt: experimentDurationPrompt
+        });
+
+        const experimentDuration: number= parseInt(experimentDurationStr);
+
+        // TODO: Validate that experimentDuration is between 1 and 21
+
+
 
         let request = new CreateExperimentRequest();
+        request.Name = experimentName;
+        request.Description = experimentDescription;
+        
 
         return request;
     }
@@ -886,6 +1092,14 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
         // TODO: Get user input
 
         let request = new StopExperimentRequest();
+
+        return request;
+    }
+
+    public async getUserInputForUpdateExperiment(): Promise<UpdateExperimentRequest> {
+        // TODO: Get user input
+
+        let request = new UpdateExperimentRequest();
 
         return request;
     }

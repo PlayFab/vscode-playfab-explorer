@@ -159,6 +159,46 @@
                 "command": "playfabExplorer.updateCloudScript",
                 "title": "%playfab-explorer.commands.updateCloudScript%",
                 "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.createExperiment",
+                "title": "%playfab-explorer.commands.createExperiment%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.deleteExperiment",
+                "title": "%playfab-explorer.commands.deleteExperiment%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.getExperiments",
+                "title": "%playfab-explorer.commands.getExperiments%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.getLatestScoreCard",
+                "title": "%playfab-explorer.commands.getLatestScoreCard%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.getTreatmentAssignment",
+                "title": "%playfab-explorer.commands.getTreatmentAssignment%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.startExperiment",
+                "title": "%playfab-explorer.commands.startExperiment%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.stopExperiment",
+                "title": "%playfab-explorer.commands.stopExperiment%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.updateExperiment",
+                "title": "%playfab-explorer.commands.updateExperiment%",
+                "category": "%playfab-explorer.commands.playfab%"
             }
         ],
         "menus": {
@@ -254,6 +294,46 @@
                     "command": "playfabExplorer.updateCloudScript",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "5@2"
+                },
+                {
+                    "command": "playfabExplorer.createExperiment",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "6@1"
+                },
+                {
+                    "command": "playfabExplorer.deleteExperiment",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "6@2"
+                },
+                {
+                    "command": "playfabExplorer.getExperiments",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "6@3"
+                },
+                {
+                    "command": "playfabExplorer.getLatestScoreCard",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "6@4"
+                },
+                {
+                    "command": "playfabExplorer.getTreatmentAssignment",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "6@5"
+                },
+                {
+                    "command": "playfabExplorer.startExperiment",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "6@6"
+                },
+                {
+                    "command": "playfabExplorer.stopExperiment",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "6@7"
+                },
+                {
+                    "command": "playfabExplorer.updateExperiment",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "6@8"
                 }
             ]
         },
