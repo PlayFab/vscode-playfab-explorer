@@ -13,7 +13,7 @@ import { IHttpClient } from '../../helpers/PlayFabHttpHelper';
 import { PlayFabUriHelpers } from '../../helpers/PlayFabUriHelpers';
 import { GetEntityTokenRequest, GetEntityTokenResponse } from '../../models/PlayFabAuthenticationModels';
 import {
-  ListFunctionsRequest, ListFunctionsResponse, RegisterHttpFunctionRequest,
+  ListFunctionsRequest, ListFunctionsResponse, ListHttpFunctionsResponse, ListQueuedFunctionsResponse, RegisterHttpFunctionRequest,
   RegisterQueuedFunctionRequest, RegisterFunctionResponse, UnregisterFunctionRequest, UnregisterFunctionResponse
 } from '../../models/PlayFabCloudScriptModels'
 import { ErrorResponse } from '../../models/PlayFabHttpModels';
@@ -359,6 +359,64 @@ suite('Explorer Tests', function () {
         return;
       });
 
+  let listHttpFunctionsHttpCount: number = 0;
+  httpCli.setup(x => x.makeEntityApiCall(
+    Moq.It.isValue(PlayFabUriHelpers.listHttpFunctionsPath),
+    Moq.It.isAnyString(),
+    Moq.It.is<ListFunctionsRequest>(x => true),
+    Moq.It.isAnyString(),
+    Moq.It.isAny(),
+    Moq.It.isAny()))
+    .returns(
+      (path: string,
+        endpoint: string,
+        request: ListFunctionsRequest,
+        key: string,
+        successCallback: (response: ListHttpFunctionsResponse) => void,
+        errorCallback: (response: ErrorResponse) => void
+      ): Promise<void> => {
+        listHttpFunctionsHttpCount++;
+        let response: ListHttpFunctionsResponse = {
+          Functions: [
+            {
+              FunctionName: "Fn1",
+              FunctionUrl: "https://some.func"
+            }
+          ]
+        };
+        successCallback(response);
+        return;
+      });
+
+  let listQueuedFunctionsHttpCount: number = 0;
+  httpCli.setup(x => x.makeEntityApiCall(
+    Moq.It.isValue(PlayFabUriHelpers.listQueuedFunctionsPath),
+    Moq.It.isAnyString(),
+    Moq.It.is<ListFunctionsRequest>(x => true),
+    Moq.It.isAnyString(),
+    Moq.It.isAny(),
+    Moq.It.isAny()))
+    .returns(
+      (path: string,
+        endpoint: string,
+        request: ListFunctionsRequest,
+        key: string,
+        successCallback: (response: ListQueuedFunctionsResponse) => void,
+        errorCallback: (response: ErrorResponse) => void
+      ): Promise<void> => {
+        listQueuedFunctionsHttpCount++;
+        let response: ListQueuedFunctionsResponse = {
+          Functions: [
+            {
+              FunctionName: "Fn1",
+              QueueName: "somequeuename",
+              ConnectionString: "someconnectionstring"
+            }
+          ]
+        };
+        successCallback(response);
+        return;
+      });
 
   let registerHttpFunctionHttpCount: number = 0;
   httpCli.setup(x => x.makeEntityApiCall(
@@ -522,6 +580,30 @@ suite('Explorer Tests', function () {
     assert(listFunctionsInputCount === expectedInputCount, `Expected single input call for ListFunctions, got ${listFunctionsInputCount - expectedInputCount + 1}`);
     assert(getEntityTokenHttpCount === expectedGetEntityTokenHttpCount, `Expected single HTTP call for GetEntityToken, got ${getEntityTokenHttpCount - expectedGetEntityTokenHttpCount + 1}`);
     assert(listFunctionsHttpCount === expectedListFunctionsHttpCount, `Expected single HTTP call for ListFunctions, got ${listFunctionsHttpCount - expectedListFunctionsHttpCount + 1}`);
+  });
+
+  test('ListHttpFunctions', async function () {
+    let expectedInputCount: number = listFunctionsInputCount + 1;
+    let expectedGetEntityTokenHttpCount: number = getEntityTokenHttpCount + 1;
+    let expectedListHttpFunctionsHttpCount: number = listHttpFunctionsHttpCount + 1;
+    let explorer: PlayFabExplorer = new PlayFabExplorer(account.object, inputGatherer.object, httpCli.object);
+    await explorer.listHttpFunctions(title);
+
+    assert(listFunctionsInputCount === expectedInputCount, `Expected single input call for ListHttpFunctions, got ${listFunctionsInputCount - expectedInputCount + 1}`);
+    assert(getEntityTokenHttpCount === expectedGetEntityTokenHttpCount, `Expected single HTTP call for GetEntityToken, got ${getEntityTokenHttpCount - expectedGetEntityTokenHttpCount + 1}`);
+    assert(listHttpFunctionsHttpCount === expectedListHttpFunctionsHttpCount, `Expected single HTTP call for ListHttpFunctions, got ${listHttpFunctionsHttpCount - expectedListHttpFunctionsHttpCount + 1}`);
+  });
+
+  test('ListQueuedFunctions', async function () {
+    let expectedInputCount: number = listFunctionsInputCount + 1;
+    let expectedGetEntityTokenHttpCount: number = getEntityTokenHttpCount + 1;
+    let expectedListQueuedFunctionsHttpCount: number = listQueuedFunctionsHttpCount + 1;
+    let explorer: PlayFabExplorer = new PlayFabExplorer(account.object, inputGatherer.object, httpCli.object);
+    await explorer.listQueuedFunctions(title);
+
+    assert(listFunctionsInputCount === expectedInputCount, `Expected single input call for ListQueuedFunctions, got ${listFunctionsInputCount - expectedInputCount + 1}`);
+    assert(getEntityTokenHttpCount === expectedGetEntityTokenHttpCount, `Expected single HTTP call for GetEntityToken, got ${getEntityTokenHttpCount - expectedGetEntityTokenHttpCount + 1}`);
+    assert(listQueuedFunctionsHttpCount === expectedListQueuedFunctionsHttpCount, `Expected single HTTP call for ListQueuedFunctions, got ${listQueuedFunctionsHttpCount - expectedListQueuedFunctionsHttpCount + 1}`);
   });
 
   test('RegisterHttpFunction', async function () {

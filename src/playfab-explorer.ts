@@ -17,8 +17,9 @@ import { delay } from './helpers/PlayFabPromiseHelpers';
 import { PlayFabUriHelpers } from './helpers/PlayFabUriHelpers';
 import { GetEntityTokenRequest, GetEntityTokenResponse } from './models/PlayFabAuthenticationModels';
 import {
-    FunctionInfo, ListFunctionsRequest, ListFunctionsResponse, RegisterHttpFunctionRequest,
-    RegisterQueuedFunctionRequest, RegisterFunctionResponse, UnregisterFunctionRequest, UnregisterFunctionResponse
+    FunctionInfo, HttpFunctionInfo, ListFunctionsRequest, ListFunctionsResponse, ListHttpFunctionsResponse,
+    ListQueuedFunctionsResponse, QueuedFunctionInfo, RegisterHttpFunctionRequest, RegisterQueuedFunctionRequest,
+    RegisterFunctionResponse, UnregisterFunctionRequest, UnregisterFunctionResponse
 } from './models/PlayFabCloudScriptModels';
 import { GetEntityProfileRequest, GetEntityProfileResponse } from './models/PlayFabEntityDescriptorModels';
 import {
@@ -165,6 +166,44 @@ export class PlayFabExplorer {
             entityToken,
             async (response: ListFunctionsResponse) => {
                 let doc: TextDocument = await workspace.openTextDocument({ language: 'markdown', content: this.getMarkDownForFunctionList(response.Functions) });
+                await window.showTextDocument(doc);
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
+    }
+
+    async listHttpFunctions(title: Title): Promise<void> {
+        let entityToken: string = await this.getEntityToken(title);
+        let request: ListFunctionsRequest = await this.getUserInputForListFunctions();
+        let baseUrl: string = PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id);
+
+        await this._httpClient.makeEntityApiCall(
+            PlayFabUriHelpers.listHttpFunctionsPath,
+            baseUrl,
+            request,
+            entityToken,
+            async (response: ListHttpFunctionsResponse) => {
+                let doc: TextDocument = await workspace.openTextDocument({ language: 'markdown', content: this.getMarkDownForHttpFunctionList(response.Functions) });
+                await window.showTextDocument(doc);
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
+    }
+
+    async listQueuedFunctions(title: Title): Promise<void> {
+        let entityToken: string = await this.getEntityToken(title);
+        let request: ListFunctionsRequest = await this.getUserInputForListFunctions();
+        let baseUrl: string = PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id);
+
+        await this._httpClient.makeEntityApiCall(
+            PlayFabUriHelpers.listQueuedFunctionsPath,
+            baseUrl,
+            request,
+            entityToken,
+            async (response: ListQueuedFunctionsResponse) => {
+                let doc: TextDocument = await workspace.openTextDocument({ language: 'markdown', content: this.getMarkDownForQueuedFunctionList(response.Functions) });
                 await window.showTextDocument(doc);
             },
             (response: ErrorResponse) => {
@@ -349,6 +388,12 @@ export class PlayFabExplorer {
         context.subscriptions.push(commands.registerCommand('playfabExplorer.listFunctions', async (titleNode) => {
             await this.listFunctions(await this.getTitleFromTreeNode(titleNode));
         }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.listHttpFunctions', async (titleNode) => {
+            await this.listHttpFunctions(await this.getTitleFromTreeNode(titleNode));
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.listQueuedFunctions', async (titleNode) => {
+            await this.listQueuedFunctions(await this.getTitleFromTreeNode(titleNode));
+        }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.registerHttpFunction', async (titleNode) => {
             await this.registerHttpFunction(await this.getTitleFromTreeNode(titleNode));
         }));
@@ -388,20 +433,50 @@ export class PlayFabExplorer {
         return entityToken;
     }
 
+    private getListMarkDown(newline: string, header: string, columns: string[]): string {
+
+        let result: string = '# ';
+        result += header;
+        result += newline;
+
+        let columnHeaders: string = '';
+        let columnHeader: string = '---';
+        let initialDelimiter: string = '| ';
+        let intermediateDelimiter: string = ' | ';
+        let finalDelimiter: string = ' |';
+
+        for(var index: number = 0;index < columns.length;++index) {
+            if(index == 0) {
+                result += initialDelimiter;
+                columnHeaders += initialDelimiter;
+            }
+            
+            result += columns[index];
+            columnHeaders += columnHeader;
+
+            if(index == columns.length - 1) {
+                result += finalDelimiter;
+                columnHeaders += finalDelimiter;
+            }
+            else {
+                result += intermediateDelimiter;
+                columnHeaders += intermediateDelimiter;
+            }
+        } 
+
+        result += newline;
+        result += columnHeaders;
+        result += newline;
+
+        return result;
+    }
+
     private getMarkDownForFunctionList(functions: FunctionInfo[]): string {
 
-        let newline: string = process.platform == 'win32' ? '\r\n' : '\n';
-        let result: string = '# ';
-        result += localize('playfab-explorer.functionListHeader', 'List Of Functions');
-        result += newline;
-        result += '| ';
-        result += localize('playfab-explorer.functionListNameColumn', 'Name');
-        result += ' | ';
-        result += localize('playfab-explorer.functionListAddressColumn', 'Address');
-        result += ' |';
-        result += newline;
-        result += "| --- | --- |";
-        result += newline;
+        let newline: string = this.getNewLineForCurrentPlatform();
+        let header: string = localize('playfab-explorer.functionListHeader', 'List Of Functions');
+        let columns: string[] = [localize('playfab-explorer.functionListNameColumn', 'Name'), localize('playfab-explorer.functionListAddressColumn', 'Address')];
+        let result: string = this.getListMarkDown(newline, header, columns);
 
         functions.forEach((fnInfo: FunctionInfo) => {
             result += `| ${fnInfo.FunctionName} | ${fnInfo.FunctionAddress} |`;
@@ -409,6 +484,40 @@ export class PlayFabExplorer {
         });
 
         return result;
+    }
+
+    private getMarkDownForHttpFunctionList(functions: HttpFunctionInfo[]): string {
+
+        let newline: string = this.getNewLineForCurrentPlatform();
+        let header: string = localize('playfab-explorer.functionListHTTPHeader', 'List Of HTTP Functions');
+        let columns: string[] = [localize('playfab-explorer.functionListNameColumn', 'Name'), localize('playfab-explorer.functionListUrlColumn', 'Url')];
+        let result: string = this.getListMarkDown(newline, header, columns);
+        
+        functions.forEach((fnInfo: HttpFunctionInfo) => {
+            result += `| ${fnInfo.FunctionName} | ${fnInfo.FunctionUrl} |`;
+            result += newline;
+        });
+
+        return result;
+    }
+
+    private getMarkDownForQueuedFunctionList(functions: QueuedFunctionInfo[]): string {
+
+        let newline: string = this.getNewLineForCurrentPlatform();
+        let header: string = localize('playfab-explorer.functionListQueuedHeader', 'List Of Queued Functions');
+        let columns: string[] = [localize('playfab-explorer.functionListNameColumn', 'Name'), localize('playfab-explorer.functionListQueueColumn', 'Queue'), localize('playfab-explorer.functionListConnectionStringColumn', 'Connection String')];
+        let result: string = this.getListMarkDown(newline, header, columns);
+
+        functions.forEach((fnInfo: QueuedFunctionInfo) => {
+            result += `| ${fnInfo.FunctionName} | ${fnInfo.QueueName} | ${fnInfo.ConnectionString} |`;
+            result += newline;
+        });
+
+        return result;
+    }
+
+    private getNewLineForCurrentPlatform(): string {
+        return process.platform == 'win32' ? '\r\n' : '\n';
     }
 
     private async getStudioTreeNodeFromUser(): Promise<ITreeNode> {
@@ -424,7 +533,7 @@ export class PlayFabExplorer {
     }
 
     private async getTitleTreeNodeFromUser(studioTreeNode: ITreeNode): Promise<ITreeNode> {
-        return await this.getTreeNodeFromUser(studioTreeNode, localize('playfab-explorer.chooseStudio', 'Please choose a Title'));
+        return await this.getTreeNodeFromUser(studioTreeNode, localize('playfab-explorer.chooseTitle', 'Please choose a Title'));
     }
 
     private async getTreeNodeFromUser(rootTreeNode: ITreeNode, placeHolder: string) {

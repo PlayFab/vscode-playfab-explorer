@@ -116,6 +116,16 @@
                 "category": "%playfab-explorer.commands.playfab%"
             },
             {
+                "command": "playfabExplorer.listHttpFunctions",
+                "title": "%playfab-explorer.commands.listHttpFunctions%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.listQueuedFunctions",
+                "title": "%playfab-explorer.commands.listQueuedFunctions%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
                 "command": "playfabExplorer.registerHttpFunction",
                 "title": "%playfab-explorer.commands.registerHttpFunction%",
                 "category": "%playfab-explorer.commands.playfab%"
@@ -201,39 +211,49 @@
                     "group": "3@1"
                 },
                 {
+                    "command": "playfabExplorer.listHttpFunctions",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "3@2"
+                },
+                {
                     "command": "playfabExplorer.registerHttpFunction",
-                    "when": "view == playfabExplorer && viewItem == title",
-                    "group": "3@2"
-                },
-                {
-                    "command": "playfabExplorer.registerQueuedFunction",
-                    "when": "view == playfabExplorer && viewItem == title",
-                    "group": "3@2"
-                },
-                {
-                    "command": "playfabExplorer.unregisterFunction",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "3@3"
                 },
                 {
-                    "command": "playfabExplorer.enableLocalDebugging",
+                    "command": "playfabExplorer.listQueuedFunctions",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "3@4"
                 },
                 {
-                    "command": "playfabExplorer.disableLocalDebugging",
+                    "command": "playfabExplorer.registerQueuedFunction",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "3@5"
                 },
                 {
-                    "command": "playfabExplorer.getCloudScriptRevision",
+                    "command": "playfabExplorer.unregisterFunction",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "3@6"
+                },
+                {
+                    "command": "playfabExplorer.enableLocalDebugging",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "4@1"
                 },
                 {
-                    "command": "playfabExplorer.updateCloudScript",
+                    "command": "playfabExplorer.disableLocalDebugging",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "4@2"
+                },
+                {
+                    "command": "playfabExplorer.getCloudScriptRevision",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "5@1"
+                },
+                {
+                    "command": "playfabExplorer.updateCloudScript",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "5@2"
                 }
             ]
         },
