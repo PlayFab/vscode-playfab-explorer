@@ -19,7 +19,7 @@
             "preLaunchTask": "npm: webpack"
         },
         {
-            "name": "Run Extension Tests",
+            "name": "Run Tests",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
