@@ -3,19 +3,23 @@
 //  Licensed under the MIT License. See License.md in the project root for license information.
 //---------------------------------------------------------------------------------------------
 
+import { ExtensionInfo } from './extension';
 import { commands, ExtensionContext, window, EventEmitter, workspace } from 'vscode';
 import { loadMessageBundle } from 'vscode-nls';
-import { ExtensionInfo } from './extension';
+
 import { IPlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
+
+// Helper models
 import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper';
 import { waitForOnline } from './helpers/PlayFabNetworkHelpers';
 import { PlayFabUriHelpers } from './helpers/PlayFabUriHelpers';
+
+// Model imports
 import {
     CreateAccountRequest, CreateAccountResponse, LoginRequest, LoginResponse,
     LogoutRequest, LogoutResponse
 } from './models/PlayFabAccountModels';
 import { ErrorResponse } from './models/PlayFabHttpModels';
-
 
 const localize = loadMessageBundle();
 
