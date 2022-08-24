@@ -3,18 +3,27 @@
 //  Licensed under the MIT License. See License.md in the project root for license information.
 //---------------------------------------------------------------------------------------------
 
+import * as fs from "fs";
+import * as path from "path";
 import {
     commands, ExtensionContext, TextDocument, TextEditor,
     TreeView, window, Uri, workspace, WorkspaceConfiguration
 } from 'vscode';
 import { loadMessageBundle } from 'vscode-nls';
+
 import { IPlayFabAccount } from './playfab-account.api';
+import { PlayFabConfig } from './playfab-config';
+import { IPlayFabConfig } from './playfab-config.api';
 import { PlayFabStudioTreeProvider } from './playfab-treeprovider';
 import { ITreeNode } from './playfab-treeprovider.api';
+
+// Helper imports
 import { GetLastPathPartFromUri, MapFromObject, EscapeValue, UnescapeValue } from './helpers/PlayFabDataHelpers';
 import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper';
 import { delay } from './helpers/PlayFabPromiseHelpers';
 import { PlayFabUriHelpers } from './helpers/PlayFabUriHelpers';
+
+// Model imports
 import { GetEntityTokenRequest, GetEntityTokenResponse } from './models/PlayFabAuthenticationModels';
 import {
     FunctionInfo, HttpFunctionInfo, ListFunctionsRequest, ListFunctionsResponse, ListHttpFunctionsResponse,
@@ -22,19 +31,18 @@ import {
     RegisterFunctionResponse, UnregisterFunctionRequest, UnregisterFunctionResponse
 } from './models/PlayFabCloudScriptModels';
 import { GetEntityProfileRequest, GetEntityProfileResponse } from './models/PlayFabEntityDescriptorModels';
+import { EntityKey } from './models/PlayFabEntityModels';
+import { ErrorResponse } from "./models/PlayFabHttpModels";
 import {
     CloudScriptFile, GetCloudScriptRevisionRequest, GetCloudScriptRevisionResponse,
     UpdateCloudScriptRequest, UpdateCloudScriptResponse
 } from './models/PlayFabLegacyCloudScriptModels';
-import { ErrorResponse } from "./models/PlayFabHttpModels";
 import { Studio } from './models/PlayFabStudioModels';
 import {
     Title, CreateTitleRequest, CreateTitleResponse, GetTitleDataRequest, GetTitleDataResponse,
     SetTitleDataRequest, SetTitleDataResponse
 } from './models/PlayFabTitleModels';
-import * as path from "path";
-import * as fs from "fs";
-import { EntityKey } from './models/PlayFabEntityModels';
+
 
 const localize = loadMessageBundle();
 
@@ -57,6 +65,7 @@ export class PlayFabExplorer {
     private _playFabLocalSettingsFilePath: string = path.join(this._tmpdir, this._playFabLocalSettingsFileName);
     private _explorer: TreeView<ITreeNode>;
     private _account: IPlayFabAccount;
+    private _config: IPlayFabConfig;
     private _httpClient: IHttpClient;
     private _inputGatherer: IPlayFabExplorerInputGatherer;
     private _treeDataProvider: PlayFabStudioTreeProvider;
@@ -68,7 +77,8 @@ export class PlayFabExplorer {
         this._account = account;
         this._httpClient = httpClient;
         this._inputGatherer = inputGatherer;
-        let treeDataProvider = new PlayFabStudioTreeProvider(this._account);
+        this._config = new PlayFabConfig();
+        let treeDataProvider = new PlayFabStudioTreeProvider(this._account, this._config);
         this._treeDataProvider = treeDataProvider;
         this._explorer = window.createTreeView('playfabExplorer', { treeDataProvider });
     }
@@ -165,7 +175,8 @@ export class PlayFabExplorer {
             request,
             entityToken,
             async (response: ListFunctionsResponse) => {
-                let doc: TextDocument = await workspace.openTextDocument({ language: 'markdown', content: this.getMarkDownForFunctionList(response.Functions) });
+                let showTitleIds: boolean = this._config.getShowTitleIds();
+                let doc: TextDocument = await workspace.openTextDocument({ language: 'markdown', content: this.getMarkDownForFunctionList(title, response.Functions, showTitleIds) });
                 await window.showTextDocument(doc);
             },
             (response: ErrorResponse) => {
@@ -184,7 +195,8 @@ export class PlayFabExplorer {
             request,
             entityToken,
             async (response: ListHttpFunctionsResponse) => {
-                let doc: TextDocument = await workspace.openTextDocument({ language: 'markdown', content: this.getMarkDownForHttpFunctionList(response.Functions) });
+                let showTitleIds: boolean = this._config.getShowTitleIds();
+                let doc: TextDocument = await workspace.openTextDocument({ language: 'markdown', content: this.getMarkDownForHttpFunctionList(title, response.Functions, showTitleIds) });
                 await window.showTextDocument(doc);
             },
             (response: ErrorResponse) => {
@@ -203,7 +215,8 @@ export class PlayFabExplorer {
             request,
             entityToken,
             async (response: ListQueuedFunctionsResponse) => {
-                let doc: TextDocument = await workspace.openTextDocument({ language: 'markdown', content: this.getMarkDownForQueuedFunctionList(response.Functions) });
+                let showTitleIds: boolean = this._config.getShowTitleIds();
+                let doc: TextDocument = await workspace.openTextDocument({ language: 'markdown', content: this.getMarkDownForQueuedFunctionList(title, response.Functions, showTitleIds) });
                 await window.showTextDocument(doc);
             },
             (response: ErrorResponse) => {
@@ -445,16 +458,16 @@ export class PlayFabExplorer {
         let intermediateDelimiter: string = ' | ';
         let finalDelimiter: string = ' |';
 
-        for(var index: number = 0;index < columns.length;++index) {
-            if(index == 0) {
+        for (var index: number = 0; index < columns.length; ++index) {
+            if (index == 0) {
                 result += initialDelimiter;
                 columnHeaders += initialDelimiter;
             }
-            
+
             result += columns[index];
             columnHeaders += columnHeader;
 
-            if(index == columns.length - 1) {
+            if (index == columns.length - 1) {
                 result += finalDelimiter;
                 columnHeaders += finalDelimiter;
             }
@@ -462,7 +475,7 @@ export class PlayFabExplorer {
                 result += intermediateDelimiter;
                 columnHeaders += intermediateDelimiter;
             }
-        } 
+        }
 
         result += newline;
         result += columnHeaders;
@@ -471,12 +484,18 @@ export class PlayFabExplorer {
         return result;
     }
 
-    private getMarkDownForFunctionList(functions: FunctionInfo[]): string {
+    private getMarkDownForFunctionList(title: Title, functions: FunctionInfo[], showTitleIds: boolean): string {
 
         let newline: string = this.getNewLineForCurrentPlatform();
-        let header: string = localize('playfab-explorer.functionListHeader', 'List Of Functions');
+        let header: string = localize('playfab-explorer.functionListHeader', 'List Of Functions for {0}', title.Name);
+
+        if (showTitleIds) {
+            header = `${header} (${title.Id})`
+        }
+
         let columns: string[] = [localize('playfab-explorer.functionListNameColumn', 'Name'), localize('playfab-explorer.functionListAddressColumn', 'Address')];
         let result: string = this.getListMarkDown(newline, header, columns);
+
 
         functions.forEach((fnInfo: FunctionInfo) => {
             result += `| ${fnInfo.FunctionName} | ${fnInfo.FunctionAddress} |`;
@@ -486,13 +505,18 @@ export class PlayFabExplorer {
         return result;
     }
 
-    private getMarkDownForHttpFunctionList(functions: HttpFunctionInfo[]): string {
+    private getMarkDownForHttpFunctionList(title: Title, functions: HttpFunctionInfo[], showTitleIds: boolean): string {
 
         let newline: string = this.getNewLineForCurrentPlatform();
-        let header: string = localize('playfab-explorer.functionListHTTPHeader', 'List Of HTTP Functions');
+        let header: string = localize('playfab-explorer.functionListHTTPHeader', 'List Of HTTP Functions for {0}', title.Name);
+
+        if (showTitleIds) {
+            header = `${header} (${title.Id})`
+        }
+
         let columns: string[] = [localize('playfab-explorer.functionListNameColumn', 'Name'), localize('playfab-explorer.functionListUrlColumn', 'Url')];
         let result: string = this.getListMarkDown(newline, header, columns);
-        
+
         functions.forEach((fnInfo: HttpFunctionInfo) => {
             result += `| ${fnInfo.FunctionName} | ${fnInfo.FunctionUrl} |`;
             result += newline;
@@ -501,10 +525,15 @@ export class PlayFabExplorer {
         return result;
     }
 
-    private getMarkDownForQueuedFunctionList(functions: QueuedFunctionInfo[]): string {
+    private getMarkDownForQueuedFunctionList(title: Title, functions: QueuedFunctionInfo[], showTitleIds: boolean): string {
 
         let newline: string = this.getNewLineForCurrentPlatform();
-        let header: string = localize('playfab-explorer.functionListQueuedHeader', 'List Of Queued Functions');
+        let header: string = localize('playfab-explorer.functionListQueuedHeader', 'List Of Queued Functions for {0}', title.Name);
+
+        if (showTitleIds) {
+            header = `${header} (${title.Id})`
+        }
+
         let columns: string[] = [localize('playfab-explorer.functionListNameColumn', 'Name'), localize('playfab-explorer.functionListQueueColumn', 'Queue'), localize('playfab-explorer.functionListConnectionStringColumn', 'Connection String')];
         let result: string = this.getListMarkDown(newline, header, columns);
 

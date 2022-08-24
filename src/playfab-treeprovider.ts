@@ -8,10 +8,16 @@ import {
     TreeItemCollapsibleState, window, workspace, WorkspaceConfiguration
 } from 'vscode';
 import { loadMessageBundle } from 'vscode-nls';
+
 import { IPlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
+import { IPlayFabConfig } from './playfab-config.api';
 import { ITreeNode, NodeType, IPlayFabStudioTree } from './playfab-treeprovider.api';
+
+// Helper imports
 import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper';
 import { PlayFabUriHelpers } from './helpers/PlayFabUriHelpers';
+
+// Model imports
 import { ErrorResponse } from "./models/PlayFabHttpModels";
 import { Studio, GetStudiosRequest, GetStudiosResponse } from './models/PlayFabStudioModels';
 import { Title } from './models/PlayFabTitleModels';
@@ -26,17 +32,18 @@ class TreeNode implements ITreeNode {
 
 export class PlayFabStudioTreeProvider implements TreeDataProvider<ITreeNode> {
 
-    private _rootData: Studio[];
+    private _rootData: Studio[] = [];
     private _account: IPlayFabAccount;
+    private _config: IPlayFabConfig;
     private _httpClient: IHttpClient;
 
     private _onDidChangeTreeData: EventEmitter<ITreeNode | undefined> = new EventEmitter<ITreeNode | undefined>();
     readonly onDidChangeTreeData: Event<ITreeNode | undefined> = this._onDidChangeTreeData.event;
 
-    constructor(account: IPlayFabAccount, httpClient: IHttpClient = null) {
+    constructor(account: IPlayFabAccount, config: IPlayFabConfig, httpClient: IHttpClient = null) {
         this._account = account;
+        this._config = config
         this._httpClient = httpClient || new PlayFabHttpClient();
-        this.clearRootData();
         const subscription = this._account.onStatusChanged((status: PlayFabLoginStatus) => {
             this.refreshStudioData();
         });
@@ -147,11 +154,6 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<ITreeNode> {
         return this._account.status === 'LoggedIn';
     }
 
-    private getConfigValue(name: string): boolean {
-        const playfabConfig: WorkspaceConfiguration = workspace.getConfiguration('playfab');
-        return playfabConfig.get<boolean>(name);
-    }
-
     private async updateStudioData(): Promise<void> {
 
         // Ensure developer has signed in to PlayFab
@@ -170,7 +172,7 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<ITreeNode> {
             (response: GetStudiosResponse) => {
                 this._rootData = response.Studios;
 
-                if (this.getConfigValue('sortStudiosAlphabetically')) {
+                if (this._config.getSortStudiosAlphabetically()) {
                     this._rootData = response.Studios.sort(PlayFabStudioTreeProvider.sortStudiosByName);
                 }
             },
@@ -184,11 +186,11 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<ITreeNode> {
         let studio: Studio = <Studio>entry.data;
         let titles: Title[] = studio.Titles;
 
-        if (this.getConfigValue('sortTitlesAlphabetically')) {
+        if (this._config.getSortTitlesAlphabetically()) {
             titles = studio.Titles.sort(PlayFabStudioTreeProvider.sortTitlesByName);
         }
 
-        let showTitleIds: boolean = this.getConfigValue('showTitleIds');
+        let showTitleIds: boolean = this._config.getShowTitleIds();
 
         return titles.map((title: Title) => {
             let result = new TreeNode();
