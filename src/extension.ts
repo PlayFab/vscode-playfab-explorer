@@ -14,7 +14,7 @@ const localize = loadMessageBundle();
 
 export class ExtensionInfo {
     private static extensionName: string = 'vscode-playfab-explorer';
-    private static extensionVersion: string = '0.1.16';
+    private static extensionVersion: string = '0.1.17';
 
     public static getExtensionInfo(): string { return ExtensionInfo.extensionName + '_' + ExtensionInfo.extensionVersion };
     public static getExtensionName(): string { return ExtensionInfo.extensionName; }
