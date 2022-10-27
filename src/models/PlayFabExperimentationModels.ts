@@ -21,7 +21,7 @@ export class Experiment {
     Id: string;
     Description: string;
     StartDate: string; // DateTime
-    Duration: number; // uint in days
+    EndDate: string; // DateTime
     SegmentId: string // Id of the segment
     Variants: Variant[];
     ExperimentType: ExperimentType;
@@ -81,32 +81,33 @@ export class TreatmentAssignment {
 }
 
 export class Variable {
-    Name: string;
-    Value: string;
+    Name: string; // Required, max length 128
+    Value: string; // max length 2000
 }
 
 export class Variant {
-    Name: string; // max length 128
+    Name: string; // Required, max length 128
     Description: string; // max length 255
-    TrafficPercentage: number; // int 1-100
+    TrafficPercentage: number; // Required, int 1-100
     Variables: Variable[]; // max of 10 
     TitleDataOverrideLabel: string;
     Id: string;
-    IsControl: boolean;
+    IsControl: boolean; // Required
 }
 
 
 // Request/response types
 export class CreateExperimentRequest extends ApiContextRequest {
-    Name: string;
-    Id: string;
-    Description: string;
+    Name: string; // Required, max length 128
+    Description: string; // Max length 255
     StartDate: string; // DateTime
-    Duration: number; // uint in days, 1-21
-    SegmentId: string // Id of the segment
-    Variants: Variant[];
+    EndDate: string; // DateTime, nullable
+    SegmentId: string; // Id of the segment
+    Variants: Variant[]; // Required, max of 10
     ExperimentType: ExperimentType;
     TitlePlayerAccountTestIds: string[]; // max of 64
+    ExclusionGroupId: string;
+    ExclusionGroupTrafficAllocation: number; // uint, nullable 
 }
 
 export class CreateExperimentResponse {
@@ -115,6 +116,9 @@ export class CreateExperimentResponse {
 
 export class DeleteExperimentRequest extends ApiContextRequest {
     ExperimentId: string;
+}
+
+export class DeleteExperimentResponse {
 }
 
 export class GetExperimentsRequest extends ApiContextRequest {    
