@@ -19,15 +19,17 @@ export class PlayFabUriHelpers {
     public static cloud: string;
 
     // Admin
-    public static getCloudScriptRevisionPath: string = '/Admin/GetCloudScriptRevision';
     public static getTitleDataPath: string = '/Admin/GetTitleData';
     public static getTitleInternalDataPath: string = '/Admin/GetTitleInternalData';
     public static setTitleDataPath: string = '/Admin/SetTitleData';
     public static setTitleInternalDataPath: string = '/Admin/SetTitleInternalData';
-    public static updateCloudScriptPath: string = '/Admin/UpdateCloudScript';
     
     // Authentication
     public static getEntityTokenPath: string = '/Authentication/GetEntityToken';
+
+    // Classic CloudScript
+    public static getCloudScriptRevisionPath: string = '/Admin/GetCloudScriptRevision';
+    public static updateCloudScriptPath: string = '/Admin/UpdateCloudScript';
 
     // CloudScript
     public static listFunctionsPath: string = '/CloudScript/ListFunctions';
@@ -36,14 +38,14 @@ export class PlayFabUriHelpers {
     public static registerHttpFunctionPath: string = '/CloudScript/RegisterHttpFunction';
     public static registerQueuedFunctionPath: string = '/CloudScript/RegisterQueuedFunction';
     public static unregisterFunctionPath: string = '/CloudScript/UnregisterFunction';
-    
+
     // DeveloperTools
-    public static createTitlePath: string = '/DeveloperTools/User/CreateTitle';    
+    public static createTitlePath: string = '/DeveloperTools/User/CreateTitle';
     public static getStudiosPath: string = '/DeveloperTools/User/GetStudios';
     public static loginPath: string = '/DeveloperTools/User/Login';
     public static logoutPath: string = '/DeveloperTools/User/Logout';
-    public static createAccountPath: string = '/DeveloperTools/User/RegisterAccount';    
-    
+    public static createAccountPath: string = '/DeveloperTools/User/RegisterAccount';
+
     // Experimentation
     public static createExperimentPath: string = '/Experimentation/CreateExperiment';
     public static deleteExperimentPath: string = '/Experimentation/DeleteExperiment';
@@ -53,7 +55,7 @@ export class PlayFabUriHelpers {
     public static startExperimentPath: string = '/Experimentation/StartExperiment';
     public static stopExperimentPath: string = '/Experimentation/StopExperiment';
     public static updateExperimentPath: string = '/Experimentation/UpdateExperiment';
-    
+
     // Profile    
     public static getProfilePath: string = '/Profile/GetProfile';
 
