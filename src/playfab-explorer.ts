@@ -36,10 +36,11 @@ import {
 } from './models/PlayFabCloudScriptModels';
 import { EntityKey } from './models/PlayFabEntityModels';
 import {
+    AnalysisTaskState,
     CreateExperimentRequest, CreateExperimentResponse, DeleteExperimentRequest, DeleteExperimentResponse, Experiment,
     GetExperimentsRequest, GetExperimentsResponse, GetLatestScoreCardRequest, GetLatestScoreCardResponse,
-    GetTreatmentAssignmentRequest, GetTreatmentAssignmentResponse, StartExperimentRequest, StopExperimentRequest,
-    UpdateExperimentRequest, Variable, Variant
+    GetTreatmentAssignmentRequest, GetTreatmentAssignmentResponse, Scorecard, StartExperimentRequest, StopExperimentRequest,
+    TreatmentAssignment, UpdateExperimentRequest, Variable, Variant
 } from './models/PlayFabExperimentationModels'
 import { ErrorResponse } from "./models/PlayFabHttpModels";
 import { GetEntityProfileRequest, GetEntityProfileResponse } from './models/PlayFabProfileModels';
@@ -164,7 +165,7 @@ export class PlayFabExplorer {
                 await window.showTextDocument(doc);
 
                 // TODO: Show experiments as part of the tree view, rather than in a markdown document?
-                // THen have Create on the 'Experiments' node, and delete/update/state/stop etc. on the individual experiments
+                // Then have Create on the 'Experiments' node, and delete/update/start/stop etc. on the individual experiments
             },
             (response: ErrorResponse) => {
                 this.showError(response);
@@ -180,8 +181,10 @@ export class PlayFabExplorer {
             PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id),
             request,
             entityToken,
-            (response: GetLatestScoreCardResponse) => {
-                // TODO
+            async (response: GetLatestScoreCardResponse) => {
+                let showTitleIds: boolean = this._config.getShowTitleIds();
+                let doc: TextDocument = await workspace.openTextDocument({ language: 'markdown', content: this.getMarkDownForScoreCard(title, response.Scorecard, showTitleIds) });
+                await window.showTextDocument(doc);
             },
             (response: ErrorResponse) => {
                 this.showError(response);
@@ -197,8 +200,10 @@ export class PlayFabExplorer {
             PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id),
             request,
             entityToken,
-            (response: GetTreatmentAssignmentResponse) => {
-                // TODO
+            async (response: GetTreatmentAssignmentResponse) => {
+                let showTitleIds: boolean = this._config.getShowTitleIds();
+                let doc: TextDocument = await workspace.openTextDocument({ language: 'markdown', content: this.getMarkDownForTreatmentAssignment(request.PlayFabId, title, response.TreatmentAssignment, showTitleIds) });
+                await window.showTextDocument(doc);
             },
             (response: ErrorResponse) => {
                 this.showError(response);
@@ -215,7 +220,7 @@ export class PlayFabExplorer {
             request,
             entityToken,
             () => {
-                // TODO
+                window.showInformationMessage(`Experiment ${request.ExperimentId} started for title ${title.Name}`)
             },
             (response: ErrorResponse) => {
                 this.showError(response);
@@ -232,7 +237,7 @@ export class PlayFabExplorer {
             request,
             entityToken,
             () => {
-                // TODO
+                window.showInformationMessage(`Experiment ${request.ExperimentId} stopped for title ${title.Name}`)
             },
             (response: ErrorResponse) => {
                 this.showError(response);
@@ -249,7 +254,7 @@ export class PlayFabExplorer {
             request,
             entityToken,
             () => {
-                // TODO
+                window.showInformationMessage(`Experiment ${request.Id} updated for title ${title.Name}`)
             },
             (response: ErrorResponse) => {
                 this.showError(response);
@@ -625,6 +630,20 @@ export class PlayFabExplorer {
         return entityToken;
     }
 
+    private getBulletListMarkDown(newline: string, names: string[], values: string[]): string {
+
+        let result: string = '';
+
+        // TODO: Throw if names and values are not the same length
+    
+        for(var i=0;i<names.length;i++) {
+            result += `- ${names[i]}: ${values[i]}`;
+            result += newline;
+        }
+
+        return result;
+    }
+
     private getListMarkDown(newline: string, header: string, columns: string[]): string {
 
         let result: string = '# ';
@@ -749,6 +768,77 @@ export class PlayFabExplorer {
             result += newline;
         });
 
+        return result;
+    }
+
+    private getMarkDownForScoreCard(title: Title, scorecard: Scorecard, showTitleIds: boolean): string {
+        let newline: string = this.getNewLineForCurrentPlatform();
+        let header: string = localize('playfab-explorer.scorecardHeader', 'Scorecard for Experiment {0} for title {1}', scorecard.ExperimentId, title.Name);
+
+        if (showTitleIds) {
+            header = `${header} (${title.Id})`
+        }
+
+        let columns: string[] = [];
+        let result: string = this.getListMarkDown(newline, header, columns);
+        result += newline;
+
+        let names: string[] = [
+            localize("playfab-explorer.scorecardName", "Name"),
+            localize("playfab-explorer.scorecardDateGenerated", "Date Generated"),
+            localize("playfab-explorer.scorecardDuration", "Duration"),
+            localize("playfab-explorer.scorecardStatus", "Latest Status"),
+            localize("playfab-explorer.scorecardEventsProcessed", "Events Processed"),
+        ];
+
+        let values: string[] = [
+            scorecard.ExperimentName,
+            scorecard.DateGenerated,
+            scorecard.Duration,
+            scorecard.SampleRatioMismatch ? 'true' : 'false',
+            AnalysisTaskState[scorecard.LatestJobStatus],
+            scorecard.EventsProcessed.toString(),
+        ]
+
+        result += this.getBulletListMarkDown(newline, names, values);
+
+        // TODO: Generate markdown for ScorecardDataRows
+        
+        return result;
+    }
+
+    private getMarkDownForTreatmentAssignment(playfabId: string, title: Title, treatmentAssignment: TreatmentAssignment, showTitleIds: boolean): string {
+        let newline: string = this.getNewLineForCurrentPlatform();
+        let header: string = localize('playfab-explorer.treatmentAssignmentHeader', 'Treatment Assignment for Playfab Id {0} for title {1}', playfabId, title.Name);
+
+        if (showTitleIds) {
+            header = `${header} (${title.Id})`
+        }
+
+        let columns: string[] = [];
+        let result: string = this.getListMarkDown(newline, header, columns);
+        result += newline;
+        result += '## ';
+        let variantsHeader: string = localize('playfab-explorer.variantsHeaders', 'Variants');
+        result += variantsHeader;
+        treatmentAssignment.Variants.forEach(variant => {
+            result += '- ';
+            result += variant;
+            result += newline
+        });
+
+        result += newline;
+        result += '## '
+        let variablesHeader: string = localize('playfab-explorer.variablesHeader', 'Variables');
+        result += variablesHeader;
+
+        treatmentAssignment.Variables.forEach(variable => {
+            result += '- ';
+            result += variable.Name;
+            result += ' = ';
+            result += variable.Value;
+            result += newline
+        });
         return result;
     }
 
@@ -920,6 +1010,7 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
 
     public async getUserInputForCreateExperiment(): Promise<CreateExperimentRequest> {
         const millisecondsPerDay: number = 1000 * 60 * 60 * 24;
+
         const experimentNameValue: string = localize('playfab-explorer.experimentNameValue', 'Experiment Name');
         const experimentNamePrompt: string = localize('playfab-explorer.experimentNamePrompt', 'Please enter the name of your experiment');
 
@@ -979,9 +1070,10 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
     }
 
     public async getUserInputForDeleteExperiment(): Promise<DeleteExperimentRequest> {
-        // TODO: Get user input
+        let experimentId: string = await this.getUserInputForExperimentId();
 
         let request = new DeleteExperimentRequest();
+        request.ExperimentId = experimentId;
 
         return request;
     }
@@ -1030,15 +1122,22 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
     }
 
     public async getUserInputForGetLatestScoreCard(): Promise<GetLatestScoreCardRequest> {
-        // TODO: Get user input
+        let experimentId: string = await this.getUserInputForExperimentId();
 
         let request = new GetLatestScoreCardRequest();
+        request.ExperimentId = experimentId;
 
         return request;
     }
 
     public async getUserInputForGetTreatmentAssignment(): Promise<GetTreatmentAssignmentRequest> {
-        // TODO: Get user input
+        const playfabIdValue: string = localize('playfab-explorer.playfabIdValue', 'PlayFab Id');
+        const playfabIdPrompt: string = localize('playfab-explorer.playfabIdPrompt', 'Please enter the PlayFab Id of the player whose treatment assignment you want to retrieve.');
+
+        const playfabId = await window.showInputBox({
+            value: playfabIdValue,
+            prompt: playfabIdPrompt
+        });
 
         let request = new GetTreatmentAssignmentRequest();
 
@@ -1149,25 +1248,40 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
     }
 
     public async getUserInputForStartExperiment(): Promise<StartExperimentRequest> {
-        // TODO: Get user input
+        let experimentId: string = await this.getUserInputForExperimentId();
 
         let request = new StartExperimentRequest();
+        request.ExperimentId = experimentId;
 
         return request;
     }
 
     public async getUserInputForStopExperiment(): Promise<StopExperimentRequest> {
-        // TODO: Get user input
+        let experimentId: string = await this.getUserInputForExperimentId();
 
         let request = new StopExperimentRequest();
-
+        request.ExperimentId = experimentId;
+        
         return request;
     }
 
     public async getUserInputForUpdateExperiment(): Promise<UpdateExperimentRequest> {
-        // TODO: Get user input
+        let experimentId: string = await this.getUserInputForExperimentId();
+
+        let createRequest: CreateExperimentRequest = await this.getUserInputForCreateExperiment();
 
         let request = new UpdateExperimentRequest();
+        request.Id = experimentId;
+        request.Name = createRequest.Name;
+        request.Description = createRequest.Description;
+        request.StartDate = createRequest.StartDate;
+        request.EndDate = createRequest.EndDate;
+        request.ExclusionGroupId = createRequest.ExclusionGroupId;
+        request.ExclusionGroupTrafficAllocation = createRequest.ExclusionGroupTrafficAllocation;
+        request.ExperimentType = createRequest.ExperimentType;
+        request.Variants = createRequest.Variants
+        request.TitlePlayerAccountTestIds = createRequest.TitlePlayerAccountTestIds
+        request.SegmentId = createRequest.SegmentId
 
         return request;
     }
@@ -1188,6 +1302,18 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
         return request;
     }
 
+    private async getUserInputForExperimentId(): Promise<string> {
+        const experimentIdValue: string = localize('playfab-explorer.experimentIdValue', 'Experiment Id');
+        const experimentIdPrompt: string = localize('playfab-explorer.experimentIdPrompt', 'Please enter the experiment id.');
+
+        const experimentId: string = await window.showInputBox({
+            value: experimentIdValue,
+            prompt: experimentIdPrompt
+        });
+
+        return experimentId;
+    }
+
     private async getUserInputForVariant(): Promise<Variant> {
         const variantNameValue: string = localize('playfab-explorer.variantNameValue', 'Variant1');
         const variantNamePrompt: string = localize('playfab-explorer.variantNamePrompt', 'Please enter the variant name');
@@ -1197,8 +1323,8 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
             prompt: variantNamePrompt
         });
 
-        const variantDescriptionValue: string = localize('playfab-explorer.variantDescriptionValue', '');
-        const variantDescriptionPrompt: string = localize('playfab-explorer.variantDescriptionPrompt', 'Please enter the variant description');
+        const variantDescriptionValue: string = localize('playfab-explorer.variantDescriptionValue', 'Variant Description');
+        const variantDescriptionPrompt: string = localize('playfab-explorer.variantDescriptionPrompt', 'Please enter the variant description.');
 
         const variantDescription = await window.showInputBox({
             value: variantDescriptionValue,
@@ -1206,7 +1332,7 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
         });
 
         const variantTrafficPercentageValue: string = localize('playfab-explorer.variantTrafficPercentageValue', '50');
-        const variantTrafficPercentagePrompt: string = localize('playfab-explorer.variantDescriptionPrompt', 'Please enter the variant percentage');
+        const variantTrafficPercentagePrompt: string = localize('playfab-explorer.variantTrafficPercentagePrompt', 'Please enter the variant traffic percentage.');
 
         const variantTrafficPercentageStr = await window.showInputBox({
             value: variantTrafficPercentageValue,
@@ -1215,19 +1341,17 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
 
         const variantTrafficPercentage: number = Math.max(1, Math.min(100, parseInt(variantTrafficPercentageStr)));
 
-        const variantIsControlValue: string = localize('playfab-explorer.variantIsControlValue', 'false');
-        const variantIsControlPrompt: string = localize('playfab-explorer.variantIsControlPrompt', 'Please choose whether the variant is a control variant');
+        const variantIsControlPrompt: string = localize('playfab-explorer.variantIsControlPrompt', 'Please choose whether the variant is a control variant.');
 
-        const variantIsControlStr = await window.showInputBox({
-            value: variantIsControlValue,
-            prompt: variantIsControlPrompt
-        });
+        const variantIsControlStr: string = await window.showQuickPick(
+            ["true", "false"],
+            { placeHolder: variantIsControlPrompt });
 
         const variantIsControl: boolean = variantIsControlStr === 'true'
 
         // Get number of variables
         const variantVariableCountValue: string = localize('playfab-explorer.variantVariableCountValue', '1');
-        const variantVariableCountPrompt: string = localize('playfab-explorer.variantVariableCountPrompt', 'Please enter the number of variables for the variant, between 1 and 10');
+        const variantVariableCountPrompt: string = localize('playfab-explorer.variantVariableCountPrompt', 'Please enter the number of variables for the variant, between 1 and 10.');
 
         const variantVariableCountStr = await window.showInputBox({
             value: variantVariableCountValue,
@@ -1254,15 +1378,12 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
             Variables: variables
         };
 
-        // For each variable
-        // Get variable name
-        // Get variable value   
         return variant;
     }
 
     async getUserInputForVariable() : Promise<Variable> {
         const variableNameValue: string = localize('playfab-explorer.variableNameValue', 'Variable1');
-        const variableNamePrompt: string = localize('playfab-explorer.variableNamePrompt', 'Please enter the variable name');
+        const variableNamePrompt: string = localize('playfab-explorer.variableNamePrompt', 'Please enter the variable name.');
 
         const variableName = await window.showInputBox({
             value: variableNameValue,
@@ -1270,7 +1391,7 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
         });
 
         const variableValueValue: string = localize('playfab-explorer.variableValueValue', '');
-        const variableValuePrompt: string = localize('playfab-explorer.variableValuePrompt', 'Please enter the variable value');
+        const variableValuePrompt: string = localize('playfab-explorer.variableValuePrompt', 'Please enter the variable value.');
 
         const variableValue = await window.showInputBox({
             value: variableValueValue,

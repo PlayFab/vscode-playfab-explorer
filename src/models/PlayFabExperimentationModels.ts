@@ -152,14 +152,6 @@ export class StopExperimentRequest extends ApiContextRequest {
     ExperimentId: string;
 }
 
-export class UpdateExperimentRequest extends ApiContextRequest {
-    Name: string; // max 128
-    Id: string;
-    Description: string; // max 255
-    StartDate: string; // DateTime
-    Duration: number; // uint in days, 1-21
-    SegmentId: string // Id of the segment
-    Variants: Variant[];
-    ExperimentType: ExperimentType;
-    TitlePlayerAccountTestIds: string[];
+export class UpdateExperimentRequest extends CreateExperimentRequest {
+    Id: string; // Required
 }
