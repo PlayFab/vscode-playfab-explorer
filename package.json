@@ -322,7 +322,7 @@
         "underscore": "^1.13.1",
         "vscode-test": "^1.4.0",
         "webpack": "^5.39.1",
-        "webpack-cli": "^3.3.10"
+        "webpack-cli": "^3.3.12"
     },
     "dependencies": {
         "typed-rest-client": "^1.8.4",
