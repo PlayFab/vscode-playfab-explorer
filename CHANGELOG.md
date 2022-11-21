@@ -1,3 +1,7 @@
+## 0.1.19 (2022-10-26)
+* __Improvement__: Add CHANGELOG
+* __Security__: [Address security vulnerabilities](https://github.com/PlayFab/vscode-playfab-explorer/pull/90)
+
 ## 0.1.18 (2022-10-26)
 * __Improvement__: Fix package size
 
