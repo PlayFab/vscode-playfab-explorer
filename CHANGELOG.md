@@ -1,3 +1,7 @@
+## 0.1.20 (2022-12-06)
+* __Security__: [Bump qs from 6.10.1 to 6.11.0](https://github.com/PlayFab/vscode-playfab-explorer/pull/93)
+* __Security__: [Bump decode-uri-component from 0.2.0 to 0.2.2](https://github.com/PlayFab/vscode-playfab-explorer/pull/92)
+
 ## 0.1.19 (2022-10-26)
 * __Improvement__: Add CHANGELOG
 * __Security__: [Address security vulnerabilities](https://github.com/PlayFab/vscode-playfab-explorer/pull/90)
