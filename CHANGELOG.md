@@ -3,7 +3,7 @@
 * __Security__: [Bump decode-uri-component from 0.2.0 to 0.2.2](https://github.com/PlayFab/vscode-playfab-explorer/pull/92)
 
 ## 0.1.19 (2022-10-26)
-* __Improvement__: Add CHANGELOG
+* __Improvement__: [Add CHANGELOG](https://github.com/PlayFab/vscode-playfab-explorer/pull/88)
 * __Security__: [Address security vulnerabilities](https://github.com/PlayFab/vscode-playfab-explorer/pull/90)
 
 ## 0.1.18 (2022-10-26)
