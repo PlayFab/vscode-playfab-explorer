@@ -26,9 +26,12 @@ import { PlayFabUriHelpers } from './helpers/PlayFabUriHelpers';
 // Model imports
 import { GetEntityTokenRequest, GetEntityTokenResponse } from './models/PlayFabAuthenticationModels';
 import {
-    FunctionInfo, HttpFunctionInfo, ListFunctionsRequest, ListFunctionsResponse, ListHttpFunctionsResponse,
-    ListQueuedFunctionsResponse, QueuedFunctionInfo, RegisterHttpFunctionRequest, RegisterQueuedFunctionRequest,
-    RegisterFunctionResponse, UnregisterFunctionRequest, UnregisterFunctionResponse
+    EventHubFunctionInfo, FunctionInfo, HttpFunctionInfo, 
+    ListEventHubFunctionsResponse, ListFunctionsRequest, ListFunctionsResponse, 
+    ListHttpFunctionsResponse, ListQueuedFunctionsResponse, QueuedFunctionInfo, 
+    RegisterEventHubFunctionRequest, RegisterHttpFunctionRequest, 
+    RegisterQueuedFunctionRequest, RegisterFunctionResponse, 
+    UnregisterFunctionRequest, UnregisterFunctionResponse
 } from './models/PlayFabCloudScriptModels';
 import { GetEntityProfileRequest, GetEntityProfileResponse } from './models/PlayFabEntityDescriptorModels';
 import { EntityKey } from './models/PlayFabEntityModels';
@@ -52,8 +55,9 @@ export interface IPlayFabExplorerInputGatherer {
     getUserInputForGetEntityProfile(): Promise<GetEntityProfileRequest>;
     getUserInputForGetTitleData(): Promise<GetTitleDataRequest>;
     getUserInputForListFunctions(): Promise<ListFunctionsRequest>;
+    getUserInputForRegisterEventHubFunction(): Promise<RegisterEventHubFunctionRequest>;
     getUserInputForRegisterHttpFunction(): Promise<RegisterHttpFunctionRequest>;
-    getUserInputForRegisterQueuedFunction(): Promise<RegisterQueuedFunctionRequest>;
+    getUserInputForRegisterQueuedFunction(): Promise<RegisterQueuedFunctionRequest>;    
     getUserInputForUnregisterFunction(): Promise<UnregisterFunctionRequest>;
     getUserInputForSetTitleData(): Promise<SetTitleDataRequest>;
 }
@@ -730,6 +734,40 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
 
     public async getUserInputForListFunctions(): Promise<ListFunctionsRequest> {
         let request: ListFunctionsRequest = {
+        };
+
+        return request;
+    }
+
+    public async getUserInputForRegisterEventHubFunction(): Promise<RegisterEventHubFunctionRequest> {
+        const eventHubNameValue: string = localize('playfab-explorer.eventHubNameValue', 'Event Hub Name');
+        const eventHubNamePrompt: string = localize('playfab-explorer.eventHubNamePrompt', 'Please enter the Event Hub Name for the function.');
+
+        const eventHubName = await window.showInputBox({
+            value: eventHubNameValue,
+            prompt: eventHubNamePrompt
+        });
+
+        const connectionStringValue: string = localize('playfab-explorer.connectionStringValue', 'Connection String');
+        const connectionStringPrompt: string = localize('playfab-explorer.connectionStringPrompt', 'Please enter the Connection String for the event hub.');
+
+        const connectionString = await window.showInputBox({
+            value: connectionStringValue,
+            prompt: connectionStringPrompt
+        });
+
+        const functionNameValue: string = localize('playfab-explorer.functionNameValue', 'Function Name');
+        const functionNamePrompt: string = localize('playfab-explorer.functionNamePrompt', 'Please enter the function name');
+
+        const functionName = await window.showInputBox({
+            value: functionNameValue,
+            prompt: functionNamePrompt
+        });
+
+        let request: RegisterEventHubFunctionRequest = {
+            FunctionName: functionName,
+            EventHubName: eventHubName,
+            ConnectionString: connectionString
         };
 
         return request;

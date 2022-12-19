@@ -19,6 +19,12 @@ export class QueuedFunctionInfo {
     ConnectionString: string;
 }
 
+export class EventHubFunctionInfo {
+    FunctionName: string;
+    EventHubName: string;
+    ConnectionString: string;
+}
+
 export class ListFunctionsRequest {
 }
 
@@ -34,6 +40,10 @@ export class ListQueuedFunctionsResponse {
     Functions: QueuedFunctionInfo[];
 }
 
+export class ListEventHubFunctionsResponse {
+    Functions: EventHubFunctionInfo[];
+}
+
 export class RegisterHttpFunctionRequest {
     FunctionName: string;
     FunctionUrl: string;
@@ -42,6 +52,12 @@ export class RegisterHttpFunctionRequest {
 export class RegisterQueuedFunctionRequest {
     FunctionName: string;
     QueueName: string;
+    ConnectionString: string;
+}
+
+export class RegisterEventHubFunctionRequest {
+    FunctionName: string;
+    EventHubName: string;
     ConnectionString: string;
 }
 
