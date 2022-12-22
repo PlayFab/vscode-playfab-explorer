@@ -208,6 +208,26 @@ export class PlayFabExplorer {
             });
     }
 
+    async listEventHubFunctions(title: Title): Promise<void> {
+        let entityToken: string = await this.getEntityToken(title);
+        let request: ListFunctionsRequest = await this.getUserInputForListFunctions();
+        let baseUrl: string = PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id);
+
+        await this._httpClient.makeEntityApiCall(
+            PlayFabUriHelpers.listEventHubFunctionsPath,
+            baseUrl,
+            request,
+            entityToken,
+            async (response: ListEventHubFunctionsResponse) => {
+                let showTitleIds: boolean = this._config.getShowTitleIds();
+                let doc: TextDocument = await workspace.openTextDocument({ language: 'markdown', content: this.getMarkDownForEventHubFunctionList(title, response.Functions, showTitleIds) });
+                await window.showTextDocument(doc);
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
+    }
+
     async listQueuedFunctions(title: Title): Promise<void> {
         let entityToken: string = await this.getEntityToken(title);
         let request: ListFunctionsRequest = await this.getUserInputForListFunctions();
@@ -240,6 +260,24 @@ export class PlayFabExplorer {
             entityToken,
             async (response: RegisterFunctionResponse) => {
                 await window.showInformationMessage(localize('playfab-explorer.registeredFunctionMessage', 'Registered function {0} at {1}', request.FunctionName, request.FunctionUrl));
+            },
+            (response: ErrorResponse) => {
+                this.showError(response);
+            });
+    }
+
+    async registerEventHubFunction(title: Title): Promise<void> {
+        let entityToken: string = await this.getEntityToken(title);
+        let request: RegisterEventHubFunctionRequest = await this.getUserInputForRegisterEventHubFunction();
+        let baseUrl: string = PlayFabUriHelpers.GetPlayFabBaseUrl(title.Id);
+
+        await this._httpClient.makeEntityApiCall(
+            PlayFabUriHelpers.registerEventHubFunctionPath,
+            baseUrl,
+            request,
+            entityToken,
+            async (response: RegisterFunctionResponse) => {
+                await window.showInformationMessage(localize('playfab-explorer.registeredFunctionMessage', 'Registered function {0} at {1}', request.FunctionName, request.EventHubName));
             },
             (response: ErrorResponse) => {
                 this.showError(response);
@@ -402,6 +440,9 @@ export class PlayFabExplorer {
         context.subscriptions.push(commands.registerCommand('playfabExplorer.updateCloudScript', async (titleNode) => {
             await this.updateCloudScript(await this.getTitleFromTreeNode(titleNode));
         }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.listEventHubFunctions', async (titleNode) => {
+            await this.listEventHubFunctions(await this.getTitleFromTreeNode(titleNode));
+        }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.listFunctions', async (titleNode) => {
             await this.listFunctions(await this.getTitleFromTreeNode(titleNode));
         }));
@@ -410,6 +451,9 @@ export class PlayFabExplorer {
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.listQueuedFunctions', async (titleNode) => {
             await this.listQueuedFunctions(await this.getTitleFromTreeNode(titleNode));
+        }));
+        context.subscriptions.push(commands.registerCommand('playfabExplorer.registerEventHubFunction', async (titleNode) => {
+            await this.registerEventHubFunction(await this.getTitleFromTreeNode(titleNode));
         }));
         context.subscriptions.push(commands.registerCommand('playfabExplorer.registerHttpFunction', async (titleNode) => {
             await this.registerHttpFunction(await this.getTitleFromTreeNode(titleNode));
@@ -529,6 +573,27 @@ export class PlayFabExplorer {
         return result;
     }
 
+
+    private getMarkDownForEventHubFunctionList(title: Title, functions: EventHubFunctionInfo[], showTitleIds: boolean): string {
+
+        let newline: string = this.getNewLineForCurrentPlatform();
+        let header: string = localize('playfab-explorer.functionListEventHubHeader', 'List Of Event Hub Functions for {0}', title.Name);
+
+        if (showTitleIds) {
+            header = `${header} (${title.Id})`
+        }
+
+        let columns: string[] = [localize('playfab-explorer.functionListNameColumn', 'Name'), localize('playfab-explorer.functionListEventHubColumn', 'Event Hub'), localize('playfab-explorer.functionListConnectionStringColumn', 'Connection String')];
+        let result: string = this.getListMarkDown(newline, header, columns);
+
+        functions.forEach((fnInfo: EventHubFunctionInfo) => {
+            result += `| ${fnInfo.FunctionName} | ${fnInfo.EventHubName} | ${fnInfo.ConnectionString} |`;
+            result += newline;
+        });
+
+        return result;
+    }
+
     private getMarkDownForQueuedFunctionList(title: Title, functions: QueuedFunctionInfo[], showTitleIds: boolean): string {
 
         let newline: string = this.getNewLineForCurrentPlatform();
@@ -598,6 +663,10 @@ export class PlayFabExplorer {
 
     private async getUserInputForRegisterHttpFunction(): Promise<RegisterHttpFunctionRequest> {
         return await this._inputGatherer.getUserInputForRegisterHttpFunction();
+    }
+
+    private async getUserInputForRegisterEventHubFunction(): Promise<RegisterEventHubFunctionRequest> {
+        return await this._inputGatherer.getUserInputForRegisterEventHubFunction();
     }
 
     private async getUserInputForRegisterQueuedFunction(): Promise<RegisterQueuedFunctionRequest> {
@@ -741,7 +810,7 @@ class PlayFabExplorerUserInputGatherer implements IPlayFabExplorerInputGatherer 
 
     public async getUserInputForRegisterEventHubFunction(): Promise<RegisterEventHubFunctionRequest> {
         const eventHubNameValue: string = localize('playfab-explorer.eventHubNameValue', 'Event Hub Name');
-        const eventHubNamePrompt: string = localize('playfab-explorer.eventHubNamePrompt', 'Please enter the Event Hub Name for the function.');
+        const eventHubNamePrompt: string = localize('playfab-explorer.eventHubNamePrompt', 'Please enter the Event Hub name for the function.');
 
         const eventHubName = await window.showInputBox({
             value: eventHubNameValue,

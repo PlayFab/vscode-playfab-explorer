@@ -23,9 +23,11 @@ export class PlayFabUriHelpers {
     public static setTitleDataPath: string = '/Admin/SetTitleData';
     public static getTitleInternalDataPath: string = '/Admin/GetTitleInternalData';
     public static setTitleInternalDataPath: string = '/Admin/SetTitleInternalData';
+    public static listEventHubFunctionsPath: string = '/CloudScript/ListEventHubFunctions';
     public static listFunctionsPath: string = '/CloudScript/ListFunctions';
     public static listHttpFunctionsPath: string = '/CloudScript/ListHttpFunctions';
     public static listQueuedFunctionsPath: string = '/CloudScript/ListQueuedFunctions';
+    public static registerEventHubFunctionPath: string = '/CloudScript/RegisterEventHubFunction';
     public static registerHttpFunctionPath: string = '/CloudScript/RegisterHttpFunction';
     public static registerQueuedFunctionPath: string = '/CloudScript/RegisterQueuedFunction';
     public static unregisterFunctionPath: string = '/CloudScript/UnregisterFunction';

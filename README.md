@@ -20,6 +20,7 @@ The PlayFab Explorer extension provides a single PlayFab sign-in experience and 
 | `PlayFab: List Functions` | List Queue triggered CloudScript Azure Functions for a title.
 | `PlayFab: Register HTTP Function` | Register an HTTP Triggered CloudScript Azure Function for a title.
 | `PlayFab: Register Queued Function` | Register a Queue Triggered CloudScript Azure Function for a title.
+| `PlayFab: Register Event Hub Function` | Register an Event Hub Triggered CloudScript Azure Function for a title.
 | `PlayFab: Unregister Function` | Unregister a CloudScript Azure Function from a title.
 | `PlayFab: Enable local debugging` | Enable local debugging of CloudScript Azure Functions.
 | `PlayFab: Disable local debugging` | Disable local debugging of CloudScript Azure Functions.

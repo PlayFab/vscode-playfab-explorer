@@ -111,6 +111,11 @@
                 "category": "%playfab-explorer.commands.playfab%"
             },
             {
+                "command": "playfabExplorer.listEventHubFunctions",
+                "title": "%playfab-explorer.commands.listEventHubFunctions%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
                 "command": "playfabExplorer.listFunctions",
                 "title": "%playfab-explorer.commands.listFunctions%",
                 "category": "%playfab-explorer.commands.playfab%"
@@ -123,6 +128,11 @@
             {
                 "command": "playfabExplorer.listQueuedFunctions",
                 "title": "%playfab-explorer.commands.listQueuedFunctions%",
+                "category": "%playfab-explorer.commands.playfab%"
+            },
+            {
+                "command": "playfabExplorer.registerEventHubFunction",
+                "title": "%playfab-explorer.commands.registerEventHubFunction%",
                 "category": "%playfab-explorer.commands.playfab%"
             },
             {
@@ -231,9 +241,19 @@
                     "group": "3@5"
                 },
                 {
-                    "command": "playfabExplorer.unregisterFunction",
+                    "command": "playfabExplorer.listEventHubFunctions",
                     "when": "view == playfabExplorer && viewItem == title",
                     "group": "3@6"
+                },
+                {
+                    "command": "playfabExplorer.registerEventHubFunction",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "3@7"
+                },
+                {
+                    "command": "playfabExplorer.unregisterFunction",
+                    "when": "view == playfabExplorer && viewItem == title",
+                    "group": "3@8"
                 },
                 {
                     "command": "playfabExplorer.enableLocalDebugging",
