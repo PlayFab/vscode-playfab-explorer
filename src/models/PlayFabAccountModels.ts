@@ -23,6 +23,11 @@ export class LoginRequest {
     DeveloperToolProductVersion: string;
 }
 
+export class LoginWithAadRequest {
+    DeveloperToolProductName: string;
+    DeveloperToolProductVersion: string;
+}
+
 export class LoginResponse {
     DeveloperClientToken: string;
 }

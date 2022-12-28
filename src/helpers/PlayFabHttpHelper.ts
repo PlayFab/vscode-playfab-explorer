@@ -36,6 +36,10 @@ export interface IHttpClient {
         errorCallback: (response: ErrorResponse) => void): Promise<void>;
 }
 
+class AadToken {
+    aadToken: string;
+}
+
 class EntityToken {
     token: string;
 }
@@ -55,6 +59,16 @@ export class PlayFabHttpClient implements IHttpClient {
         responseCallback: (response: TResponse) => void,
         errorCallback: (response: ErrorResponse) => void): Promise<void> {
         await this.makeApiCallInternal(path, endpoint, request, null, responseCallback, errorCallback);
+    }
+
+    public async makeAadApiCall<TRequest, TResponse>(
+        path: string,
+        endpoint: string,
+        request: TRequest,
+        aadToken: string,
+        responseCallback: (response: TResponse) => void,
+        errorCallback: (response: ErrorResponse) => void): Promise<void> {
+        await this.makeApiCallInternal(path, endpoint, request, { aadToken: aadToken }, responseCallback, errorCallback);
     }
 
     public async makeEntityApiCall<TRequest, TResponse>(
@@ -81,7 +95,7 @@ export class PlayFabHttpClient implements IHttpClient {
         path: string,
         endpoint: string,
         request: TRequest,
-        keyOrToken: EntityToken | TitleSecret,
+        keyOrToken: AadToken | EntityToken | TitleSecret,
         responseCallback: (response: TResponse) => void,
         errorCallback: (response: ErrorResponse) => void): Promise<void> {
         let url: string = endpoint + path;
@@ -96,6 +110,9 @@ export class PlayFabHttpClient implements IHttpClient {
         if (keyOrToken != null && keyOrToken != undefined) {
             if ((<TitleSecret>keyOrToken).secret) {
                 headers['X-SecretKey'] = (<TitleSecret>keyOrToken).secret;
+            }
+            else if ((<AadToken>keyOrToken).aadToken) {
+                headers['Authorization'] = "Bearer " + (<AadToken>keyOrToken).aadToken;
             }
             else if ((<EntityToken>keyOrToken).token) {
                 headers['X-EntityToken'] = (<EntityToken>keyOrToken).token;

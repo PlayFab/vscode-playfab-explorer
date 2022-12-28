@@ -36,6 +36,7 @@ export class PlayFabUriHelpers {
 
     public static createAccountPath: string = '/DeveloperTools/User/RegisterAccount';
     public static loginPath: string = '/DeveloperTools/User/Login';
+    public static loginWithAadPath: string = '/DeveloperTools/User/LoginWithAAD';
     public static logoutPath: string = '/DeveloperTools/User/Logout';
 
     public static getEntityTokenPath: string = '/Authentication/GetEntityToken';
