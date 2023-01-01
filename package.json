@@ -315,14 +315,14 @@
         "@types/node": "^8.10.59",
         "@types/vscode": "^1.36.0",
         "mocha": "^9.2.2",
-        "ts-loader": "^6.2.1",
+        "ts-loader": "^9.4.2",
         "tslint": "^5.20.1",
         "typemoq": "^2.1.0",
         "typescript": "^2.6.1",
         "underscore": "^1.13.1",
         "vscode-test": "^1.4.0",
         "webpack": "^5.39.1",
-        "webpack-cli": "^3.3.12"
+        "webpack-cli": "^5.0.1"
     },
     "dependencies": {
         "typed-rest-client": "^1.8.4",
