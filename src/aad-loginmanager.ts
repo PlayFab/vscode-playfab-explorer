@@ -5,7 +5,8 @@
 
 import { aadCachePlugin } from './aad-cacheplugin';
 import {
-    AccountInfo, AuthenticationResult, CryptoProvider, LogLevel, PublicClientApplication, SilentFlowRequest
+//    AccountInfo, AuthenticationResult, CryptoProvider, LogLevel, PublicClientApplication, SilentFlowRequest
+    AccountInfo, AuthenticationResult, CryptoProvider, LogLevel, PublicClientApplication
 } from '@azure/msal-node';
 import { env, Uri } from 'vscode'
 
@@ -14,9 +15,9 @@ export class AadLoginManager {
     private static AAD_SIGNIN_URL: string = "https://login.microsoftonline.com/";
     private static ED_EX_AAD_SIGNIN_CLIENTID: string = "2d99511e-13ec-4b59-99c0-9ae8754f84aa";
     private static ED_EX_AAD_SCOPE: string = "448adbda-b8d8-4f33-a1b0-ac58cf44d4c1";
-    private static ED_EX_AAD_SCOPES: string = this.ED_EX_AAD_SCOPE + "/plugin";
+    private static ED_EX_AAD_SCOPES: string = AadLoginManager.ED_EX_AAD_SCOPE + "/plugin";
     private static ED_EX_AAD_SIGNNIN_TENANT: string = "common";
-    private static ED_EX_AAD_SIGNIN_AUTHORITY: string = this.AAD_SIGNIN_URL + this.ED_EX_AAD_SIGNNIN_TENANT;
+    private static ED_EX_AAD_SIGNIN_AUTHORITY: string = AadLoginManager.AAD_SIGNIN_URL + AadLoginManager.ED_EX_AAD_SIGNNIN_TENANT;
 
     private _account: AccountInfo;
     private _clientApp: PublicClientApplication;
@@ -52,11 +53,13 @@ export class AadLoginManager {
     }
 
     public getUserId(): string {
-        return this._account?.username;
+        //return this._account?.username;
+        return "";
     }
 
     private async getTokenSilent(): Promise<AuthenticationResult> {
-        const tokenRequest: SilentFlowRequest = {
+        //const tokenRequest: SilentFlowRequest = {
+        const tokenRequest = {
             account: this._account,
             forceRefresh: false,
             scopes: [AadLoginManager.ED_EX_AAD_SCOPES],

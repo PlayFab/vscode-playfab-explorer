@@ -50,13 +50,6 @@ export class PlayFabLoginManager {
     private _aadLoginManager: AadLoginManager;
     private _playfabConfig = workspace.getConfiguration('playfab');
 
-    private static AAD_SIGNIN_URL: string = "https://login.microsoftonline.com/";
-    private static ED_EX_AAD_SIGNIN_CLIENTID: string = "2d99511e-13ec-4b59-99c0-9ae8754f84aa";
-    private static ED_EX_AAD_SCOPE: string = "448adbda-b8d8-4f33-a1b0-ac58cf44d4c1";
-    private static ED_EX_AAD_SCOPES: string = this.ED_EX_AAD_SCOPE + "/plugin";
-    private static ED_EX_AAD_SIGNNIN_TENANT: string = "common";
-    private static ED_EX_AAD_SIGNIN_AUTHORITY: string = this.AAD_SIGNIN_URL + this.ED_EX_AAD_SIGNNIN_TENANT;
-
     constructor(
         private context: ExtensionContext,
         httpClient: IHttpClient = new PlayFabHttpClient(),
