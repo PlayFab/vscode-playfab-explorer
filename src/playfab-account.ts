@@ -8,6 +8,7 @@ import { commands, ExtensionContext, window, EventEmitter, workspace } from 'vsc
 import { loadMessageBundle } from 'vscode-nls';
 
 import { IPlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
+import { aadCachePlugin } from './aad-cacheplugin';
 
 // Helper models
 import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper';
@@ -20,6 +21,7 @@ import {
     LoginWithAadRequest, LogoutRequest, LogoutResponse
 } from './models/PlayFabAccountModels';
 import { ErrorResponse } from './models/PlayFabHttpModels';
+import { AadLoginManager } from './aad-loginmanager';
 
 const localize = loadMessageBundle();
 
@@ -46,6 +48,7 @@ export class PlayFabLoginManager {
 
     private _httpCli: IHttpClient;
     private _inputGatherer: IPlayFabLoginInputGatherer;
+    private _aadLoginManager: AadLoginManager;
     private _playfabConfig = workspace.getConfiguration('playfab');
 
     private static AAD_SIGNIN_URL: string = "https://login.microsoftonline.com/";
@@ -53,6 +56,7 @@ export class PlayFabLoginManager {
     private static ED_EX_AAD_SCOPE: string = "448adbda-b8d8-4f33-a1b0-ac58cf44d4c1";
     private static ED_EX_AAD_SCOPES: string = this.ED_EX_AAD_SCOPE + "/plugin";
     private static ED_EX_AAD_SIGNNIN_TENANT: string = "common";
+    private static ED_EX_AAD_SIGNIN_AUTHORITY: string = this.AAD_SIGNIN_URL + this.ED_EX_AAD_SIGNNIN_TENANT;
 
     constructor(
         private context: ExtensionContext,
@@ -152,9 +156,10 @@ export class PlayFabLoginManager {
         this.beginLoggingIn();
 
         let token: string = await this.getAadToken();
+        let userId: string = this.getAadUserId();
 
         let request: LoginWithAadRequest = {
-            DeveloperToolProductName:  ExtensionInfo.getExtensionName(),
+            DeveloperToolProductName: ExtensionInfo.getExtensionName(),
             DeveloperToolProductVersion: ExtensionInfo.getExtensionVersion()
         };
 
@@ -167,9 +172,9 @@ export class PlayFabLoginManager {
                     credentials: {
                         token: response.DeveloperClientToken
                     },
-                    userId: "AAD" // TODO: Expose the user e-mail from getAadToken
+                    userId: userId
                 });
-                this.updateLoginId("AAD");
+                this.updateLoginId(userId);
             },
             (response: ErrorResponse): void => {
                 this.clearSessions();
@@ -212,8 +217,7 @@ export class PlayFabLoginManager {
         waitForLogin: () => this.waitForLogin(),
         sessions: [],
         onSessionsChanged: this.onSessionsChanged.event,
-        getToken: () => this.getToken(),
-        getAadToken: () => this.getAadToken()
+        getToken: () => this.getToken()
     }
 
     private beginLoggingIn(): void {
@@ -235,10 +239,11 @@ export class PlayFabLoginManager {
     }
 
     private async getAadToken(): Promise<string> {
-        // TODO: Use MSAL to login a user and get a bearer token to use in an HTTP header.
-        let token: string = "";
+        return await this._aadLoginManager.getToken();
+    }
 
-        return token;
+    private getAadUserId(): string {
+        return this._aadLoginManager.getUserId();
     }
 
     private async getUserInputForCreateAccount(): Promise<CreateAccountRequest> {
