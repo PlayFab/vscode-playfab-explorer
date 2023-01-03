@@ -21,9 +21,10 @@
         "PlayFab"
     ],
     "activationEvents": [
-        "onCommand:playfab-account.login",
-        "onCommand:playfab-account.logout",
         "onCommand:playfab-account.createAccount",
+        "onCommand:playfab-account.login",
+        "onCommand:playfab-account.loginWithAad",
+        "onCommand:playfab-account.logout",
         "onView:playfabExplorer"
     ],
     "main": "./dist/extension",
@@ -63,6 +64,11 @@
             {
                 "command": "playfab-account.login",
                 "title": "%playfab-account.commands.login%",
+                "category": "%playfab-account.commands.playfab%"
+            },
+            {
+                "command": "playfab-account.loginWithAad",
+                "title": "%playfab-account.commands.loginWithAad%",
                 "category": "%playfab-account.commands.playfab%"
             },
             {

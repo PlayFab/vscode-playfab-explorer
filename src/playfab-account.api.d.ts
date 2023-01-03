@@ -14,7 +14,6 @@ export interface IPlayFabAccount {
     readonly sessions: IPlayFabSession[];
     readonly onSessionsChanged: Event<void>;
     readonly getToken: () => string;
-    readonly getAadToken: () => string;
 }
 
 export interface IPlayFabSession {

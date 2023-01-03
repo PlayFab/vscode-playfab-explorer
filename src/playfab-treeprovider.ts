@@ -101,6 +101,13 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<ITreeNode> {
             data: { command: "playfab-account.login", title: signInTitle }
         };
 
+        const signInWithAadTitle: string = localize("playfab-account.commands.loginWithAadTitle", "Sign In to PlayFab with AAD...");
+        const signInWithAadEntry: ITreeNode = {
+            name: "loginWithAad",
+            type: "Command",
+            data: { command: "playfab-account.loginWithAad", title: signInWithAadTitle }
+        };
+
         const createAccountTitle: string = localize("playfab-account.commands.createAccountTitle", "Create a PlayFab account...");
         const createAccountEntry: ITreeNode = {
             name: "createAccount",
@@ -109,7 +116,7 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<ITreeNode> {
         };
 
         return [
-            signInEntry, createAccountEntry
+            signInEntry, signInWithAadEntry, createAccountEntry
         ];
     }
 

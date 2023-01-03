@@ -8,7 +8,6 @@ import { commands, ExtensionContext, window, EventEmitter, workspace } from 'vsc
 import { loadMessageBundle } from 'vscode-nls';
 
 import { IPlayFabAccount, PlayFabLoginStatus } from './playfab-account.api';
-import { aadCachePlugin } from './aad-cacheplugin';
 
 // Helper models
 import { IHttpClient, PlayFabHttpClient } from './helpers/PlayFabHttpHelper';
