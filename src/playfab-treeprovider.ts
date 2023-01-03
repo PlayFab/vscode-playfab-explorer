@@ -207,7 +207,7 @@ export class PlayFabStudioTreeProvider implements TreeDataProvider<ITreeNode> {
 
     private async refreshStudioData(): Promise<void> {
         await this.updateStudioData();
-        this._onDidChangeTreeData.fire();
+        this._onDidChangeTreeData.fire(null);
     }
 
     private showError(response: ErrorResponse): void {
