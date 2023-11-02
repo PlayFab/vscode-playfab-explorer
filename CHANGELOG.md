@@ -1,4 +1,5 @@
-## 0.1.21 (2023-11-02)
+## 0.1.22 (2023-11-02)
+* __Bugfix__: [Update Marketplace URLs in README.md](https://github.com/PlayFab/vscode-playfab-explorer/pull/102)
 * __Security__: [Address security vulnerabilities](https://github.com/PlayFab/vscode-playfab-explorer/pull/100)
 * __Security__: [Bump webpack from 5.75.0 to 5.76.0](https://github.com/PlayFab/vscode-playfab-explorer/pull/99)
 * __Security__: [Update various pacakge versions](https://github.com/PlayFab/vscode-playfab-explorer/pull/98)
