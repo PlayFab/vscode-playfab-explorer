@@ -1,8 +1,9 @@
+.github/
+.gitignore
 .vscode
-node_modules
+node_modules/
 out/
 resources/CommandTreeView.png
 resources/SignIn.png
 src/
 tsconfig.json
-webpack.config.js
